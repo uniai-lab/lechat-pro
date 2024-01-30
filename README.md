@@ -1,6 +1,6 @@
 # LeChat
 
-使用 Vue3 + Typescript + Tailwind CSS 框架，基于uniai构建的多模型对话平台，耦合多种登陆方式与市面上主流的模型接口。
+使用 Vue3 + Typescript + Tailwind CSS 框架，基于UniAI构建的多模型对话平台。对接了国内外主流的大模型，与UniAI后端框架深度集成，支持连续对话。
 >前往体验[LeChat](https://lechat.cas-ll.cn/#/)。
 
 
@@ -9,7 +9,7 @@
 
 ## 快速开始
 
->注意：本项目需要基于uniai后端框架进行，点击这里前往 [uniai官网](https://www.uniai.us/)。
+>注意：本项目需要基于UniAI后端框架进行，点击这里前往 [uniai官网](https://www.uniai.us/)。
 
 在开始之前，请确保您已正确安装 Node.js 运行时环境。如果您还没有安装 Node.js，请 [点击这里下载](https://nodejs.org/zh-cn/)。
 
