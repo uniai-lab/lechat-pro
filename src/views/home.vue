@@ -1,8 +1,8 @@
 <template >
   <div class="flex flex-col h-screen bg-gray-000 dark bg " @click="closeProfile()">
     <!-- <div  v-if="visible" style="width: 100vw;position: absolute;height: 100vh;z-index: 999;"> -->
-    <login-modal @custom-event="handleCustomEvent" style="position: absolute;height: 100vh;z-index: 999;"
-      :visible="visible" @hideModal="clickConfig">
+    <login-modal @custom-event="handleCustomEvent" style="position: absolute;height: 100vh;z-index: 999;" v-if="visible"
+      @hideModal="clickConfig">
     </login-modal>
     <a-float-button v-if="!ifphone" @click="cleanchat" type="default" style="margin-bottom:60px;margin-right: 0px;">
 
@@ -35,6 +35,30 @@
         </a-icon>
       </template>
     </a-float-button>
+
+    <!-- 密码 -->
+
+    <div>
+
+      <a-modal v-model:open="pwvisible" :footer="null" destroyOnClose="true" title="修改密码" @ok="handlepwOk">
+
+        <a-form style="margin-top: 32px;" name="custom-validation" ref="formRef" :model="formStatepw" :rules="pwrules"
+          v-bind="layout" @finish="handleFinish" @finishFailed="handleFinishFailed">
+          <a-form-item has-feedback label="新的密码" name="pass">
+            <a-input-password v-model:value="formStatepw.pass" type="password" autocomplete="off" />
+          </a-form-item>
+          <a-form-item has-feedback label="重复密码" name="checkPass">
+            <a-input-password v-model:value="formStatepw.checkPass" type="password" autocomplete="off" />
+          </a-form-item>
+
+        </a-form>
+        <div style="width: 100%;" class="flex justify-center mt-7 mb-9">
+          <div @click="sevepw()"
+            class="flex justify-center  py-2    text-gray-100 bg-gray-900 hover:bg-gray-700 hover:text-gray-100   rounded-md"
+            style="width: 120px;">确定</div>
+        </div>
+      </a-modal>
+    </div>
     <!-- </div> -->
     <!-- <div v-if="ifphone" @click="cleanchat"
           class="flex justify-center items-center ml-2 px-2 rounded-md flex-row text-gray-100 bg-gray-900  hover:bg-gray-600 hover:text-gray-100 ">
@@ -57,6 +81,70 @@
         </a-form-item>
       </a-form>
     </a-modal>
+
+
+    <a-drawer title="编辑个人资料" :closable="true" :width="320" :visible="msgvisible" :body-style="{ paddingBottom: '80px' }"
+      @close="onmsgClose">
+      <a-form :model="form" :rules="rules" layout="vertical">
+
+        <a-row :gutter="16">
+          <a-col :span="24">
+            <a-form-item label="头像" name="avatar">
+              <a-upload v-model:file-list="fileList" name="avatar" list-type="picture-card" class="avatar-uploader"
+                :show-upload-list="false" :customRequest="noup" :before-upload="beforeUpload" @change="handleChange">
+                <img v-if="imageUrl" :src="imageUrl" alt="avatar" />
+                <div v-else>
+                  <loading-outlined v-if="loading"></loading-outlined>
+                  <plus-outlined v-else></plus-outlined>
+                  <div class="ant-upload-text">上传</div>
+                </div>
+              </a-upload>
+            </a-form-item>
+          </a-col>
+
+        </a-row>
+        <a-row :gutter="16">
+          <a-col :span="24">
+            <a-form-item label="用户名" name="name">
+              <a-input v-model:value="form.name" placeholder="请输入用户名" />
+            </a-form-item>
+          </a-col>
+
+        </a-row>
+        <a-row :gutter="16">
+          <a-col :span="24">
+            <a-form-item label="手机号" name="phone">
+              <div style="display: flex;flex-direction: row;">
+                <a-input style="width: 66%;" :disabled="true" v-model:value="form.phone" placeholder="暂未绑定" />
+                <div v-if="form.phone == ''"
+                  class="ml-auto px-3 py-2  cursor-pointer text-gray-100 bg-gray-900 hover:bg-gray-700 hover:text-gray-100   rounded-md"
+                  @click="bindphone()">
+                  <div>前往绑定</div>
+                </div>
+              </div>
+            </a-form-item>
+
+          </a-col>
+
+        </a-row>
+        <!-- <a-row :gutter="16">
+          <a-col :span="24">
+            <a-form-item label="Description" name="description">
+              <a-textarea v-model:value="form.description" :rows="4" placeholder="please enter url description" />
+            </a-form-item>
+          </a-col>
+        </a-row> -->
+      </a-form>
+
+      <div style="width: 100%;" class="flex justify-center mt-20">
+        <div @click="sevemsg()"
+          class="flex justify-center  py-2    text-gray-100 bg-gray-900 hover:bg-gray-700 hover:text-gray-100   rounded-md"
+          style="width: 120px;">保存</div>
+      </div>
+    </a-drawer>
+
+
+
     <div
       class="flex flex-row flex-nowrap fixed w-full items-baseline top-0 px-6 py-4 bg-gray-950  justify-between items-center"
       style="align-items: center; height: 60px;z-index: 999;">
@@ -84,38 +172,40 @@
           userinfo.name }}</div>
       </div>
 
-      <div v-if="iflogin&&ifphone" @click.stop="showchargeModal" style="line-height: 0.7rem;"
+      <div v-if="iflogin && ifphone" @click.stop="showchargeModal" style="line-height: 0.7rem;"
         class="px-3 py-2 ml-1 text-sm cursor-pointer text-gray-900 bg-white hover:bg-gray-100 hover:text-gray-900 rounded-md gold-button">
         充值
       </div>
-      <div v-if="iflogin&&!ifphone" @click.stop="showchargeModal" 
-      class="flex justify-center items-center ml-1  rounded-md flex-row text-gray-100 bg-gray-900  hover:bg-gray-600 hover:text-gray-100 ">
+      <div v-if="iflogin && !ifphone" @click.stop="showchargeModal"
+        class="flex justify-center items-center ml-1  rounded-md flex-row text-gray-100 bg-gray-900  hover:bg-gray-600 hover:text-gray-100 ">
 
-      <WalletOutlined style="font-size: 28px;" />
+        <WalletOutlined style="font-size: 22px;" />
       </div>
-     
+
 
     </div>
     <!-- 充值弹框 -->
 
 
     <!-- <a-button type="primary" @click="showchargeModal">Open Modal</a-button> -->
-    <a-modal :footer="null" v-model:open="chargeopen" title="充值(暂未开放)" @ok="handchargeleOk">
+    <a-modal :footer="null" v-model:open="chargeopen" title="充值" @ok="handchargeleOk">
       <!-- <p>Some contents...</p>
       <p>Some contents...</p>
       <p>Some contents...</p> -->
       <div style=" 
        padding: 20px ;">
         <a-row :gutter="[8, 8]" :wrap="true">
-
-          <a-col v-for="item in shoplist" :xs="24" :sm="8">
-            <a-card style=" 
-            " hoverable  :title="item.title" size="small" :bordered="true">
+        <div>当前暂未正式开通充值服务，如有需要请联系 AI乐聊 微信小程序客服。</div>
+          <!-- <a-col v-for="item in shoplist" @click="choseItem(item)" :xs="24" :sm="8">
+            <a-card style=" height: 160px;
+            " hoverable :title="item.title" size="small" :bordered="true">
               <div v-for="role in item.rolelist">{{ role }}</div>
-              <template #extra><div style="color: rgb(237, 116, 17);" >{{ item.price }}</div></template>
+              <template #extra>
+                <div style="color: rgb(237, 116, 17);">{{ item.price }}</div>
+              </template>
 
             </a-card>
-          </a-col>
+          </a-col> -->
 
         </a-row>
       </div>
@@ -135,16 +225,17 @@
       </div> -->
       <a-card hoverable style="width: 300px">
         <template #cover>
-          <img alt="example" src="https://gw.alipayobjects.com/zos/rmsportal/mqaQswcyDLcXyDKnZfES.png" />
+          <img alt="example" src="https://openai-1259183477.cos.ap-shanghai.myqcloud.com/WechatIMG925.jpg" />
         </template>
         <template #actions>
           <!-- <setting-outlined  key="setting"   /> -->
-          <KeyOutlined />
-          <edit-outlined key="edit" />
+          <!-- <KeyOutlined @click.stop="showpwModal()" /> -->
+          <!-- <edit-outlined @click="changeuserinfo()" /> -->
           <LogoutOutlined @click.stop="logout()" />
 
         </template>
         <a-card-meta :title="userinfo.name" :description="'剩余次数:' + userinfo.chance.totalChatChance">
+
           <template #avatar>
             <a-avatar :src="userinfo.avatar" />
           </template>
@@ -158,7 +249,9 @@
     <p>Some contents...</p>
     <p>Some contents...</p> -->
       <template #footer>
-        <div class="flex flex-row content-center justify-center items-center text-gray-500 ">中科苏州智能计算技术研究院</div>
+        <div class="flex flex-row content-center justify-center items-center text-gray-500 ">
+          <a href="http://www.uniai.us">©️中科苏州智能计算技术研究院</a>
+        </div>
       </template>
     </a-drawer>
     <div class="flex-1 mx-2 pb-2  text-gray-100  content-center "
@@ -176,12 +269,47 @@
           <circle cx="40" cy="40" r="25" style="stroke:url(#gradient); stroke-width: 5px;" class="progress"></circle>
         </svg>
       </div>
-      <div class="group flex flex-col  px-4 py-3  text-gray-900 hover:bg-gray-100 rounded-lg" v-for="item of achat">
+      <div class="group  flex flex-col mt-2 px-4 py-3  text-gray-900 hover:bg-gray-100 rounded-lg"
+        v-for="(item, index) of achat">
 
 
-        <div class="flex justify-between items-center mb-2 " style="">
-          <div class="font-bold ">{{ item.role == 'assistant' ? `LeChat (${item.model}/${item.subModel}) ` : 'Me' }}：
+        <div  class="flex flex-row justify-between items-center   " style="">
+
+
+          <div v-if="item.role != 'assistant'" class="flex flex-row justify-between items-center  ">
+            <div 
+              style="height: 44px; width: 44px;border-radius: 50%;font-size: 18px; margin-left:12px ;"
+            :class="index == achat.length - 2 ? 'flex flex-row justify-center items-center   bg-gray-900 text-gray-100  ' : 'flex flex-row justify-center items-center   bg-gray-600 text-gray-100'"
+             
+              >Me</div>
+            <!-- <div class="font-bold " style="margin-left:12px ;">{{ `${item.role}` }}
+            </div> -->
           </div>
+          <div v-if="item.role == 'assistant'&&!sending" class="flex flex-row justify-between items-center  "> <img
+            :style="index == achat.length - 1 ? 'height: 64px;   filter: grayscale(0.9) brightness(0.6) contrast(900%)  ' : 'height: 64px;   filter: grayscale(0.9) brightness(0.8) contrast(300%) '"
+            
+              :src="index == achat.length - 1 ? 'https://openai-1259183477.cos.ap-shanghai.myqcloud.com/after.png' : 'https://openai-1259183477.cos.ap-shanghai.myqcloud.com/old.png'" />
+               <div  class="font-bold mr-1 "> LeChat</div>
+              <img :src="srcMap[item.model]"  style="height: 16px;">
+            
+              <div class=" ml-1 ">{{ ` ${item.subModel}` }}
+
+            </div>
+          </div>
+
+          <div v-if="item.role == 'assistant'&&sending" class="flex flex-row justify-between items-center  "> <img
+            :style="index == achat.length - 1 ? 'height: 64px;   filter: grayscale(0.9) brightness(0.9) contrast(900%)  ' : 'height: 64px;   filter: grayscale(0.9) brightness(0.9) contrast(300%) '"
+
+            
+            :src="index == achat.length - 1 ? 'https://openai-1259183477.cos.ap-shanghai.myqcloud.com/loading.png' : 'https://openai-1259183477.cos.ap-shanghai.myqcloud.com/old.png'" />
+            
+            <div  class="font-bold mr-1 "> LeChat</div>
+              <img :src="srcMap[item.model]"  style="height: 16px;">
+            
+              <div class=" ml-1 ">{{ ` ${item.subModel}` }}
+            </div>
+          </div>
+
           <Copy class="invisible group-hover:visible" :content="item.content" />
         </div>
         <div>
@@ -189,6 +317,10 @@
             style="padding: 0px;background-color: rgba(0,0,0,0);" />
 
           <Loding v-else />
+
+          <!-- <component :is="component"></component> -->
+
+          <!-- <VueComposition :tree="item.content"></VueComposition> -->
 
 
         </div>
@@ -278,7 +410,7 @@
 
 <script setup lang="ts">
 import type { ChatMessage } from "@/types";
-import { ref, watch, nextTick, onMounted, onUpdated } from "vue";
+import { ref, watch, watchEffect, nextTick, computed, onMounted, onUpdated } from "vue";
 import { EventSourceParserStream } from 'eventsource-parser/stream'
 import { chat } from "@/libs/gpt";
 import cryptoJS from "crypto-js";
@@ -294,16 +426,217 @@ import { MessageApi } from 'vue3-dxui'
 import { Cascader } from 'ant-design-vue';
 import { Space } from 'ant-design-vue';
 
-import { LoadingOutlined, SendOutlined, WalletOutlined,KeyOutlined, GlobalOutlined, SettingOutlined, EditOutlined, EllipsisOutlined, LogoutOutlined, RobotOutlined, ClearOutlined, MenuUnfoldOutlined, SmileOutlined } from '@ant-design/icons-vue';
+import { LoadingOutlined, SendOutlined, WalletOutlined, KeyOutlined, GlobalOutlined, SettingOutlined, EditOutlined, EllipsisOutlined, LogoutOutlined, RobotOutlined, ClearOutlined, MenuUnfoldOutlined, SmileOutlined } from '@ant-design/icons-vue';
 import { DeleteOutlined } from '@ant-design/icons-vue';
 import { Modal } from 'ant-design-vue';
 import type { DrawerProps } from 'ant-design-vue';
-
+import { message } from 'ant-design-vue';
 import { reactive, toRaw } from 'vue';
 import type { UnwrapRef } from 'vue';
-
+import { PlusOutlined } from '@ant-design/icons-vue';
 import { MdPreview } from 'md-editor-v3'
 import 'md-editor-v3/lib/preview.css'
+import type { RuleObject, ValidateErrorEntity } from 'ant-design-vue/es/form/interface';
+import VueComposition from '../components/vue-composition.vue';
+import VueLegacy from '../components/vue-legacy.vue';
+
+
+var srcMap = {
+            'openai': 'https://openai-1259183477.cos.ap-shanghai.myqcloud.com/Frame%201019.png',
+            'iflytek': 'https://openai-1259183477.cos.ap-shanghai.myqcloud.com/Frame%201021.png',
+            'baidu': 'https://openai-1259183477.cos.ap-shanghai.myqcloud.com/baidu.png',
+            'glm': 'https://openai-1259183477.cos.ap-shanghai.myqcloud.com/Frame%201022.png',
+            'google': 'https://openai-1259183477.cos.ap-shanghai.myqcloud.com/google.png',
+            
+            
+        };
+interface FormStatepw {
+  pass: string;
+  checkPass: string;
+  age: number | undefined;
+}
+const pwvalidateStatus = ref('false');
+const formRef = ref();
+const formStatepw: UnwrapRef<FormStatepw> = reactive({
+  pass: '',
+  checkPass: '',
+  age: undefined,
+});
+let checkAge = async (rule: RuleObject, value: number) => {
+  if (!value) {
+    return Promise.reject('Please input the age');
+  }
+  if (!Number.isInteger(value)) {
+    return Promise.reject('Please input digits');
+  } else {
+    if (value < 18) {
+      return Promise.reject('Age must be greater than 18');
+    } else {
+      return Promise.resolve();
+    }
+  }
+};
+let validatePass = async (rule: RuleObject, value: string) => {
+  if (value === '') {
+    return Promise.reject('请输入新的密码');
+  } else {
+    if (formStatepw.checkPass !== '') {
+      formRef.value.validateFields('checkPass');
+    }
+    return Promise.resolve();
+  }
+};
+let validatePass2 = async (rule: RuleObject, value: string) => {
+  if (value === '') {
+    return Promise.reject('请再次输入密码');
+  } else if (value !== formStatepw.pass) {
+    return Promise.reject("两次输入的密码不一致");
+  } else {
+    return Promise.resolve();
+  }
+};
+
+const pwrules = {
+  pass: [
+    {
+      required: true,
+      validator: (rule, value) => {
+        return new Promise((resolve, reject) => {
+          if (!/^(?=.*[a-zA-Z])(?=.*\d).{8,}$/.test(value)) {
+            reject(new Error('必须包含字母和数字，不少于八位'));
+          } else {
+            resolve();
+          }
+        });
+      },
+      trigger: 'change'
+    }
+  ],
+  checkPass: [{ validator: validatePass2, trigger: 'change' }],
+
+};
+const layout = {
+  labelCol: { span: 6 },
+  wrapperCol: { span: 12 },
+};
+const handleFinish = (values: FormState) => {
+  // console.log(values, formState);
+};
+const handleFinishFailed = (errors: ValidateErrorEntity<FormState>) => {
+  // console.log(errors);
+};
+const resetForm = () => {
+  formRef.value.resetFields();
+};
+
+
+
+interface FileItem {
+  uid: string;
+  name?: string;
+  status?: string;
+  response?: string;
+  url?: string;
+  type?: string;
+  size: number;
+  originFileObj: any;
+}
+
+interface FileInfo {
+  file: FileItem;
+  fileList: FileItem[];
+}
+const form = reactive({
+  name: '',
+  phone: ''
+
+});
+// 修改密码
+const pwvisible = ref<boolean>(false);
+
+const showpwModal = () => {
+  pwvisible.value = true;
+};
+
+const handlepwOk = (e: MouseEvent) => {
+  // console.log(e);
+  pwvisible.value = false;
+};
+const sevepw = () => {
+
+  // console.log(formStatepw.checkPass);
+  // console.log(formStatepw.pass);
+
+  // console.log(pwvalidateStatus.value);
+
+}
+
+
+//头像上传
+
+function getBase64(img: Blob, callback: (base64Url: string) => void) {
+  const reader = new FileReader();
+  reader.addEventListener('load', () => callback(reader.result as string));
+  reader.readAsDataURL(img);
+}
+
+
+const fileList = ref([]);
+const loading = ref<boolean>(false);
+const imageUrl = ref<string>('');
+
+const handleChange = (info: FileInfo) => {
+  if (info.file.status === 'uploading') {
+    loading.value = true;
+    getBase64(info.file.originFileObj, (base64Url: string) => {
+      imageUrl.value = base64Url;
+      loading.value = false;
+    });
+    return;
+  }
+  if (info.file.status === 'done') {
+    // Get this url from response in real world.
+    getBase64(info.file.originFileObj, (base64Url: string) => {
+      imageUrl.value = base64Url;
+      loading.value = false;
+    });
+  }
+
+};
+const noup = () => {
+
+}
+const beforeUpload = (file: FileItem) => {
+  const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
+  if (!isJpgOrPng) {
+    message.error('You can only upload JPG file!');
+  }
+  const isLt2M = file.size / 1024 / 1024 < 2;
+  if (!isLt2M) {
+    message.error('Image must smaller than 2MB!');
+  }
+  return isJpgOrPng && isLt2M;
+};
+
+
+const rules = {
+  name: [{ required: false, message: 'Please enter user name' }],
+
+  // description: [{ required: false, message: 'Please enter url description' }],
+};
+
+const msgvisible = ref<boolean>(false);
+
+const showmsgDrawer = () => {
+  msgvisible.value = true;
+};
+
+const onmsgClose = () => {
+  msgvisible.value = false;
+};
+
+
+
 const placement = ref<DrawerProps['placement']>('left');
 const open = ref<boolean>(false);
 
@@ -338,7 +671,7 @@ const dialogId = ref(0);
 // 声明一个showRetry变量，用于存储是否显示重试按钮的布尔值
 const showRetry = ref(false);
 // 声明一个userinfo变量，用于存储用户信息
-const userinfo = ref({});
+const userinfo = ref({ chance: { totalChatChance: 0 } });
 // 声明一个upSending变量，用于存储是否正在上传消息的布尔值
 const upSending = ref(false);
 // 声明一个value变量，用于存储输入框的值
@@ -374,8 +707,8 @@ const formState: UnwrapRef<FormState> = reactive({
   desc: '',
 });
 const onSubmit = () => {
-  console.log('submit!', toRaw(formState));
-  console.log(toRaw(formState).desc);
+  // console.log('submit!', toRaw(formState));
+  // console.log(toRaw(formState).desc);
   // 设置缓存
   localStorage.setItem('role', toRaw(formState).name);
   localStorage.setItem('prompt', toRaw(formState).desc);
@@ -407,39 +740,51 @@ interface Option {
 const shoplist = ref(
   [
     {
+      id: 1,
+      price: '1元',
       title: '首充一元',
       rolelist: [
         '支持科大讯飞模型', '国内模型次数可用'
       ],
-      price:'1元'
+
 
     },
-     {
+    {
+      id: 2,
+      price: '1元',
       title: '十元充值',
       rolelist: [
-      '支持科大讯飞模型', '国内模型次数可用'
+        '支持科大讯飞模型', '国内模型次数可用'
       ]
     }, {
+      id: 3,
+      price: '1元',
       title: '五十元充值',
       rolelist: [
-      '支持科大讯飞模型', '国内模型次数可用','gpt4模型可用'
+        '支持科大讯飞模型', '国内模型次数可用', 'gpt4模型可用'
       ]
-    },{
+    }, {
+      id: 4,
+      price: '1元',
       title: '月度会员',
       rolelist: [
-      '支持科大讯飞模型', '国内模型次数可用','gpt4模型可用'
+        '支持科大讯飞模型', '国内模型次数可用', 'gpt4模型可用'
 
       ]
     }, {
+      id: 5,
+      price: '1元',
       title: '季度会员',
       rolelist: [
-      '支持科大讯飞模型', '国内模型次数可用','gpt4模型可用'
+        '支持科大讯飞模型', '国内模型次数可用', 'gpt4模型可用'
 
       ]
     }, {
+      id: 6,
+      price: '1元',
       title: '年度会员',
       rolelist: [
-      '支持科大讯飞模型', '国内模型次数可用','gpt3.5模型可用','gpt4模型可用'
+        '支持科大讯飞模型', '国内模型次数可用', 'gpt3.5模型可用', 'gpt4模型可用'
 
       ]
     }
@@ -506,11 +851,33 @@ const showchargeModal = () => {
   chargeopen.value = true;
 };
 const handchargeleOk = e => {
-  console.log(e);
+  // console.log(e);
   chargeopen.value = false;
 };
+const type = ref('composition');
+const component = computed(
+  () =>
+  ({
+    composition: VueComposition,
+    legacy: VueLegacy,
+  }[type.value])
+);
 onMounted(async () => {
-
+  console.log(`
+ ██╗      ████████╗  ███████╗██╗  ██╗ █████╗████████╗
+ ██║      ██╔═════╝  ██╔════╝██║  ██║██╔══██╗  ██╔══╝
+ ██║      ████████╗  ██║     ███████║███████║  ██║
+ ██║      ██╔═════╝  ██║     ██╔══██║██╔══██║  ██║
+ ████████╗████████╗  ███████╗██║  ██║██║  ██║  ██║
+ ╚═══════╝╚═══════╝  ╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝  ╚═╝
+`);
+  console.log(
+    "%cUni-AI  \n%cWelcome to join us\nwww.uniai.us\n%c© 2024 中科苏州智能计算技术研究院. All Rights Reserved.  \n\n%c ",
+    'font-family: "微软雅黑", sans-serif;font-size:50px;color: #2f3542;-webkit-text-fill-color: #2f3542;-webkit-text-stroke: #2f3542;text-shadow: 0px 0px 7px rgba(0, 0, 0, 0.3)',
+    "font-family: '微软雅黑';color: #9C27B0;font-size:  20px;",
+    "font-family: '微软雅黑';color: #9C27B0;font-size: 12px;",
+    "color: red;font-size: 14px;"
+  );
   //获取屏幕宽高
   const screenWidth = document.body.clientWidth;
   const screenHeight = document.body.clientHeight;
@@ -524,16 +891,26 @@ onMounted(async () => {
   if (localStorage.getItem("prompt")) {
     formState.desc = localStorage.getItem("prompt") as string
   }
-  if (getAPIKey()) {
-    switchConfigStatus();
+
+
+  const data = await http('config', {}, 'GET')
+  const res = await data.json()
+  if (res.status === 1) {
+    // console.log(res.data)
+    localStorage.setItem('config', JSON.stringify(res.data))
+
   }
+
   if (localStorage.getItem("token")) {
     iflogin.value = true;
+
+
     await getUserInfo()
     await init()
 
 
   } else {
+    iflogin.value = false;
     achat.value = [
       {
         avatar: "",
@@ -563,13 +940,7 @@ onMounted(async () => {
       }
     ]
   }
-  const data = await http('config', {}, 'GET')
-  const res = await data.json()
-  if (res.status === 1) {
-    console.log(res.data)
-    localStorage.setItem('config', JSON.stringify(res.data))
 
-  }
   chatListDom.value?.scrollTo({
     top: chatListDom.value.scrollHeight,
     behavior: 'smooth' // 可选，使滚动平滑进行
@@ -583,7 +954,7 @@ onMounted(async () => {
       if (chatListDom.value?.scrollTop === 0 && iflogin.value && clock == false) {
         // 到达顶部
 
-        console.log('滚动到顶部');
+        // console.log('滚动到顶部');
 
         refreshData();
       }
@@ -596,7 +967,7 @@ onMounted(async () => {
 });
 
 onUpdated(async () => {
-  console.log(ifusersend.value, iffirstloud.value)
+  // console.log(ifusersend.value, iffirstloud.value)
   if (ifusersend.value || iffirstloud.value) {
     chatListDom.value?.scrollTo({
       top: chatListDom.value.scrollHeight,
@@ -626,7 +997,7 @@ const onClose = () => {
 const modelOnChange = (value: string[]) => {
 
   commommodel.value = value
-  console.log(value)
+  // console.log(value)
 };
 var clock = false
 
@@ -639,12 +1010,16 @@ const refreshData = async () => {
   clock = true
 
   let data = await getListChat(nowList.chatId, 10)
-  MessageApi.open({
-    type: 'success',
-    duration: 3000,
-    content: '获取成功'
-  })
-  console.log(data);
+  // console.log(data);
+  if (data.length == 0) {
+    MessageApi.open({
+      type: 'error',
+      duration: 3000,
+      content: '暂无更多'
+    })
+  }
+
+  // console.log(data);
   for (const i in data) {
     dialogId.value = data[i].dialogId
     // data[i].marked = marked(data[i].content, 'markdown', {
@@ -666,11 +1041,11 @@ const clickConfig = () => {
     clearMessageContent();
 
     visible.value = !visible.value
-    console.log(visible.value)
+    // console.log(visible.value)
   } else {
     clearMessageContent();
     visible.value = !visible.value
-    console.log(visible.value)
+    // console.log(visible.value)
 
   }
   switchConfigStatus();
@@ -680,23 +1055,17 @@ const getSecretKey = () => "lianginx";
 
 
 
-const getAPIKey = () => {
-  if (apiKey) return apiKey;
-  const aesAPIKey = localStorage.getItem("apiKey") ?? "";
-  apiKey = cryptoJS.AES.decrypt(aesAPIKey, getSecretKey()).toString(
-    cryptoJS.enc.Utf8
-  );
-  return apiKey;
-};
 
 const switchConfigStatus = () => (isConfig.value = !isConfig.value);
 //登录监听
-const handleCustomEvent = async (param1: any, param2: any) => {
-  console.log('监听到登录');
+const handleCustomEvent = async (options: any, param2: any) => {
+  // options.value = options;
+
+  // console.log('xsdsdsdsds',options);
+
   await getUserInfo()
   await init()
   iflogin.value = true
-
   chatListDom.value?.scrollTo({
     top: chatListDom.value.scrollHeight,
     behavior: 'smooth' // 可选，使滚动平滑进行
@@ -711,7 +1080,7 @@ const cleanchat = async () => {
   if (
     !iflogin.value
   ) {
-    console.log('请先登录')
+    // console.log('请先登录')
     // visible.value = true
     value.value = ''
     clickConfig()
@@ -728,7 +1097,7 @@ const cleanchat = async () => {
         sendDelmsg()
       },
       onCancel() {
-        console.log('Cancel');
+        // console.log('Cancel');
 
       },
 
@@ -742,11 +1111,11 @@ const sendDelmsg = async () => {
   try {
     const data = await http('del-dialog', {}, 'GET')
     const res = await data.json()
-    console.log(res)
+    // console.log(res)
     if (res.status == 1) {
       // userinfo.value = res.data
       // localStorage.setItem('userinfo', JSON.stringify(res.data))
-      console.log('删除成功');
+      // console.log('删除成功');
       MessageApi.open({
         type: 'success',
         duration: 4000,
@@ -759,7 +1128,7 @@ const sendDelmsg = async () => {
 
           chatId: 0,
 
-          content: `你好，我是LeChat，我可以提供一些常用服务和信息，例如：
+          content: `你好，LeChat，我可以提供一些常用服务和信息，例如：
 
 1. 翻译：我可以把中文翻译成英文，英文翻译成中文，还有其他一些语言翻译，比如法语、日语、西班牙语等。
 
@@ -804,14 +1173,14 @@ const sendDelmsg = async () => {
 
 
 
-  console.log('OK');
+  // console.log('OK');
 }
 
 
 
 
 function keydownHandle(event) {
-  console.log(event);
+  // console.log(event);
 
   if (event.keyCode === 13 && !event.ctrlKey && !event.metaKey) {
     // 如果只按下了Enter键，则执行事件a的逻辑
@@ -845,7 +1214,7 @@ const sendMessage = async () => {
   if (
     !iflogin.value
   ) {
-    console.log('请先登录')
+    // console.log('请先登录')
     // visible.value = true
     value.value = ''
     clickConfig()
@@ -857,7 +1226,7 @@ const sendMessage = async () => {
     couldcontinue.value = true
     // check input
     ifuserup.value = false
-    console.log(ifuserup.value)
+    // console.log(ifuserup.value)
 
     if (!value.value.trim()) return
     if (!userinfo.value.chance.totalChatChance) throw new Error('对话次数用尽')
@@ -914,7 +1283,7 @@ const sendMessage = async () => {
 
   } catch (e) {
 
-    console.log(e);
+    // console.log(e);
 
     MessageApi.open({
       type: 'error',
@@ -969,7 +1338,7 @@ const getChatStream = async (input = '') => {
     sending.value = true
     const onceData = await reader.read()
     const res = JSON.parse(onceData.value.data)
-    console.log("status", res.status)
+    // console.log("status", res.status)
     const data = res.data
     let end
     if (couldcontinue.value == true) {
@@ -1027,12 +1396,20 @@ const getUserInfo = async () => {
   try {
     const data = await http('userinfo', {}, 'GET')
     const res = await data.json()
-    console.log(res)
+    // console.log(res)
     if (res.status == 1) {
       userinfo.value = res.data
       localStorage.setItem('userinfo', JSON.stringify(res.data))
-      console.log(res.data.models)
+      // console.log(res.data.models)
       options.value = res.data.models
+
+      if (res.data.avatar) imageUrl.value = res.data.avatar
+
+      if (res.data.name) form.name = res.data.name
+
+      if (res.data.phone) form.phone = res.data.phone
+
+
     }
     else {
 
@@ -1062,8 +1439,8 @@ const logout = async () => {
 const clearinfo = async () => {
   localStorage.clear()
 
-  iflogin.value = false
   closeProfile()
+  iflogin.value = false;
   achat.value = [
     {
       avatar: "",
@@ -1083,7 +1460,6 @@ const clearinfo = async () => {
       dialogId: 0,
 
       isEffect: true,
-
       model: commommodel.value[0],
 
       resourceId: null,
@@ -1093,6 +1469,7 @@ const clearinfo = async () => {
       subModel: commommodel.value[1],
     }
   ]
+  dialogId.value = 0
 }
 const getListChat = async (lastId = 0, pageSize = 10) => {
 
@@ -1109,8 +1486,18 @@ const getListChat = async (lastId = 0, pageSize = 10) => {
       pageSize
     }, 'POST')
     const res = await adata.json()
+    if (res.status == -1) {
+      MessageApi.open({
+        type: 'error',
+        duration: 3000,
+        content: '登陆失效，请重新登陆'
+      })
+      clearinfo()
+      data = []
+    } else {
+      data = res.data
 
-    data = res.data
+    }
 
     // console.log(data)
 
@@ -1122,12 +1509,12 @@ const getListChat = async (lastId = 0, pageSize = 10) => {
 
 }
 const init = async () => {
-
+  iffirstloud.value = true
   try {
     achat.value = []
 
     const data = await getListChat()
-    console.log(data)
+    // console.log(data)
     if (data.length === 0) {
       achat.value = [
         {
@@ -1164,7 +1551,8 @@ const init = async () => {
       dialogId.value = item.dialogId
       achat.value.push(item)
     }
-    console.log(achat.value)
+    // console.log(achat.value)
+
     window.scrollTo(0, document.body.scrollHeight);
 
     // loopChat()
@@ -1174,10 +1562,12 @@ const init = async () => {
     //   duration: 3000,
     //   icon: 'none'
     // })
-    console.log(e)
+    // console.log(e)
   }
   // console.log(123, achat.value)
-
+  finally {
+    iffirstloud.value = false
+  }
 
 }
 const showface = async () => {
@@ -1188,7 +1578,8 @@ const showface = async () => {
 
 }
 const facehandleOk = async (e: MouseEvent) => {
-  console.log(e);
+  // console.log(e);
+
 
   confirmLoading.value = true;
   setTimeout(() => {
@@ -1197,6 +1588,26 @@ const facehandleOk = async (e: MouseEvent) => {
   }, 2000);
 };
 // watch(achat.value, () => nextTick(() => scrollToBottom()));
+
+//用户信息板块
+const changeuserinfo = () => {
+  // console.log(12);
+  showmsgDrawer()
+}
+
+//保存信息
+const sevemsg = async () => {
+  // console.log(imageUrl.value, form.name)
+}
+
+
+//商店
+
+const choseItem = (e) => {
+  console.log(e);
+
+}
+
 </script>
 
 <style scoped>
