@@ -289,8 +289,8 @@
             :style="index == achat.length - 1 ? 'height: 64px;   filter: grayscale(0.9) brightness(0.6) contrast(900%)  ' : 'height: 64px;   filter: grayscale(0.9) brightness(0.8) contrast(300%) '"
             
               :src="index == achat.length - 1 ? 'https://openai-1259183477.cos.ap-shanghai.myqcloud.com/after.png' : 'https://openai-1259183477.cos.ap-shanghai.myqcloud.com/old.png'" />
-               <div  class="font-bold mr-1 "> LeChat</div>
-              <img :src="srcMap[item.model]"  style="height: 16px;">
+               <div  class="font-bold mr-3 "> LeChat</div>
+              <img :src="srcMap[item.model]"  style="height: 22px;">
             
               <div class=" ml-1 ">{{ ` ${item.subModel}` }}
 
@@ -303,8 +303,8 @@
             
             :src="index == achat.length - 1 ? 'https://openai-1259183477.cos.ap-shanghai.myqcloud.com/loading.png' : 'https://openai-1259183477.cos.ap-shanghai.myqcloud.com/old.png'" />
             
-            <div  class="font-bold mr-1 "> LeChat</div>
-              <img :src="srcMap[item.model]"  style="height: 16px;">
+            <div  class="font-bold mr-3"> LeChat</div>
+              <img :src="srcMap[item.model]"  style="height: 22px;">
             
               <div class=" ml-1 ">{{ ` ${item.subModel}` }}
             </div>
@@ -316,7 +316,7 @@
           <MdPreview v-if="item.content" :modelValue="item.content"
             style="padding: 0px;background-color: rgba(0,0,0,0);" />
 
-          <Loding v-else />
+          <Loding style="margin-left: 20px;" v-else />
 
           <!-- <component :is="component"></component> -->
 
