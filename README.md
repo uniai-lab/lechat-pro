@@ -11,7 +11,7 @@
 
 >注意：本项目需要基于UniAI后端框架进行，点击这里前往 [UniAI官网](https://www.uniai.us/)。
 
-在开始之前，请确保您已正确安装 Node.js 运行时环境。如果您还没有安装 Node.js，请 [点击这里下载](https://nodejs.org/zh-cn/)。
+在开始之前，请确保您已正确安装 Node.js 运行时环境。如果您还没有安装 Node.js，请 [点击这里下载 ](https://nodejs.org/zh-cn/)。
 
 
 
