@@ -16,8 +16,13 @@
         <!-- <RobotOutlined /> -->
 
         <a-icon :style="{ fontSize: '20px' }">
-
-          <svg t="1706152318980" class="icon" viewBox="0 0 1117 1024" version="1.1" xmlns="http://www.w3.org/2000/svg"
+          <svg t="1706857678840" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg"
+            p-id="8632" width="20" height="20">
+            <path
+              d="M512.073118 0a52.982826 52.982826 0 0 1 0 105.90008A406.026807 406.026807 0 1 0 918.099925 511.992459a52.982826 52.982826 0 0 1 105.900079 0A511.992459 511.992459 0 1 1 512.073118 0zM375.81283 648.908475c2.557339 5.114679 10.950658 16.327628 25.901258 28.261879 26.622559 21.311162 62.294164 34.294577 110.35903 34.294577 47.999293 0 83.736472-12.983415 110.35903-34.294577 14.950599-11.93425 23.278346-23.1472 25.835685-28.196306a52.982826 52.982826 0 0 1 94.752703 47.343565c-8.917901 17.835803-26.360267 41.114149-54.425428 63.605621-45.11409 36.065043-104.064041 57.441777-176.52199 57.441777-72.523522 0-131.473473-21.376734-176.52199-57.50735-28.130733-22.425899-45.573099-45.704245-54.425428-63.605621a52.982826 52.982826 0 0 1 94.68713-47.343565z m-24.393083-294.028456a111.211477 111.211477 0 1 1 0 222.422954 111.211477 111.211477 0 0 1 0-222.422954z m321.306743 0a111.211477 111.211477 0 1 1 0 222.422954 111.211477 111.211477 0 0 1 0-222.422954z m-321.306743 84.720064a26.491413 26.491413 0 1 0 0 52.982826 26.491413 26.491413 0 0 0 0-52.982826z m321.306743 0a26.491413 26.491413 0 1 0 0 52.982826 26.491413 26.491413 0 0 0 0-52.982826zM824.330814 30.032345l39.146964 120.65396h126.94895l-102.687012 74.556279 39.27811 120.653961-102.687012-74.556279-102.621439 74.621852 39.146964-120.719534-102.621439-74.556279h126.883377l39.212537-120.65396z"
+              p-id="8633" fill="#707070"></path>
+          </svg>
+          <!-- <svg t="1706152318980" class="icon" viewBox="0 0 1117 1024" version="1.1" xmlns="http://www.w3.org/2000/svg"
             p-id="6413" width="20" height="20">
             <path
               d="M263.214545 180.363636h-209.454545a38.4 38.4 0 0 1-41.890909-38.4 38.4 38.4 0 0 1 38.4-37.701818h212.945454a37.701818 37.701818 0 0 1 37.701819 37.701818c0 20.945455-16.756364 38.027636-37.701819 38.4z m810.589091 0H505.483636a38.4 38.4 0 0 1-37.701818-38.4 37.701818 37.701818 0 0 1 37.701818-37.701818h568.32c20.945455 0 38.027636 16.756364 38.4 37.701818 0 21.224727-17.221818 38.4-38.4 38.4z"
@@ -31,7 +36,7 @@
             <path
               d="M596.247273 512a139.636364 139.636364 0 1 1 279.272727 0 139.636364 139.636364 0 0 1-279.272727 0z m85.876363 0a53.76 53.76 0 1 0 107.52 0 53.76 53.76 0 0 0-107.52 0z"
               fill="#323333" p-id="6417"></path>
-          </svg>
+          </svg> -->
         </a-icon>
       </template>
     </a-float-button>
@@ -42,8 +47,8 @@
 
       <a-modal v-model:open="pwvisible" :footer="null" destroyOnClose="true" title="修改密码" @ok="handlepwOk">
 
-        <a-form style="margin-top: 32px;" name="custom-validation" ref="formRef" :model="formStatepw" :rules="pwrules"
-          v-bind="layout" @finish="handleFinish" @finishFailed="handleFinishFailed">
+        <a-form :validat='"cheekpasswordres"' style="margin-top: 32px;" name="custom-validation" ref="formRef"
+          :model="formStatepw" :rules="pwrules" v-bind="layout" @finish="handleFinish" @finishFailed="handleFinishFailed">
           <a-form-item has-feedback label="新的密码" name="pass">
             <a-input-password v-model:value="formStatepw.pass" type="password" autocomplete="off" />
           </a-form-item>
@@ -65,12 +70,17 @@
           <DeleteOutlined :style="{ fontSize: '24px' }" /> -->
     <a-modal v-model:open="openfase" :footer="null" :confirm-loading="confirmLoading" title="期望角色" @ok="facehandleOk">
       <a-form :model="formState" :label-col="labelCol" :wrapper-col="wrapperCol">
-        <a-form-item label="角色">
+        <!-- <a-form-item label="角色">
+
           <a-input :placeholder="'律师？或者其他职业'" v-model:value="formState.name" />
+
+          
+        </a-form-item> -->
+
+
+        <a-form-item label="开场白">
+          <a-textarea :rows='4' :placeholder="'设置您需要的开场白'" v-model:value="formState.startmsg" />
         </a-form-item>
-
-
-
         <a-form-item label="你的要求">
           <a-textarea :rows='7' :placeholder="'请输入您的具体需求'" v-model:value="formState.desc" />
         </a-form-item>
@@ -116,11 +126,11 @@
             <a-form-item label="手机号" name="phone">
               <div style="display: flex;flex-direction: row;">
                 <a-input style="width: 66%;" :disabled="true" v-model:value="form.phone" placeholder="暂未绑定" />
-                <div v-if="form.phone == ''"
+                <!-- <div v-if="form.phone == ''"
                   class="ml-auto px-3 py-2  cursor-pointer text-gray-100 bg-gray-900 hover:bg-gray-700 hover:text-gray-100   rounded-md"
                   @click="bindphone()">
                   <div>前往绑定</div>
-                </div>
+                </div> -->
               </div>
             </a-form-item>
 
@@ -160,7 +170,7 @@
       <div v-if="!iflogin"
         class="ml-auto px-3 py-2  cursor-pointer text-gray-100 bg-gray-700 hover:bg-white hover:text-gray-900   rounded-md"
         @click="clickConfig()">
-        <div>登陆</div>
+        <div>登录</div>
       </div>
 
       <div @click.stop="showProfile()" v-else class="ml-auto" style="align-items: end;">
@@ -172,15 +182,15 @@
           userinfo.name }}</div>
       </div>
 
-      <div v-if="iflogin && ifphone" @click.stop="showchargeModal" style="line-height: 0.7rem;"
+      <!-- <div v-if="iflogin && ifphone" @click.stop="showchargeModal" style="line-height: 0.7rem;"
         class="px-3 py-2 ml-1 text-sm cursor-pointer text-gray-900 bg-white hover:bg-gray-100 hover:text-gray-900 rounded-md gold-button">
         充值
-      </div>
-      <div v-if="iflogin && !ifphone" @click.stop="showchargeModal"
+      </div> -->
+      <!-- <div v-if="iflogin && !ifphone" @click.stop="showchargeModal"
         class="flex justify-center items-center ml-1  rounded-md flex-row text-gray-100 bg-gray-900  hover:bg-gray-600 hover:text-gray-100 ">
 
         <WalletOutlined style="font-size: 22px;" />
-      </div>
+      </div> -->
 
 
     </div>
@@ -216,7 +226,7 @@
 
     <!-- 支付弹窗 -->
     <a-modal :footer="null" style="height: 400px;" v-model:open="chargecodeopen" :title="selectedGoods.title"
-     :afterClose="handchargecodeleOk">
+      :afterClose="handchargecodeleOk">
       <!-- <p>Some contents...</p>
       <p>Some contents...</p>
       <p>Some contents...</p> -->
@@ -265,8 +275,8 @@
         </template>
         <template #actions>
           <!-- <setting-outlined  key="setting"   /> -->
-          <!-- <KeyOutlined @click.stop="showpwModal()" /> -->
-          <!-- <edit-outlined @click="changeuserinfo()" /> -->
+          <KeyOutlined v-if="userinfo.phone" @click="showpwModal()" />
+          <edit-outlined @click="changeuserinfo()" />
           <LogoutOutlined @click.stop="logout()" />
 
         </template>
@@ -401,8 +411,13 @@
           class="flex justify-center items-center ml-0 px-2 mr-1  rounded-md flex-row text-gray-900 bg-gray-100  hover:bg-gray-300 hover:text-gray-900 ">
           <!-- <RobotOutlined :style="{ fontSize: '20px' }" /> -->
           <a-icon :style="{ fontSize: '20px' }">
-
-            <svg t="1706152318980" class="icon" viewBox="0 0 1117 1024" version="1.1" xmlns="http://www.w3.org/2000/svg"
+            <svg t="1706857678840" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg"
+              p-id="8632" width="20" height="20">
+              <path
+                d="M512.073118 0a52.982826 52.982826 0 0 1 0 105.90008A406.026807 406.026807 0 1 0 918.099925 511.992459a52.982826 52.982826 0 0 1 105.900079 0A511.992459 511.992459 0 1 1 512.073118 0zM375.81283 648.908475c2.557339 5.114679 10.950658 16.327628 25.901258 28.261879 26.622559 21.311162 62.294164 34.294577 110.35903 34.294577 47.999293 0 83.736472-12.983415 110.35903-34.294577 14.950599-11.93425 23.278346-23.1472 25.835685-28.196306a52.982826 52.982826 0 0 1 94.752703 47.343565c-8.917901 17.835803-26.360267 41.114149-54.425428 63.605621-45.11409 36.065043-104.064041 57.441777-176.52199 57.441777-72.523522 0-131.473473-21.376734-176.52199-57.50735-28.130733-22.425899-45.573099-45.704245-54.425428-63.605621a52.982826 52.982826 0 0 1 94.68713-47.343565z m-24.393083-294.028456a111.211477 111.211477 0 1 1 0 222.422954 111.211477 111.211477 0 0 1 0-222.422954z m321.306743 0a111.211477 111.211477 0 1 1 0 222.422954 111.211477 111.211477 0 0 1 0-222.422954z m-321.306743 84.720064a26.491413 26.491413 0 1 0 0 52.982826 26.491413 26.491413 0 0 0 0-52.982826z m321.306743 0a26.491413 26.491413 0 1 0 0 52.982826 26.491413 26.491413 0 0 0 0-52.982826zM824.330814 30.032345l39.146964 120.65396h126.94895l-102.687012 74.556279 39.27811 120.653961-102.687012-74.556279-102.621439 74.621852 39.146964-120.719534-102.621439-74.556279h126.883377l39.212537-120.65396z"
+                p-id="8633" fill="#707070"></path>
+            </svg>
+            <!-- <svg t="1706152318980" class="icon" viewBox="0 0 1117 1024" version="1.1" xmlns="http://www.w3.org/2000/svg"
               p-id="6413" width="20" height="20">
               <path
                 d="M263.214545 180.363636h-209.454545a38.4 38.4 0 0 1-41.890909-38.4 38.4 38.4 0 0 1 38.4-37.701818h212.945454a37.701818 37.701818 0 0 1 37.701819 37.701818c0 20.945455-16.756364 38.027636-37.701819 38.4z m810.589091 0H505.483636a38.4 38.4 0 0 1-37.701818-38.4 37.701818 37.701818 0 0 1 37.701818-37.701818h568.32c20.945455 0 38.027636 16.756364 38.4 37.701818 0 21.224727-17.221818 38.4-38.4 38.4z"
@@ -416,7 +431,7 @@
               <path
                 d="M596.247273 512a139.636364 139.636364 0 1 1 279.272727 0 139.636364 139.636364 0 0 1-279.272727 0z m85.876363 0a53.76 53.76 0 1 0 107.52 0 53.76 53.76 0 0 0-107.52 0z"
                 fill="#323333" p-id="6417"></path>
-            </svg>
+            </svg> -->
           </a-icon>
         </div>
         <textarea class="input" rows="1" :type="'text'" @keydown="keydownHandle"
@@ -519,9 +534,11 @@ let validatePass = async (rule: RuleObject, value: string) => {
 };
 let validatePass2 = async (rule: RuleObject, value: string) => {
   if (value === '') {
-    return Promise.reject('请再次输入密码');
+    return Promise.reject(new Error('请再次输入密码'));
   } else if (value !== formStatepw.pass) {
-    return Promise.reject("两次输入的密码不一致");
+    return Promise.reject(new Error('两次输入的密码不一致'));
+
+
   } else {
     return Promise.resolve();
   }
@@ -543,7 +560,7 @@ const pwrules = {
       trigger: 'change'
     }
   ],
-  checkPass: [{ validator: validatePass2, trigger: 'change' }],
+  checkPass: [{ required: true, validator: validatePass2, trigger: 'change' }],
 
 };
 const layout = {
@@ -593,10 +610,66 @@ const handlepwOk = (e: MouseEvent) => {
   // console.log(e);
   pwvisible.value = false;
 };
-const sevepw = () => {
+const cheekpasswordres = (e) => {
+  console.log(e);
 
-  // console.log(formStatepw.checkPass);
-  // console.log(formStatepw.pass);
+}
+const sevepw = async () => {
+
+
+
+  try {
+    const checkPassword = await formRef.value.validate();
+    // console.log(checkPassword.checkPass);
+    try {
+
+      const senduserinfo = await http('update-user', {
+        password:checkPassword.checkPass
+
+      }, 'POST')
+      const res = await senduserinfo.json()
+      console.log(res);
+
+      if (res.status == 1) {
+      
+        MessageApi.open({
+          type: 'success',
+          duration: 3000,
+          content: '修改密码成功'
+        })
+        formStatepw.checkPass=''
+        formStatepw.pass=''
+        pwvisible.value =false
+      } else {
+        MessageApi.open({
+          type: 'error',
+          duration: 3000,
+          content: '修改密码失败'
+        })
+        getUserInfo()
+      }
+
+      // console.log(data)
+
+      // console.log(adata)
+    } finally {
+
+    }
+
+
+  } catch (e) {
+    console.log(e);
+
+    MessageApi.open({
+      type: 'error',
+      duration: 3000,
+      content: e.errorFields[0].errors[0]
+    })
+  }
+
+
+
+
 
   // console.log(pwvalidateStatus.value);
 
@@ -740,6 +813,7 @@ interface FormState {
   type: string[];
   resource: string;
   desc: string;
+  startmsg: string;
 }
 const formState: UnwrapRef<FormState> = reactive({
   name: '',
@@ -747,13 +821,17 @@ const formState: UnwrapRef<FormState> = reactive({
   type: [],
   resource: '',
   desc: '',
+  startmsg: ''
 });
 const onSubmit = () => {
   // console.log('submit!', toRaw(formState));
   // console.log(toRaw(formState).desc);
   // 设置缓存
   localStorage.setItem('role', toRaw(formState).name);
+  localStorage.setItem('startmsg', toRaw(formState).startmsg);
+
   localStorage.setItem('prompt', toRaw(formState).desc);
+
 
   // confirmLoading.value = true;
   openfase.value = false;
@@ -893,7 +971,7 @@ const chargecodeopen = ref(false);
 const showchargeModal = () => {
   chargeopen.value = true;
 };
-const handchargeleOk =async () => {
+const handchargeleOk = async () => {
 
 
 };
@@ -941,9 +1019,9 @@ onMounted(async () => {
     ifphone.value = true
   }
 
-  if (localStorage.getItem("role")) {
-    formState.name = localStorage.getItem("role") as string
-  }
+  // if (localStorage.getItem("role")) {
+  //   formState.name = localStorage.getItem("role") as string
+  // }
   if (localStorage.getItem("prompt")) {
     formState.desc = localStorage.getItem("prompt") as string
   }
@@ -1368,7 +1446,8 @@ const getChatStream = async (input = '') => {
     dialogId: dialogId.value,
     provider: commommodel.value[0],
     model: commommodel.value[1],
-    role: formState.name,
+    // role: formState.name,
+    assistant: formState.startmsg,
     prompt: formState.desc
   })
 
@@ -1546,7 +1625,7 @@ const getListChat = async (lastId = 0, pageSize = 10) => {
       MessageApi.open({
         type: 'error',
         duration: 3000,
-        content: '登陆失效，请重新登陆'
+        content: '登录失效，请重新登录'
       })
       clearinfo()
       data = []
@@ -1653,7 +1732,50 @@ const changeuserinfo = () => {
 
 //保存信息
 const sevemsg = async () => {
-  // console.log(imageUrl.value, form.name)
+  console.log(imageUrl.value, form.name)
+  let changeimageUrl = null
+  if (imageUrl.value.slice(0, 4) == 'http') {
+    changeimageUrl = null
+
+  } else {
+    changeimageUrl = imageUrl.value
+
+  }
+
+  try {
+
+    const senduserinfo = await http('update-user', {
+      avatar: changeimageUrl,
+      name: form.name
+
+    }, 'POST')
+    const res = await senduserinfo.json()
+    console.log(res);
+
+    if (res.status == -1) {
+      MessageApi.open({
+        type: 'error',
+        duration: 3000,
+        content: '保存失败'
+      })
+
+    } else {
+      MessageApi.open({
+        type: 'success',
+        duration: 3000,
+        content: '保存成功'
+      })
+      getUserInfo()
+    }
+
+    // console.log(data)
+
+    // console.log(adata)
+  } finally {
+
+  }
+
+
 }
 
 

@@ -59,7 +59,7 @@
             type="button">登录</button>
           <!-- <a class="text-gray-900 hover:text-gray-600" href="#" style="position: absolute;right: 0;">忘记密码？</a> -->
         </div>
-        <!-- <div class="flex justify-center   items-center mt-9 mb-0  " :data-id="type" @click="changetype('password')">
+        <div class="flex justify-center   items-center mt-9 mb-0  " :data-id="type" @click="changetype('password')">
           <div class="flex    justify-center items-center flex-col">
             <div class="flex   justify-center items-center bg-gray-100 p-2 rounded-full hover:bg-gray-200 ">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
@@ -75,7 +75,7 @@
           </div>
 
 
-        </div> -->
+        </div>
       </form>
 
       <!-- 表单密码 -->
@@ -89,17 +89,17 @@
         <div class="mb-4">
           <label class="block text-gray-700 font-medium mb-2" for="verification-code">密码</label>
           <div class="flex items-center justify-between">
-            <input
+            <a-input-password v-model:value="info.password"
               class="appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline w-full"
-              id="verification-code" type="text" placeholder="请输入密码">
-
+              id="verification-code" type="password" placeholder="请输入密码"/>
+    
           </div>
         </div>
 
         <div class="flex justify-center items-center mt-7 mb-7 " style="position: relative;">
-          <button
+          <button @click="loginByPassword"
             class="bg-gray-900  hover:bg-gray-600 text-white font-bold py-2  px-20 rounded focus:outline-none focus:shadow-outline"
-            type="submit">登录</button>
+            type="button">登录</button>
           <!-- <a class="text-gray-900 hover:text-gray-600" href="#" style="position: absolute;right: 0;">忘记密码？</a> -->
         </div>
         <div class="flex justify-center   items-center mt-9 mb-0  " :data-id="type" @click="changetype('phone')">
@@ -131,7 +131,9 @@
               <!-- <QRCode :value='codevalue' status="loading" /> -->
               <QRCode v-if="codesstatus != 'active'" size="220" :value='111231312312321312' :status="codesstatus"
                 :onRefresh='codeRefresh' />
-              <img v-if="codesstatus == 'active'" style="height:200px;filter: grayscale(1) brightness(0.6) contrast(500%) " :src="codevalue" @click="codeRefresh" />
+              <img v-if="codesstatus == 'active'"
+                style="height:200px;filter: grayscale(1) brightness(0.6) contrast(500%) " :src="codevalue"
+                @click="codeRefresh" />
               <!-- <QRCode :value='codevalue' status="scanned" /> -->
 
             </Flex>
@@ -141,7 +143,7 @@
 
         </div>
         <div class="flex justify-center   items-center mt-5 mb-0  " :data-id="type">
-          <!-- <div class="flex    justify-center items-center flex-col" @click="changetype('password')">
+          <div class="flex    justify-center items-center flex-col" @click="changetype('password')">
             <div class="flex   justify-center items-center bg-gray-100 p-2 rounded-full hover:bg-gray-200 ">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                 stroke="currentColor" class="w-4 h-4">
@@ -153,9 +155,9 @@
             <div class="flex mt-2 text-xs justify-center items-center text-gray-700 ">
               密码登陆
             </div>
-          </div> -->
+          </div>
 
-          <div class="flex     justify-center items-center flex-col" @click="changetype('phone')">
+          <div class="flex  ml-3  justify-center items-center flex-col" @click="changetype('phone')">
             <div class="flex   justify-center items-center bg-gray-100 p-2 rounded-full hover:bg-gray-200 ">
 
               <MobileOutlined />
@@ -197,7 +199,8 @@ const options = ref()
 const clock = ref(false)
 const info = reactive({
   phone: '',
-  code: ''
+  code: '',
+  password:''
 });
 const errorType = 'border-bottom';
 const tips = '';
@@ -445,6 +448,65 @@ async function beforelogin() {
 
 
 }
+
+
+//账号密码登陆
+async function loginByPassword() {
+  let flag = false
+  console.log(info.password);
+  if (validatePhone(info.phone)) {
+    const qes = await http('login', {
+      phone: info.phone,
+      password: info.password,
+    }, 'POST'
+    )
+    const res = await qes.json()
+
+    if (res.status == 1) {
+      // localStorage.setItem('userinfo', res.data)
+      localStorage.setItem('token', res.data.token)
+      localStorage.setItem('id', res.data.id)
+      // localStorage.setItem('name', res.data.name)
+      // localStorage.setItem('username', res.data.username)
+
+      emit('customEvent', '参数1', '参数2');
+      hideModal()
+
+    }else if(res.status == 0){
+      MessageApi.open({
+        type: 'error',
+        duration: 3000,
+        content: '密码错误'
+      }
+      )
+    }
+    
+    else {
+      MessageApi.open({
+        type: 'error',
+        duration: 3000,
+        content: '登录失败'
+      }
+      )
+    }
+    // await submit()
+    console.log(info.value);
+
+
+
+  } else {
+
+
+    MessageApi.open({
+      type: 'error',
+      duration: 3000,
+      content: '手机号格式错误'
+    })
+  }
+
+
+
+}
 var refrshQRcode = null
 const getqrcode = async () => {
 
@@ -492,13 +554,13 @@ const getqrcode = async () => {
         codesstatus.value = 'expired';
         globalTimer.value(true)
       }, 45000);
-    
 
 
+
+
+    }
 
   }
-
-}
 
 
 
