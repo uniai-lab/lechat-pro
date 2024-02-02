@@ -188,15 +188,15 @@
 
 
     <!-- <a-button type="primary" @click="showchargeModal">Open Modal</a-button> -->
-    <a-modal :footer="null" v-model:open="chargeopen" title="充值" @ok="handchargeleOk">
+    <a-modal :footer="null" v-model:open="chargeopen" title="充值" :afterClose="handchargeleOk">
       <!-- <p>Some contents...</p>
       <p>Some contents...</p>
       <p>Some contents...</p> -->
-      <div style=" 
-       padding: 20px ;">
+      <div style="padding: 10px ;">
+
+
         <a-row :gutter="[8, 8]" :wrap="true">
-        <div>当前暂未正式开通充值服务，如有需要请联系 AI乐聊 微信小程序客服。</div>
-          <!-- <a-col v-for="item in shoplist" @click="choseItem(item)" :xs="24" :sm="8">
+          <a-col v-for="item in shoplist" @click="choseItem(item)" :xs="24" :sm="8">
             <a-card style=" height: 160px;
             " hoverable :title="item.title" size="small" :bordered="true">
               <div v-for="role in item.rolelist">{{ role }}</div>
@@ -205,13 +205,49 @@
               </template>
 
             </a-card>
-          </a-col> -->
+          </a-col>
+          <div>如果您遇到了问题请联系，《AI乐聊》微信小程序客服。</div>
 
         </a-row>
       </div>
 
     </a-modal>
 
+
+    <!-- 支付弹窗 -->
+    <a-modal :footer="null" style="height: 400px;" v-model:open="chargecodeopen" :title="selectedGoods.title"
+     :afterClose="handchargecodeleOk">
+      <!-- <p>Some contents...</p>
+      <p>Some contents...</p>
+      <p>Some contents...</p> -->
+      <div v-if="!showpayres" style="padding: 10px ;justify-content: space-between; " class="flex flex-row">
+        <div style="display: flex;flex-direction: column;">
+
+          <div class="mt-2" style="font-size: 16px;">您正在购买《AI乐聊》{{ selectedGoods.title }}</div>
+          <div class="mt-2" style="font-size: 16px;c"> 价格：{{ selectedGoods.price }}</div>
+          <div class="mt-2 mb-1" style="font-size: 16px;">解锁权益：</div>
+          <div v-for="arole in selectedGoods.rolelist">{{ arole }}</div>
+        </div>
+
+        <div style="display: flex;flex-direction: column; ">
+
+
+          <div class="bg-gray-400   flex flex-col" @click="paysuccess"
+            style="height: 60px;width: 200px;justify-content: center;align-items: center;"> 微信logo</div>
+
+          <div class="bg-gray-400 mt-2  flex flex-col"
+            style="height: 200px;width: 200px;justify-content: center;align-items: center;"> 支付二维码</div>
+        </div>
+
+      </div>
+
+      <a-result v-if="showpayres" status="success" title="充值成功"
+        sub-title="订单编号: 2017182818828182881 可能存在1-3分钟的延迟，如长时间没有到账，请联系客服">
+        <template #extra>
+
+        </template>
+      </a-result>
+    </a-modal>
     <!-- 弹出框 -->
     <div class="profile-overlay" v-if="isProfileOpen" @click="closeProfile()">
       <!-- <div class="profile-dialog">
@@ -273,40 +309,35 @@
         v-for="(item, index) of achat">
 
 
-        <div  class="flex flex-row justify-between items-center   " style="">
+        <div class="flex flex-row justify-between items-center   " style="">
 
 
           <div v-if="item.role != 'assistant'" class="flex flex-row justify-between items-center  ">
-            <div 
-              style="height: 44px; width: 44px;border-radius: 50%;font-size: 18px; margin-left:12px ;"
-            :class="index == achat.length - 2 ? 'flex flex-row justify-center items-center   bg-gray-900 text-gray-100  ' : 'flex flex-row justify-center items-center   bg-gray-600 text-gray-100'"
-             
-              >Me</div>
+            <div style="height: 44px; width: 44px;border-radius: 50%;font-size: 18px; margin-left:12px ;"
+              :class="index == achat.length - 2 ? 'flex flex-row justify-center items-center   bg-gray-900 text-gray-100  ' : 'flex flex-row justify-center items-center   bg-gray-600 text-gray-100'">
+              Me</div>
             <!-- <div class="font-bold " style="margin-left:12px ;">{{ `${item.role}` }}
             </div> -->
           </div>
-          <div v-if="item.role == 'assistant'&&!sending" class="flex flex-row justify-between items-center  "> <img
-            :style="index == achat.length - 1 ? 'height: 64px;   filter: grayscale(0.9) brightness(0.6) contrast(900%)  ' : 'height: 64px;   filter: grayscale(0.9) brightness(0.8) contrast(300%) '"
-            
+          <div v-if="item.role == 'assistant' && !sending" class="flex flex-row justify-between items-center  "> <img
+              :style="index == achat.length - 1 ? 'height: 64px;   filter: grayscale(0.9) brightness(0.6) contrast(900%)  ' : 'height: 64px;   filter: grayscale(0.9) brightness(0.8) contrast(300%) '"
               :src="index == achat.length - 1 ? 'https://openai-1259183477.cos.ap-shanghai.myqcloud.com/after.png' : 'https://openai-1259183477.cos.ap-shanghai.myqcloud.com/old.png'" />
-               <div  class="font-bold mr-3 "> LeChat</div>
-              <img :src="srcMap[item.model]"  style="height: 22px;">
-            
-              <div class=" ml-1 ">{{ ` ${item.subModel}` }}
+            <div class="font-bold mr-3 "> LeChat</div>
+            <img :src="srcMap[item.model]" style="height: 22px;">
+
+            <div class=" ml-1 ">{{ ` ${item.subModel}` }}
 
             </div>
           </div>
 
-          <div v-if="item.role == 'assistant'&&sending" class="flex flex-row justify-between items-center  "> <img
-            :style="index == achat.length - 1 ? 'height: 64px;   filter: grayscale(0.9) brightness(0.9) contrast(900%)  ' : 'height: 64px;   filter: grayscale(0.9) brightness(0.9) contrast(300%) '"
+          <div v-if="item.role == 'assistant' && sending" class="flex flex-row justify-between items-center  "> <img
+              :style="index == achat.length - 1 ? 'height: 64px;   filter: grayscale(0.9) brightness(0.9) contrast(900%)  ' : 'height: 64px;   filter: grayscale(0.9) brightness(0.9) contrast(300%) '"
+              :src="index == achat.length - 1 ? 'https://openai-1259183477.cos.ap-shanghai.myqcloud.com/loading.png' : 'https://openai-1259183477.cos.ap-shanghai.myqcloud.com/old.png'" />
 
-            
-            :src="index == achat.length - 1 ? 'https://openai-1259183477.cos.ap-shanghai.myqcloud.com/loading.png' : 'https://openai-1259183477.cos.ap-shanghai.myqcloud.com/old.png'" />
-            
-            <div  class="font-bold mr-3"> LeChat</div>
-              <img :src="srcMap[item.model]"  style="height: 22px;">
-            
-              <div class=" ml-1 ">{{ ` ${item.subModel}` }}
+            <div class="font-bold mr-3"> LeChat</div>
+            <img :src="srcMap[item.model]" style="height: 22px;">
+
+            <div class=" ml-1 ">{{ ` ${item.subModel}` }}
             </div>
           </div>
 
@@ -442,14 +473,14 @@ import VueLegacy from '../components/vue-legacy.vue';
 
 
 var srcMap = {
-            'openai': 'https://openai-1259183477.cos.ap-shanghai.myqcloud.com/Frame%201019.png',
-            'iflytek': 'https://openai-1259183477.cos.ap-shanghai.myqcloud.com/Frame%201021.png',
-            'baidu': 'https://openai-1259183477.cos.ap-shanghai.myqcloud.com/baidu.png',
-            'glm': 'https://openai-1259183477.cos.ap-shanghai.myqcloud.com/Frame%201022.png',
-            'google': 'https://openai-1259183477.cos.ap-shanghai.myqcloud.com/google.png',
-            
-            
-        };
+  'openai': 'https://openai-1259183477.cos.ap-shanghai.myqcloud.com/Frame%201019.png',
+  'iflytek': 'https://openai-1259183477.cos.ap-shanghai.myqcloud.com/Frame%201021.png',
+  'baidu': 'https://openai-1259183477.cos.ap-shanghai.myqcloud.com/baidu.png',
+  'glm': 'https://openai-1259183477.cos.ap-shanghai.myqcloud.com/Frame%201022.png',
+  'google': 'https://openai-1259183477.cos.ap-shanghai.myqcloud.com/google.png',
+
+
+};
 interface FormStatepw {
   pass: string;
   checkPass: string;
@@ -642,7 +673,7 @@ const open = ref<boolean>(false);
 
 const confirmLoading = ref<boolean>(false);
 const ifusersend = ref(false)
-const iffirstloud = ref(true)
+const iffirstloud = ref(false)
 // 声明一个apiKey变量，用于存储API密钥
 let apiKey = "";
 // 声明一个isConfig变量，用于存储配置是否打开的布尔值
@@ -691,6 +722,17 @@ const ifuserup = ref(false)
 // 声明一个isModalOpen变量，用于存储是否打开模态的布尔值
 const isModalOpen = ref(false)
 // 声明一个setIsModalOpen变量，用于存储是否设置模态的布尔值
+
+//选中的商品
+const selectedGoods = ref({
+
+});
+//充值结果显示
+const showpayres = ref(
+  false
+);
+
+
 const setIsModalOpen = ref(false)
 interface FormState {
   name: string;
@@ -847,13 +889,27 @@ type Response = {
 };
 const ifphone = ref(false)
 const chargeopen = ref(false);
+const chargecodeopen = ref(false);
 const showchargeModal = () => {
   chargeopen.value = true;
 };
-const handchargeleOk = e => {
-  // console.log(e);
-  chargeopen.value = false;
+const handchargeleOk =async () => {
+
+
 };
+const handchargecodeleOk = async () => {
+
+  showpayres.value = false
+
+  // chargecodeopen.value = false;
+  chargeopen.value = true;
+
+
+};
+const paysuccess = async () => {
+  showpayres.value = true
+}
+
 const type = ref('composition');
 const component = computed(
   () =>
@@ -1605,6 +1661,9 @@ const sevemsg = async () => {
 
 const choseItem = (e) => {
   console.log(e);
+  selectedGoods.value = e
+  chargecodeopen.value = true;
+  chargeopen.value = false;
 
 }
 
