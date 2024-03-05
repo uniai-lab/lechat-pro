@@ -809,7 +809,7 @@
 
                     <Loding style="margin-left: 20px" v-if="!item.content && !item.file" />
                     <div
-                        v-if="item.file"
+                        v-if="item.file"    
                         style="cursor: pointer"
 
                         class="filebox mb-2 mt-3"
