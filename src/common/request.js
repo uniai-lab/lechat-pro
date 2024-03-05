@@ -34,13 +34,19 @@ export const http = async (url, data = {}, method = 'GET', header = {}) => {
       token: localStorage.getItem('token') || '',
       id: localStorage.getItem('id') || 0,
       "app-type": 'web',
-      "Content-Type": "application/json",
+      // "Content-Type": "application/json",
 
       ...header
     }
   }
   if (method === 'POST' || method === 'post') {
-    options.body = JSON.stringify(data);
+    console.log( data )
+
+    if(data instanceof FormData)options.body = data
+    else if(typeof  data === 'object'){
+      options.headers['Content-Type'] = 'application/json'
+      options.body = JSON.stringify(data);
+    }
   }
   
   try {
@@ -53,7 +59,34 @@ export const http = async (url, data = {}, method = 'GET', header = {}) => {
     throw error;
   }
 }
+export const httppay = async (url, data = {}, method = 'GET', header = {}) => {
+  const options =   {
+    method,
+    // signal: AbortSignal.timeout(8000),
+    // 开启后到达设定时间会中断流式输出
+    headers: {
+      token: localStorage.getItem('token') || '',
+      id: localStorage.getItem('id') || 0,
+      "app-type": 'web',
+      "Content-Type": "application/json",
 
+      ...header
+    }
+  }
+  if (method === 'POST' || method === 'post') {
+    options.body = JSON.stringify(data);
+  }
+  
+  try {
+    const result = await fetch(URL + '/pay/' + url, 
+    options
+    
+    );
+    return result;
+  } catch (error) {
+    throw error;
+  }
+}
 export async function sse(url, data = {}, header = {}) {
   return await fetch(URL + '/web/' + url, {
     method: 'POST',

@@ -5,11 +5,14 @@
 
     <!-- 模态框 -->
     <div class="bg-white rounded-md shadow-md p-4">
+      <a-spin :spinning="logining">
+
+  
       <!-- 头部 -->
       <div class="flex justify-center items-center mb-2" style="position: relative;">
         <h2 class="text-lg font-medium">登录</h2>
 
-        <button v-if="type != 'code'" :data-id="type" class="text-gray-700 hover:text-gray-900 "
+        <div v-if="type != 'code'" :data-id="type" class="text-gray-700 hover:text-gray-900 "
           style="position: absolute; right:30px;" @click="changetype('code')">
 
           <!-- //二维码 svg-->
@@ -21,14 +24,14 @@
               d="M6.75 6.75h.75v.75h-.75v-.75ZM6.75 16.5h.75v.75h-.75v-.75ZM16.5 6.75h.75v.75h-.75v-.75ZM13.5 13.5h.75v.75h-.75v-.75ZM13.5 19.5h.75v.75h-.75v-.75ZM19.5 13.5h.75v.75h-.75v-.75ZM19.5 19.5h.75v.75h-.75v-.75ZM16.5 16.5h.75v.75h-.75v-.75Z" />
           </svg>
 
-        </button>
-        <button class="text-gray-700 hover:text-gray-900 " style="position: absolute; right: 0;" @click="hideModal"><svg
+        </div>
+        <div class="text-gray-700 hover:text-gray-900 " style="position: absolute; right: 0;" @click="hideModal"><svg
             xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
             class="w-6 h-6">
             <path stroke-linecap="round" stroke-linejoin="round"
               d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
           </svg>
-        </button>
+        </div>
       </div>
       <!-- 表单手机号 -->
       <form v-if="type == 'phone'" style="width: 310px;">
@@ -70,7 +73,7 @@
 
             </div>
             <div class="flex mt-2 text-xs justify-center items-center text-gray-700 ">
-              密码登陆
+              密码登录
             </div>
           </div>
 
@@ -153,7 +156,7 @@
 
             </div>
             <div class="flex mt-2 text-xs justify-center items-center text-gray-700 ">
-              密码登陆
+              密码登录
             </div>
           </div>
 
@@ -170,6 +173,7 @@
 
 
       </form>
+    </a-spin>
     </div>
   </div>
 </template>
@@ -195,6 +199,7 @@ const codesstatus = ref('loading');
 const qrcodetocken = ref('')
 const globalTimer = ref()
 const options = ref()
+const logining = ref(false)
 //suo
 const clock = ref(false)
 const info = reactive({
@@ -386,6 +391,7 @@ async function aftersuccess(result) {
 
 }
 async function submit() {
+  logining.value = true
 
   try {
 
@@ -429,6 +435,7 @@ async function submit() {
     })
   } finally {
 
+    logining.value = false
 
   }
 }
@@ -450,10 +457,13 @@ async function beforelogin() {
 }
 
 
-//账号密码登陆
+//账号密码登录
 async function loginByPassword() {
   let flag = false
   console.log(info.password);
+
+  logining.value = true
+
   if (validatePhone(info.phone)) {
     const qes = await http('login', {
       phone: info.phone,
@@ -461,6 +471,7 @@ async function loginByPassword() {
     }, 'POST'
     )
     const res = await qes.json()
+    logining.value = false
 
     if (res.status == 1) {
       // localStorage.setItem('userinfo', res.data)
@@ -535,6 +546,12 @@ const getqrcode = async () => {
         // };
         globalTimer.value()
 
+      }else{
+        MessageApi.open({
+        type: 'error',
+        duration: 3000,
+        content: '获取频繁，请十分钟后再试'
+      })
       }
 
     } catch (error) {

@@ -9,6 +9,7 @@ import 'vue3-dxui/dxui/dxui.css' // 全局样式导入
 import Antd from 'ant-design-vue';
 import 'ant-design-vue/dist/reset.css';
 import { LoadingOutlined  } from '@ant-design/icons';
+// import VueOfficePreview from 'vue-office-preview';
 
 const app = createApp(App);
 
