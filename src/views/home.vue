@@ -14,7 +14,7 @@
         <!-- v-if="isDragging" -->
         <div v-if="isDragging" class="upload-box">
             <a-upload-dragger
-                accept=" .pdf,.pdfx,.docx,.doc,.exc,.ppt,.pptx,.xls,.xlsx,"
+                :accept="allowFile"
                 ref="ref6"
                 v-model:file-list="fileListBT"
                 name="file"
@@ -663,25 +663,7 @@
                 />
             </a-config-provider>
 
-            <div class="loader-container" v-show="upSending">
-                <svg class="asvg" viewBox="0 0 80 80" width="200" height="200">
-                    <defs>
-                        <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                            <stop offset="0%" stop-color="#000"></stop>
-                            <stop offset="33%" stop-color="#666"></stop>
-                            <stop offset="66%" stop-color="#999"></stop>
-                        </linearGradient>
-                    </defs>
-                    <circle cx="40" cy="40" r="30" style="stroke-width: 5px"></circle>
-                    <circle
-                        cx="40"
-                        cy="40"
-                        r="25"
-                        style="stroke: url(#gradient); stroke-width: 5px"
-                        class="progress"
-                    ></circle>
-                </svg>
-            </div>
+           
 
             <!-- 文件预览 -->
             <a-modal
@@ -824,6 +806,101 @@
                     </div>
                 </div>
             </div>
+            <div class="loader-container" v-show="upSending" >
+                <svg
+                                    version="1.1"
+                                    id="Layer_1"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    xmlns:xlink="http://www.w3.org/1999/xlink"
+                                    x="0px"
+                                    y="0px"
+                                    width="24px"
+                                    height="30px"
+                                    viewBox="0 0 24 30"
+                                    style="enable-background: new 0 0 50 50"
+                                    xml:space="preserve"
+                                >
+                                    <rect x="0" y="10" width="4" height="10" fill="#333" opacity="0.2">
+                                        <animate
+                                            attributeName="opacity"
+                                            attributeType="XML"
+                                            values="0.2; 1; .2"
+                                            begin="0s"
+                                            dur="0.6s"
+                                            repeatCount="indefinite"
+                                        />
+                                        <animate
+                                            attributeName="height"
+                                            attributeType="XML"
+                                            values="10; 20; 10"
+                                            begin="0s"
+                                            dur="0.6s"
+                                            repeatCount="indefinite"
+                                        />
+                                        <animate
+                                            attributeName="y"
+                                            attributeType="XML"
+                                            values="10; 5; 10"
+                                            begin="0s"
+                                            dur="0.6s"
+                                            repeatCount="indefinite"
+                                        />
+                                    </rect>
+                                    <rect x="8" y="10" width="4" height="10" fill="#333" opacity="0.2">
+                                        <animate
+                                            attributeName="opacity"
+                                            attributeType="XML"
+                                            values="0.2; 1; .2"
+                                            begin="0.15s"
+                                            dur="0.6s"
+                                            repeatCount="indefinite"
+                                        />
+                                        <animate
+                                            attributeName="height"
+                                            attributeType="XML"
+                                            values="10; 20; 10"
+                                            begin="0.15s"
+                                            dur="0.6s"
+                                            repeatCount="indefinite"
+                                        />
+                                        <animate
+                                            attributeName="y"
+                                            attributeType="XML"
+                                            values="10; 5; 10"
+                                            begin="0.15s"
+                                            dur="0.6s"
+                                            repeatCount="indefinite"
+                                        />
+                                    </rect>
+                                    <rect x="16" y="10" width="4" height="10" fill="#333" opacity="0.2">
+                                        <animate
+                                            attributeName="opacity"
+                                            attributeType="XML"
+                                            values="0.2; 1; .2"
+                                            begin="0.3s"
+                                            dur="0.6s"
+                                            repeatCount="indefinite"
+                                        />
+                                        <animate
+                                            attributeName="height"
+                                            attributeType="XML"
+                                            values="10; 20; 10"
+                                            begin="0.3s"
+                                            dur="0.6s"
+                                            repeatCount="indefinite"
+                                        />
+                                        <animate
+                                            attributeName="y"
+                                            attributeType="XML"
+                                            values="10; 5; 10"
+                                            begin="0.3s"
+                                            dur="0.6s"
+                                            repeatCount="indefinite"
+                                        />
+                                    </rect>
+                                </svg>
+                            
+            </div>
         </div>
         <div
             v-if="sending"
@@ -866,7 +943,7 @@
         <div class="bottom-0 w-full p-4 bg-gray-100" style="position: absolute">
             <div class="upload-list" style="position: absolute; right: 28px; width: 300px; bottom: 80px">
                 <a-upload
-                    accept=" .pdf,.pdfx,.docx,.doc,.exc,.ppt,.pptx,.xls,.xlsx"
+                    :accept="allowFile"
                     v-model:file-list="fileListBT"
                     :beforeUpload="false"
                     list-type="picture"
@@ -949,7 +1026,7 @@
                     "
                 >
                     <a-upload
-                        accept=" .pdf,.pdfx,.docx,.doc,.exc,.ppt,.pptx,.xls,.xlsx"
+                        :accept="allowFile"
                         ref="ref4"
                         v-model:file-list="fileListBT"
                         name="file"
@@ -1175,7 +1252,7 @@ const ref5 = ref(null)
 const ref6 = ref(null)
 const iffirstopen = ref(false)
 const showcanvas = ref(null)
-
+const allowFile = ref(' .pdf,.pdfx,.docx,.doc,.exc,.ppt,.pptx,.xls,.xlsx,.wps')
 const steps: TourProps['steps'] = [
     {
         title: '历史对话',
@@ -1260,6 +1337,8 @@ var fileSrcMap = {
     pdfx: 'https://openai-1259183477.cos.ap-shanghai.myqcloud.com/fileicon%2Fpdf.png',
 
     docx: 'https://openai-1259183477.cos.ap-shanghai.myqcloud.com/fileicon%2Fdox.png',
+    wps: 'https://openai-1259183477.cos.ap-shanghai.myqcloud.com/fileicon%2Fdox.png',
+
 
     doc: 'https://openai-1259183477.cos.ap-shanghai.myqcloud.com/fileicon%2Fdox.png',
     exc: 'https://openai-1259183477.cos.ap-shanghai.myqcloud.com/exc.png',
@@ -2057,15 +2136,15 @@ onMounted(async () => {
     if (chatListDom.value) {
         chatListDom.value.addEventListener('scroll', function () {
             //判断滚轮是否为上滑动
-
-            // console.log(chatListDom.value?.scrollHeight -2);
+                
+            // console.log(chatListDom.value?.scrollHeight );
             // console.log(-chatListDom.value?.scrollTop + chatListDom.value?.clientHeight);
-            // console.log(
+            // // console.log(
             //     !allfinished.value
 
             // )
             if (
-                chatListDom.value?.scrollHeight - 2 <=
+                chatListDom.value?.scrollHeight-2  <=
                     -chatListDom.value?.scrollTop + chatListDom.value?.clientHeight &&
                 iflogin.value &&
                 clock === false &&
@@ -3273,7 +3352,10 @@ pre {
     display: flex;
     align-items: center;
     justify-content: center;
+    
     /* height: 100%; */
+
+ /* overflow: hidden; */
 }
 
 .asvg {
