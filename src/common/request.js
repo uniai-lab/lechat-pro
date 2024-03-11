@@ -49,15 +49,10 @@ export const http = async (url, data = {}, method = 'GET', header = {}) => {
     }
   }
   
-  try {
-    const result = await fetch(URL + '/web/' + url, 
-    options
-    
-    );
+
+    const result = await fetch(URL + '/web/' + url, options);
     return result;
-  } catch (error) {
-    throw error;
-  }
+
 }
 export const httppay = async (url, data = {}, method = 'GET', header = {}) => {
   const options =   {

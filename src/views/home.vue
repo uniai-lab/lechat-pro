@@ -14,7 +14,11 @@
         <!-- v-if="isDragging" -->
         <div v-if="isDragging" class="upload-box">
             <a-upload-dragger
-                :accept="allowFile"
+                :accept="
+                    Object.keys(fileSrcMap)
+                        .map(key => `.${key}`)
+                        .join(',')
+                "
                 ref="ref6"
                 v-model:file-list="fileListBT"
                 name="file"
@@ -42,7 +46,9 @@
                         />
                     </div>
                     <div class="uptitle">文件拖动到此处即可上传</div>
-                    <div class="upmsg">支持的文件类型：doc、docx、ppt、pptx、pdf、pdfx、xls、xlsx</div>
+                    <div class="upmsg">
+                        支持的文件格式：PDF、Word文档（DOC、DOCX）、Excel表格（XLSX）、PPT（PPT、PPTX）、TXT、CSV、MD、图片等
+                    </div>
                 </div>
             </a-upload-dragger>
         </div>
@@ -63,18 +69,28 @@
                 <ClearOutlined />
             </template>
         </a-float-button> -->
-        <a-float-button
-            v-if="!ifphone"
-            @click="showface"
-            type="default"
-            style="margin-bottom: 70px; margin-right: 0px"
-        >
+        <a-float-button v-if="!ifphone" @click="showface" type="default" style="margin-bottom: 70px; margin-right: 0px">
             <template #icon>
                 <!-- <RobotOutlined /> -->
 
-                <a-icon :style="{ fontSize:'20px',display:'flex',flexDection:'row',justifyContent:'center' }">
-                 <!-- <svg t="1709610574999" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="6922" width="30" height="30"><path d="M435.387733 610.184533l-55.825066-32.9728v-134.485333h55.825066z" p-id="6923"></path><path d="M511.505067 782.728533l-233.437867-134.485333V379.2896l233.437867-134.485333 233.437866 134.485333v268.9536zM331.349333 617.813333l180.155734 104.106667 180.155733-104.106667V409.736533l-180.155733-104.106666-180.155734 104.106666z" p-id="6924"></path><path d="M486.126933 513.774933h50.756267V752.298667h-50.756267z" p-id="6925"></path><path d="M498.824533 490.922667l208.059734-119.2448 25.378133 45.6704-208.059733 119.261866z" p-id="6926"></path><path d="M290.747733 416.068267l26.589867-46.08L523.946667 489.045333l-26.641067 46.199467zM580.010667 917.213867L554.666667 871.543467l304.469333-175.086934V361.5232h53.282133V711.68a26.624 26.624 0 0 1-12.680533 22.8352z m-137.0112 0l-319.709867-182.613334A26.641067 26.641067 0 0 1 110.592 711.68V361.5232H163.84v334.933333l304.5376 175.086934zM199.406933 300.629333L174.08 254.958933l324.795733-187.733333a23.005867 23.005867 0 0 1 25.378134 0l324.778666 187.733333-25.378133 45.6704-312.149333-180.155733z" p-id="6927"></path><path d="M884.514133 221.969067c-45.6704 0-83.746133 38.058667-83.746133 83.729066s38.075733 83.746133 83.746133 83.746134 83.729067-38.075733 83.729067-83.746134-38.058667-83.729067-83.729067-83.729066z m0 114.176c-17.7664 0-30.446933-12.680533-30.446933-30.446934s12.680533-30.446933 30.446933-30.446933 30.446933 12.680533 30.446934 30.446933S902.263467 336.213333 884.514133 336.213333z m-746.001066-114.176c-45.6704 0-83.746133 38.058667-83.746134 83.729066S92.842667 386.901333 138.513067 386.901333s83.729067-38.058667 83.729066-83.746133-38.058667-81.186133-83.729066-81.186133z m0 114.176c-17.7664 0-30.446933-12.680533-30.446934-30.446934s12.680533-30.446933 30.446934-30.446933S168.96 287.931733 168.96 305.698133 153.736533 336.213333 138.513067 336.213333z m372.992 461.806933c-45.6704 0-83.729067 38.058667-83.729067 83.746133s38.058667 83.729067 83.729067 83.729067 83.729067-38.058667 83.729066-83.729067-38.058667-83.746133-83.729066-83.746133z m0 114.193067c-17.749333 0-30.446933-12.680533-30.446934-30.446934 0-15.223467 12.6976-30.446933 30.446934-30.446933s30.446933 12.680533 30.446933 30.446933c0 15.223467-15.223467 30.446933-30.446933 30.446934z" p-id="6928"></path></svg> -->
-                 <svg t="1709611594182" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="19888" width="20" height="20"><path d="M582.464 228.202667L490.666667 192l91.797333-36.202667L618.666667 64l36.202666 91.797333L746.666667 192l-91.797334 36.202667L618.666667 320l-36.202667-91.797333z m213.333333-64L704 128l91.797333-36.202667L832 0l36.202667 91.797333L960 128l-91.797333 36.202667L832 256l-36.202667-91.797333z m64 213.333333L768 341.333333l91.797333-36.202666L896 213.333333l36.202667 91.797334L1024 341.333333l-91.797333 36.202667L896 469.333333l-36.202667-91.797333zM512 42.666667v85.333333C299.925333 128 128 299.925333 128 512s171.925333 384 384 384 384-171.925333 384-384h85.333333c0 259.2-210.133333 469.333333-469.333333 469.333333S42.666667 771.2 42.666667 512 252.8 42.666667 512 42.666667z m-181.013333 670.165333l60.330666-60.330667a170.666667 170.666667 0 0 0 241.365334 0l60.330666 60.330667c-99.968 99.989333-262.058667 99.989333-362.026666 0zM362.666667 533.333333a64 64 0 1 1 0-128 64 64 0 0 1 0 128z m298.666666 0a64 64 0 1 1 0-128 64 64 0 0 1 0 128z" fill="#000000" p-id="19889"></path></svg>
+                <a-icon :style="{ fontSize: '20px', display: 'flex', flexDection: 'row', justifyContent: 'center' }">
+                    <!-- <svg t="1709610574999" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="6922" width="30" height="30"><path d="M435.387733 610.184533l-55.825066-32.9728v-134.485333h55.825066z" p-id="6923"></path><path d="M511.505067 782.728533l-233.437867-134.485333V379.2896l233.437867-134.485333 233.437866 134.485333v268.9536zM331.349333 617.813333l180.155734 104.106667 180.155733-104.106667V409.736533l-180.155733-104.106666-180.155734 104.106666z" p-id="6924"></path><path d="M486.126933 513.774933h50.756267V752.298667h-50.756267z" p-id="6925"></path><path d="M498.824533 490.922667l208.059734-119.2448 25.378133 45.6704-208.059733 119.261866z" p-id="6926"></path><path d="M290.747733 416.068267l26.589867-46.08L523.946667 489.045333l-26.641067 46.199467zM580.010667 917.213867L554.666667 871.543467l304.469333-175.086934V361.5232h53.282133V711.68a26.624 26.624 0 0 1-12.680533 22.8352z m-137.0112 0l-319.709867-182.613334A26.641067 26.641067 0 0 1 110.592 711.68V361.5232H163.84v334.933333l304.5376 175.086934zM199.406933 300.629333L174.08 254.958933l324.795733-187.733333a23.005867 23.005867 0 0 1 25.378134 0l324.778666 187.733333-25.378133 45.6704-312.149333-180.155733z" p-id="6927"></path><path d="M884.514133 221.969067c-45.6704 0-83.746133 38.058667-83.746133 83.729066s38.075733 83.746133 83.746133 83.746134 83.729067-38.075733 83.729067-83.746134-38.058667-83.729067-83.729067-83.729066z m0 114.176c-17.7664 0-30.446933-12.680533-30.446933-30.446934s12.680533-30.446933 30.446933-30.446933 30.446933 12.680533 30.446934 30.446933S902.263467 336.213333 884.514133 336.213333z m-746.001066-114.176c-45.6704 0-83.746133 38.058667-83.746134 83.729066S92.842667 386.901333 138.513067 386.901333s83.729067-38.058667 83.729066-83.746133-38.058667-81.186133-83.729066-81.186133z m0 114.176c-17.7664 0-30.446933-12.680533-30.446934-30.446934s12.680533-30.446933 30.446934-30.446933S168.96 287.931733 168.96 305.698133 153.736533 336.213333 138.513067 336.213333z m372.992 461.806933c-45.6704 0-83.729067 38.058667-83.729067 83.746133s38.058667 83.729067 83.729067 83.729067 83.729067-38.058667 83.729066-83.729067-38.058667-83.746133-83.729066-83.746133z m0 114.193067c-17.749333 0-30.446933-12.680533-30.446934-30.446934 0-15.223467 12.6976-30.446933 30.446934-30.446933s30.446933 12.680533 30.446933 30.446933c0 15.223467-15.223467 30.446933-30.446933 30.446934z" p-id="6928"></path></svg> -->
+                    <svg
+                        t="1709611594182"
+                        class="icon"
+                        viewBox="0 0 1024 1024"
+                        version="1.1"
+                        xmlns="http://www.w3.org/2000/svg"
+                        p-id="19888"
+                        width="20"
+                        height="20"
+                    >
+                        <path
+                            d="M582.464 228.202667L490.666667 192l91.797333-36.202667L618.666667 64l36.202666 91.797333L746.666667 192l-91.797334 36.202667L618.666667 320l-36.202667-91.797333z m213.333333-64L704 128l91.797333-36.202667L832 0l36.202667 91.797333L960 128l-91.797333 36.202667L832 256l-36.202667-91.797333z m64 213.333333L768 341.333333l91.797333-36.202666L896 213.333333l36.202667 91.797334L1024 341.333333l-91.797333 36.202667L896 469.333333l-36.202667-91.797333zM512 42.666667v85.333333C299.925333 128 128 299.925333 128 512s171.925333 384 384 384 384-171.925333 384-384h85.333333c0 259.2-210.133333 469.333333-469.333333 469.333333S42.666667 771.2 42.666667 512 252.8 42.666667 512 42.666667z m-181.013333 670.165333l60.330666-60.330667a170.666667 170.666667 0 0 0 241.365334 0l60.330666 60.330667c-99.968 99.989333-262.058667 99.989333-362.026666 0zM362.666667 533.333333a64 64 0 1 1 0-128 64 64 0 0 1 0 128z m298.666666 0a64 64 0 1 1 0-128 64 64 0 0 1 0 128z"
+                            fill="#000000"
+                            p-id="19889"
+                        ></path>
+                    </svg>
                 </a-icon>
             </template>
         </a-float-button>
@@ -280,83 +296,76 @@
         <!-- 充值弹框 -->
 
         <a-modal :width="720" :footer="null" v-model:open="chargeopen" title="充值" :afterClose="handchargeleOk">
-            <a-watermark :content="['价格仅供内部测试', '正式版本权益清空']">
-                <div
-                    style="padding: 10px; display: flex; flex-direction: row; flex-wrap: wrap; justify-content: center"
-                >
-                    <div class="shoplist" v-for="item in shoplist">
+            <!-- <a-watermark :content="['价格仅供内部测试', '正式版本权益清空']"> -->
+            <div style="padding: 10px; display: flex; flex-direction: row; flex-wrap: wrap; justify-content: center">
+                <div class="shoplist" v-for="item in shoplist">
+                    <div
+                        @click="choseItem(item)"
+                        class="flex flex-clo shopitem border-[#cfcfcf] border-[2px] rounded-[10px] cursor-pointer items-center relative overflow-hidden mx-1 my-1"
+                    >
+                        <div class="text-[16px] mt-[25px]">
+                            {{ item.title }}
+                        </div>
+                        <div class="text-[22px] mt-[12px] text-[#e2b460] font-medium">￥{{ item.price }}</div>
                         <div
-                            @click="choseItem(item)"
-                            class="flex flex-clo shopitem border-[#cfcfcf] border-[2px] rounded-[10px] cursor-pointer items-center relative overflow-hidden mx-1 my-1"
+                            class="text-[13px] text-[#bcbcbc] mb-[12px] text-center px-[5px]"
+                            style="
+                                text-decoration: line-through;
+                                text-decoration-color: #bcbcbc;
+                                text-decoration-thickness: 1px;
+                                text-decoration-style: solid;
+                            "
                         >
-                            <div class="text-[16px] mt-[25px]">
-                                {{ item.title }}
-                            </div>
-                            <div class="text-[22px] mt-[12px] text-[#e2b460] font-medium">￥{{ item.price }}</div>
-                            <div
-                                class="text-[13px] text-[#bcbcbc] mb-[12px] text-center px-[5px]"
-                                style="
-                                    text-decoration: line-through;
-                                    text-decoration-color: #bcbcbc;
-                                    text-decoration-thickness: 1px;
-                                    text-decoration-style: solid;
-                                "
-                            >
-                                {{ item.price * 2 }}元
-                            </div>
+                            {{ item.price * 2 }}元
+                        </div>
 
-                            <div class="text-[12px]" style="width: 85%; height: auto" v-for="role in item.description">
+                        <div class="text-[12px]" style="width: 85%; height: auto" v-for="role in item.description">
+                            <div
+                                class="flex flex-row mt-1"
+                                style="display: flex; flex-direction: row; justify-content: start; align-items: start"
+                            >
+                                <svg
+                                    stroke="currentColor"
+                                    fill="none"
+                                    stroke-width="2"
+                                    viewBox="0 0 24 24"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    class="h-4 text-green-700"
+                                    height="30px"
+                                    width="30px"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                >
+                                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                                </svg>
                                 <div
-                                    class="flex flex-row mt-1"
                                     style="
+                                        width: 95%;
                                         display: flex;
                                         flex-direction: row;
-                                        justify-content: start;
+                                        justify-content: left;
                                         align-items: start;
                                     "
                                 >
-                                    <svg
-                                        stroke="currentColor"
-                                        fill="none"
-                                        stroke-width="2"
-                                        viewBox="0 0 24 24"
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        class="h-4 text-green-700"
-                                        height="30px"
-                                        width="30px"
-                                        xmlns="http://www.w3.org/2000/svg"
-                                    >
-                                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                                        <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                                    </svg>
-                                    <div
-                                        style="
-                                            width: 95%;
-                                            display: flex;
-                                            flex-direction: row;
-                                            justify-content: left;
-                                            align-items: start;
-                                        "
-                                    >
-                                        {{ role }}
-                                    </div>
+                                    {{ role }}
                                 </div>
-                                <div
-                                    class="text-[12px] text-[#573B18] absolute right-0 top-0 rounded-[8px] py-[2px] px-[6px] rounded-r-none truncate"
-                                    style="background: linear-gradient(90deg, rgb(249, 229, 189), rgb(226, 180, 96))"
-                                >
-                                    限时折扣
-                                </div>
+                            </div>
+                            <div
+                                class="text-[12px] text-[#573B18] absolute right-0 top-0 rounded-[8px] py-[2px] px-[6px] rounded-r-none truncate"
+                                style="background: linear-gradient(90deg, rgb(249, 229, 189), rgb(226, 180, 96))"
+                            >
+                                限时折扣
                             </div>
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <div class="" style="display: flex; justify-content: center">
-                    如果您遇到了问题请联系，《AI乐聊》微信小程序客服。
-                </div>
-            </a-watermark>
+            <div class="" style="display: flex; justify-content: center">
+                如果您遇到了问题请联系，《AI乐聊》微信小程序客服。
+            </div>
+            <!-- </a-watermark> -->
         </a-modal>
 
         <!-- 弹出框 -->
@@ -371,13 +380,7 @@
                     <edit-outlined @click="changeuserinfo()" />
                     <LogoutOutlined @click.stop="logout()" />
                 </template>
-                <a-card-meta
-                    :title="userinfo.name"
-                    :description="
-                        '对话次数:' +
-                        userinfo.chance.totalChatChance 
-                    "
-                >
+                <a-card-meta :title="userinfo.name" :description="'对话次数:' + userinfo.chance.totalChatChance">
                     <template #avatar>
                         <a-avatar :style="'height:50px;width:50px;margin:0px 10px 10px 10px'" :src="userinfo.avatar" />
                         <div
@@ -425,169 +428,169 @@
             :title="selectedGoods.title"
             :afterClose="handchargecodeleOk"
         >
-            <a-watermark :content="['价格仅供内部测试', '正式版本权益清空']">
-                <div v-if="!showpayres" style="padding: 10px; justify-content: space-between" class="flex flex-row">
-                    <div style="display: flex; flex-direction: column">
-                        <div class="mt-2" style="font-size: 16px">您正在购买《LeChatPro》{{ selectedGoods.title }}</div>
-                        <!-- <div class="mt-2" style="font-size: 16px;"> 价格：{{ selectedGoods.price }}</div> -->
-                        <div class="text-[20px] mt-[5px] text-[#01b085] font-medium">
-                            支付金额:￥{{ selectedGoods.price }}
-                        </div>
-                        <div class="mt-2 mb-1" style="font-size: 16px">解锁权益：</div>
-                        <!-- <div v-for="arole in selectedGoods.description">{{ arole }}</div> -->
-                        <div class="" v-for="arole in selectedGoods.description">
-                            <div class="h-8 gap-1 flex flex-row justify-start items-center text-sm">
-                                <svg
-                                    stroke="currentColor"
-                                    fill="none"
-                                    stroke-width="2"
-                                    viewBox="0 0 24 24"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    class="h-5 w-5 text-green-700"
-                                    height="1em"
-                                    width="1em"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                >
-                                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                                </svg>
-                                <span>
-                                    {{ arole }}
-                                </span>
-                            </div>
-                        </div>
+            <!-- <a-watermark :content="['价格仅供内部测试', '正式版本权益清空']"> -->
+            <div v-if="!showpayres" style="padding: 10px; justify-content: space-between" class="flex flex-row">
+                <div style="display: flex; flex-direction: column">
+                    <div class="mt-2" style="font-size: 16px">您正在购买《LeChatPro》{{ selectedGoods.title }}</div>
+                    <!-- <div class="mt-2" style="font-size: 16px;"> 价格：{{ selectedGoods.price }}</div> -->
+                    <div class="text-[20px] mt-[5px] text-[#01b085] font-medium">
+                        支付金额:￥{{ selectedGoods.price }}
                     </div>
-                    <div style="display: flex; flex-direction: column">
-                        <div class="flex flex-row" style="width: 200px; justify-content: center; align-items: center">
-                            <div class="flex">
-                                <img
-                                    src="data:image/png;base64,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"
-                                    class="w-[25px] h-[25px]"
-                                    alt=""
-                                />
-                                <span class="pl-[8px] text-[15px] font-medium">微信支付</span>
-                            </div>
-                        </div>
-
-                        <div
-                            class="bg-gray-000 flex flex-col"
-                            style="justify-content: center; height: 200px; width: 200px; align-items: center"
-                        >
-                            <img v-show="shopQRcode" style="height: 200px; width: 200px" :src="shopQRcode" />
-                            <div v-show="!shopQRcode">
-                                <svg
-                                    version="1.1"
-                                    id="Layer_1"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    xmlns:xlink="http://www.w3.org/1999/xlink"
-                                    x="0px"
-                                    y="0px"
-                                    width="24px"
-                                    height="30px"
-                                    viewBox="0 0 24 30"
-                                    style="enable-background: new 0 0 50 50"
-                                    xml:space="preserve"
-                                >
-                                    <rect x="0" y="10" width="4" height="10" fill="#333" opacity="0.2">
-                                        <animate
-                                            attributeName="opacity"
-                                            attributeType="XML"
-                                            values="0.2; 1; .2"
-                                            begin="0s"
-                                            dur="0.6s"
-                                            repeatCount="indefinite"
-                                        />
-                                        <animate
-                                            attributeName="height"
-                                            attributeType="XML"
-                                            values="10; 20; 10"
-                                            begin="0s"
-                                            dur="0.6s"
-                                            repeatCount="indefinite"
-                                        />
-                                        <animate
-                                            attributeName="y"
-                                            attributeType="XML"
-                                            values="10; 5; 10"
-                                            begin="0s"
-                                            dur="0.6s"
-                                            repeatCount="indefinite"
-                                        />
-                                    </rect>
-                                    <rect x="8" y="10" width="4" height="10" fill="#333" opacity="0.2">
-                                        <animate
-                                            attributeName="opacity"
-                                            attributeType="XML"
-                                            values="0.2; 1; .2"
-                                            begin="0.15s"
-                                            dur="0.6s"
-                                            repeatCount="indefinite"
-                                        />
-                                        <animate
-                                            attributeName="height"
-                                            attributeType="XML"
-                                            values="10; 20; 10"
-                                            begin="0.15s"
-                                            dur="0.6s"
-                                            repeatCount="indefinite"
-                                        />
-                                        <animate
-                                            attributeName="y"
-                                            attributeType="XML"
-                                            values="10; 5; 10"
-                                            begin="0.15s"
-                                            dur="0.6s"
-                                            repeatCount="indefinite"
-                                        />
-                                    </rect>
-                                    <rect x="16" y="10" width="4" height="10" fill="#333" opacity="0.2">
-                                        <animate
-                                            attributeName="opacity"
-                                            attributeType="XML"
-                                            values="0.2; 1; .2"
-                                            begin="0.3s"
-                                            dur="0.6s"
-                                            repeatCount="indefinite"
-                                        />
-                                        <animate
-                                            attributeName="height"
-                                            attributeType="XML"
-                                            values="10; 20; 10"
-                                            begin="0.3s"
-                                            dur="0.6s"
-                                            repeatCount="indefinite"
-                                        />
-                                        <animate
-                                            attributeName="y"
-                                            attributeType="XML"
-                                            values="10; 5; 10"
-                                            begin="0.3s"
-                                            dur="0.6s"
-                                            repeatCount="indefinite"
-                                        />
-                                    </rect>
-                                </svg>
-                            </div>
+                    <div class="mt-2 mb-1" style="font-size: 16px">解锁权益：</div>
+                    <!-- <div v-for="arole in selectedGoods.description">{{ arole }}</div> -->
+                    <div class="" v-for="arole in selectedGoods.description">
+                        <div class="h-8 gap-1 flex flex-row justify-start items-center text-sm">
+                            <svg
+                                stroke="currentColor"
+                                fill="none"
+                                stroke-width="2"
+                                viewBox="0 0 24 24"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                class="h-5 w-5 text-green-700"
+                                height="1em"
+                                width="1em"
+                                xmlns="http://www.w3.org/2000/svg"
+                            >
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                            </svg>
+                            <span>
+                                {{ arole }}
+                            </span>
                         </div>
                     </div>
                 </div>
+                <div style="display: flex; flex-direction: column">
+                    <div class="flex flex-row mt-2" style="width: 200px; justify-content: center; align-items: center">
+                        <div class="flex">
+                            <img
+                                src="data:image/png;base64,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"
+                                class="w-[25px] h-[25px]"
+                                alt=""
+                            />
+                            <span class="pl-[8px] text-[15px] font-medium">微信支付</span>
+                        </div>
+                    </div>
 
-                <a-result
-                    :style="{ position: 'relative' }"
-                    v-if="showpayres"
-                    status="success"
-                    title="支付成功"
-                    :sub-title="`订单编号:${lastTransactionId} , 可能存在1-3分钟的延迟，如长时间没有到账，请联系客服`"
-                >
-                    <template #extra>
-                        <canvas
-                            style="z-index: 999999; position: absolute; left: 0; bottom: 0; width: 472px; height: 100%"
-                            ref="showcanvas"
-                        ></canvas>
-                    </template>
-                </a-result>
-            </a-watermark>
+                    <div
+                        class="bg-gray-000 flex flex-col"
+                        style="justify-content: center; height: 200px; width: 200px; align-items: center"
+                    >
+                        <img v-show="shopQRcode" style="height: 200px; width: 200px" :src="shopQRcode" />
+                        <div v-show="!shopQRcode">
+                            <svg
+                                version="1.1"
+                                id="Layer_1"
+                                xmlns="http://www.w3.org/2000/svg"
+                                xmlns:xlink="http://www.w3.org/1999/xlink"
+                                x="0px"
+                                y="0px"
+                                width="24px"
+                                height="30px"
+                                viewBox="0 0 24 30"
+                                style="enable-background: new 0 0 50 50"
+                                xml:space="preserve"
+                            >
+                                <rect x="0" y="10" width="4" height="10" fill="#333" opacity="0.2">
+                                    <animate
+                                        attributeName="opacity"
+                                        attributeType="XML"
+                                        values="0.2; 1; .2"
+                                        begin="0s"
+                                        dur="0.6s"
+                                        repeatCount="indefinite"
+                                    />
+                                    <animate
+                                        attributeName="height"
+                                        attributeType="XML"
+                                        values="10; 20; 10"
+                                        begin="0s"
+                                        dur="0.6s"
+                                        repeatCount="indefinite"
+                                    />
+                                    <animate
+                                        attributeName="y"
+                                        attributeType="XML"
+                                        values="10; 5; 10"
+                                        begin="0s"
+                                        dur="0.6s"
+                                        repeatCount="indefinite"
+                                    />
+                                </rect>
+                                <rect x="8" y="10" width="4" height="10" fill="#333" opacity="0.2">
+                                    <animate
+                                        attributeName="opacity"
+                                        attributeType="XML"
+                                        values="0.2; 1; .2"
+                                        begin="0.15s"
+                                        dur="0.6s"
+                                        repeatCount="indefinite"
+                                    />
+                                    <animate
+                                        attributeName="height"
+                                        attributeType="XML"
+                                        values="10; 20; 10"
+                                        begin="0.15s"
+                                        dur="0.6s"
+                                        repeatCount="indefinite"
+                                    />
+                                    <animate
+                                        attributeName="y"
+                                        attributeType="XML"
+                                        values="10; 5; 10"
+                                        begin="0.15s"
+                                        dur="0.6s"
+                                        repeatCount="indefinite"
+                                    />
+                                </rect>
+                                <rect x="16" y="10" width="4" height="10" fill="#333" opacity="0.2">
+                                    <animate
+                                        attributeName="opacity"
+                                        attributeType="XML"
+                                        values="0.2; 1; .2"
+                                        begin="0.3s"
+                                        dur="0.6s"
+                                        repeatCount="indefinite"
+                                    />
+                                    <animate
+                                        attributeName="height"
+                                        attributeType="XML"
+                                        values="10; 20; 10"
+                                        begin="0.3s"
+                                        dur="0.6s"
+                                        repeatCount="indefinite"
+                                    />
+                                    <animate
+                                        attributeName="y"
+                                        attributeType="XML"
+                                        values="10; 5; 10"
+                                        begin="0.3s"
+                                        dur="0.6s"
+                                        repeatCount="indefinite"
+                                    />
+                                </rect>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <a-result
+                :style="{ position: 'relative' }"
+                v-if="showpayres"
+                status="success"
+                title="支付成功"
+                :sub-title="`订单编号:${lastTransactionId} , 可能存在1-3分钟的延迟，如长时间没有到账，请联系客服`"
+            >
+                <template #extra>
+                    <canvas
+                        style="z-index: 999999; position: absolute; left: 0; bottom: 0; width: 472px; height: 100%"
+                        ref="showcanvas"
+                    ></canvas>
+                </template>
+            </a-result>
+            <!-- </a-watermark> -->
         </a-modal>
 
         <!-- 中心区域 -->
@@ -662,8 +665,6 @@
                     :arrow="false"
                 />
             </a-config-provider>
-
-           
 
             <!-- 文件预览 -->
             <a-modal
@@ -745,7 +746,7 @@
                         <div class="font-bold mr-3">LeChat</div>
                         <img :src="srcMap[item.model]" style="height: 22px" />
 
-                        <div class="ml-1">{{ item.subModel|| '' }}</div>
+                        <div class="ml-1">{{ item.subModel || '' }}</div>
                     </div>
 
                     <Copy class="invisible group-hover:visible" :content="item.content" />
@@ -760,29 +761,20 @@
 
                     <Loding style="margin-left: 20px" v-if="!item.content && !item.file" />
                     <div
-                        v-if="item.file"    
+                        v-if="item.file && !item.file.ext.match('image.*')"
                         style="cursor: pointer"
-
                         class="filebox mb-2 mt-3"
                         @click="item.file.type != 'error' ? openFile(item.file.url, item.file.name, item.file.ext) : ''"
-                    > 
+                    >
                         <div class="fileitem py-2 max-w-60 px-3">
                             <a-spin :spinning="item.file.type == 'sending'" tip="正在解析中...">
                                 <div class="fileitembox">
                                     <div class="flileimg">
-                                        <img
-                                            style="width: 40px"
-                                            :src="
-                                                fileSrcMap[item.file.ext] || fileSrcMap['notfound']
-                                                
-                                            "
-                                            alt=""
-                                        />
+                                        <img style="width: 40px" :src="fileSrcMap[item.file.ext] || fileError" alt="" />
                                     </div>
                                     <div class="fileinfo ml-2">
                                         <div class="filename text-gray-900">
                                             {{ item.file.name }}
-                                            
                                         </div>
 
                                         <div
@@ -804,102 +796,115 @@
                             </a-spin>
                         </div>
                     </div>
+
+                    <div
+                        v-if="item.file && item.file.ext.match('image.*')"
+                        class="filebox mb-2 mt-3"
+                        style="margin-left: 22px"
+                    >
+                        <div style="width: 500px">
+                            <a-config-provider :locale="zhCN">
+                                <a-spin :spinning="item.file.type == 'sending'" tip="正在解析中...">
+                                    <a-image :maxWidth="450" :maxHeight="450" :src="item.file.url" />
+                                </a-spin>
+                            </a-config-provider>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="loader-container" v-show="upSending" >
+            <div class="loader-container" v-show="upSending">
                 <svg
-                                    version="1.1"
-                                    id="Layer_1"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    xmlns:xlink="http://www.w3.org/1999/xlink"
-                                    x="0px"
-                                    y="0px"
-                                    width="24px"
-                                    height="30px"
-                                    viewBox="0 0 24 30"
-                                    style="enable-background: new 0 0 50 50"
-                                    xml:space="preserve"
-                                >
-                                    <rect x="0" y="10" width="4" height="10" fill="#333" opacity="0.2">
-                                        <animate
-                                            attributeName="opacity"
-                                            attributeType="XML"
-                                            values="0.2; 1; .2"
-                                            begin="0s"
-                                            dur="0.6s"
-                                            repeatCount="indefinite"
-                                        />
-                                        <animate
-                                            attributeName="height"
-                                            attributeType="XML"
-                                            values="10; 20; 10"
-                                            begin="0s"
-                                            dur="0.6s"
-                                            repeatCount="indefinite"
-                                        />
-                                        <animate
-                                            attributeName="y"
-                                            attributeType="XML"
-                                            values="10; 5; 10"
-                                            begin="0s"
-                                            dur="0.6s"
-                                            repeatCount="indefinite"
-                                        />
-                                    </rect>
-                                    <rect x="8" y="10" width="4" height="10" fill="#333" opacity="0.2">
-                                        <animate
-                                            attributeName="opacity"
-                                            attributeType="XML"
-                                            values="0.2; 1; .2"
-                                            begin="0.15s"
-                                            dur="0.6s"
-                                            repeatCount="indefinite"
-                                        />
-                                        <animate
-                                            attributeName="height"
-                                            attributeType="XML"
-                                            values="10; 20; 10"
-                                            begin="0.15s"
-                                            dur="0.6s"
-                                            repeatCount="indefinite"
-                                        />
-                                        <animate
-                                            attributeName="y"
-                                            attributeType="XML"
-                                            values="10; 5; 10"
-                                            begin="0.15s"
-                                            dur="0.6s"
-                                            repeatCount="indefinite"
-                                        />
-                                    </rect>
-                                    <rect x="16" y="10" width="4" height="10" fill="#333" opacity="0.2">
-                                        <animate
-                                            attributeName="opacity"
-                                            attributeType="XML"
-                                            values="0.2; 1; .2"
-                                            begin="0.3s"
-                                            dur="0.6s"
-                                            repeatCount="indefinite"
-                                        />
-                                        <animate
-                                            attributeName="height"
-                                            attributeType="XML"
-                                            values="10; 20; 10"
-                                            begin="0.3s"
-                                            dur="0.6s"
-                                            repeatCount="indefinite"
-                                        />
-                                        <animate
-                                            attributeName="y"
-                                            attributeType="XML"
-                                            values="10; 5; 10"
-                                            begin="0.3s"
-                                            dur="0.6s"
-                                            repeatCount="indefinite"
-                                        />
-                                    </rect>
-                                </svg>
-                            
+                    version="1.1"
+                    id="Layer_1"
+                    xmlns="http://www.w3.org/2000/svg"
+                    xmlns:xlink="http://www.w3.org/1999/xlink"
+                    x="0px"
+                    y="0px"
+                    width="24px"
+                    height="30px"
+                    viewBox="0 0 24 30"
+                    style="enable-background: new 0 0 50 50"
+                    xml:space="preserve"
+                >
+                    <rect x="0" y="10" width="4" height="10" fill="#333" opacity="0.2">
+                        <animate
+                            attributeName="opacity"
+                            attributeType="XML"
+                            values="0.2; 1; .2"
+                            begin="0s"
+                            dur="0.6s"
+                            repeatCount="indefinite"
+                        />
+                        <animate
+                            attributeName="height"
+                            attributeType="XML"
+                            values="10; 20; 10"
+                            begin="0s"
+                            dur="0.6s"
+                            repeatCount="indefinite"
+                        />
+                        <animate
+                            attributeName="y"
+                            attributeType="XML"
+                            values="10; 5; 10"
+                            begin="0s"
+                            dur="0.6s"
+                            repeatCount="indefinite"
+                        />
+                    </rect>
+                    <rect x="8" y="10" width="4" height="10" fill="#333" opacity="0.2">
+                        <animate
+                            attributeName="opacity"
+                            attributeType="XML"
+                            values="0.2; 1; .2"
+                            begin="0.15s"
+                            dur="0.6s"
+                            repeatCount="indefinite"
+                        />
+                        <animate
+                            attributeName="height"
+                            attributeType="XML"
+                            values="10; 20; 10"
+                            begin="0.15s"
+                            dur="0.6s"
+                            repeatCount="indefinite"
+                        />
+                        <animate
+                            attributeName="y"
+                            attributeType="XML"
+                            values="10; 5; 10"
+                            begin="0.15s"
+                            dur="0.6s"
+                            repeatCount="indefinite"
+                        />
+                    </rect>
+                    <rect x="16" y="10" width="4" height="10" fill="#333" opacity="0.2">
+                        <animate
+                            attributeName="opacity"
+                            attributeType="XML"
+                            values="0.2; 1; .2"
+                            begin="0.3s"
+                            dur="0.6s"
+                            repeatCount="indefinite"
+                        />
+                        <animate
+                            attributeName="height"
+                            attributeType="XML"
+                            values="10; 20; 10"
+                            begin="0.3s"
+                            dur="0.6s"
+                            repeatCount="indefinite"
+                        />
+                        <animate
+                            attributeName="y"
+                            attributeType="XML"
+                            values="10; 5; 10"
+                            begin="0.3s"
+                            dur="0.6s"
+                            repeatCount="indefinite"
+                        />
+                    </rect>
+                </svg>
             </div>
         </div>
         <div
@@ -943,31 +948,46 @@
         <div class="bottom-0 w-full p-4 bg-gray-100" style="position: absolute">
             <div class="upload-list" style="position: absolute; right: 28px; width: 300px; bottom: 80px">
                 <a-upload
-                    :accept="allowFile"
+                    :accept="
+                        Object.keys(fileSrcMap)
+                            .map(key => `.${key}`)
+                            .join(',')
+                    "
                     v-model:file-list="fileListBT"
                     :beforeUpload="false"
                     list-type="picture"
                 >
                     <template v-slot:iconRender="props">
-                        <img
-                            :src="
-                                fileSrcMap[props.file.name.split('.').pop()] ||
-                                fileSrcMap['notfound']
-                            "
-                        />
+                        <img :src="fileSrcMap[props.file.name.split('.').pop()] || fileError" />
                     </template>
                 </a-upload>
             </div>
 
             <div class="flex flex-row" style="align-items: center">
-            
                 <a-button
                     ref="ref1"
                     @click="showfilelist"
                     class="flex justify-center items-center ml-0 px-2 rounded-md flex-row text-gray-900 bg-gray-100"
                 >
-                <svg  t="1709609597661" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4448" width="18" height="18"><path d="M279.04 617.472c0.896-26.496 4.16-52.864 9.728-78.848H39.424a39.424 39.424 0 1 0 0 78.848H279.04zM39.424 774.656a39.424 39.424 0 0 0 0 78.848h304.128c-15.808-24.768-28.8-51.2-38.912-78.848H39.424z m0-629.76H880.64a39.424 39.424 0 1 0 0-78.848H39.424a39.424 39.424 0 0 0 0 78.848z m397.824 157.696H39.424a39.424 39.424 0 0 0 0 78.848H360.96c21.76-29.568 47.488-56.064 76.288-78.848z m258.56-1.024a328.192 328.192 0 1 0 0 656.384 328.192 328.192 0 0 0 0-656.384z m115.712 368.64h-115.712a39.424 39.424 0 0 1-39.424-39.424V486.4a39.424 39.424 0 0 1 78.848 0v104.96h76.288a39.424 39.424 0 1 1 0 78.848z" p-id="4449" fill="#515151" data-spm-anchor-id="a313x.search_index.0.i0.71083a81622esI" class="selected"></path></svg>
-                   <div v-if="ifphone"   style="margin-left:4px">历史对话</div>
+                    <svg
+                        t="1709609597661"
+                        class="icon"
+                        viewBox="0 0 1024 1024"
+                        version="1.1"
+                        xmlns="http://www.w3.org/2000/svg"
+                        p-id="4448"
+                        width="18"
+                        height="18"
+                    >
+                        <path
+                            d="M279.04 617.472c0.896-26.496 4.16-52.864 9.728-78.848H39.424a39.424 39.424 0 1 0 0 78.848H279.04zM39.424 774.656a39.424 39.424 0 0 0 0 78.848h304.128c-15.808-24.768-28.8-51.2-38.912-78.848H39.424z m0-629.76H880.64a39.424 39.424 0 1 0 0-78.848H39.424a39.424 39.424 0 0 0 0 78.848z m397.824 157.696H39.424a39.424 39.424 0 0 0 0 78.848H360.96c21.76-29.568 47.488-56.064 76.288-78.848z m258.56-1.024a328.192 328.192 0 1 0 0 656.384 328.192 328.192 0 0 0 0-656.384z m115.712 368.64h-115.712a39.424 39.424 0 0 1-39.424-39.424V486.4a39.424 39.424 0 0 1 78.848 0v104.96h76.288a39.424 39.424 0 1 1 0 78.848z"
+                            p-id="4449"
+                            fill="#515151"
+                            data-spm-anchor-id="a313x.search_index.0.i0.71083a81622esI"
+                            class="selected"
+                        ></path>
+                    </svg>
+                    <div v-if="ifphone" style="margin-left: 4px">历史对话</div>
                 </a-button>
                 <a-config-provider :theme="{ token: { colorPrimary: ' rgb(64, 70, 79)' } }">
                     <Cascader
@@ -983,7 +1003,8 @@
                     />
                 </a-config-provider>
                 <div
-                    v-if="!ifphone" style="margin-left: 1px;"
+                    v-if="!ifphone"
+                    style="margin-left: 1px"
                     class="flex justify-center items-center ml-0 px-2 mr-2 rounded-md flex-row text-gray-900 bg-gray-100 hover:bg-gray-300 hover:text-gray-900"
                 >
                     <a-config-provider :theme="{ token: { colorPrimary: ' rgb(64, 70, 79)' } }">
@@ -994,11 +1015,7 @@
                             :options="options"
                             @change="modelOnChange"
                         >
-                 
-                            
                             <CodeSandboxOutlined :style="{ fontSize: '20px', padding: '6px 0px' }" />
-                       
-                       
                         </a-cascader>
                     </a-config-provider>
                 </div>
@@ -1009,11 +1026,34 @@
                     class="flex justify-center items-center ml-0 mr-3 px-2 mr-1 rounded-md flex-row text-gray-900 bg-gray-100"
                 >
                     <!-- <RobotOutlined :style="{ fontSize: '20px' }" /> -->
-            
-                    <a-icon :style="{width:'20px', fontSize:'20px',display:'flex',flexDection:'row',justifyContent:'center' }">
-                 <!-- <svg t="1709610574999" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="6922" width="30" height="30"><path d="M435.387733 610.184533l-55.825066-32.9728v-134.485333h55.825066z" p-id="6923"></path><path d="M511.505067 782.728533l-233.437867-134.485333V379.2896l233.437867-134.485333 233.437866 134.485333v268.9536zM331.349333 617.813333l180.155734 104.106667 180.155733-104.106667V409.736533l-180.155733-104.106666-180.155734 104.106666z" p-id="6924"></path><path d="M486.126933 513.774933h50.756267V752.298667h-50.756267z" p-id="6925"></path><path d="M498.824533 490.922667l208.059734-119.2448 25.378133 45.6704-208.059733 119.261866z" p-id="6926"></path><path d="M290.747733 416.068267l26.589867-46.08L523.946667 489.045333l-26.641067 46.199467zM580.010667 917.213867L554.666667 871.543467l304.469333-175.086934V361.5232h53.282133V711.68a26.624 26.624 0 0 1-12.680533 22.8352z m-137.0112 0l-319.709867-182.613334A26.641067 26.641067 0 0 1 110.592 711.68V361.5232H163.84v334.933333l304.5376 175.086934zM199.406933 300.629333L174.08 254.958933l324.795733-187.733333a23.005867 23.005867 0 0 1 25.378134 0l324.778666 187.733333-25.378133 45.6704-312.149333-180.155733z" p-id="6927"></path><path d="M884.514133 221.969067c-45.6704 0-83.746133 38.058667-83.746133 83.729066s38.075733 83.746133 83.746133 83.746134 83.729067-38.075733 83.729067-83.746134-38.058667-83.729067-83.729067-83.729066z m0 114.176c-17.7664 0-30.446933-12.680533-30.446933-30.446934s12.680533-30.446933 30.446933-30.446933 30.446933 12.680533 30.446934 30.446933S902.263467 336.213333 884.514133 336.213333z m-746.001066-114.176c-45.6704 0-83.746133 38.058667-83.746134 83.729066S92.842667 386.901333 138.513067 386.901333s83.729067-38.058667 83.729066-83.746133-38.058667-81.186133-83.729066-81.186133z m0 114.176c-17.7664 0-30.446933-12.680533-30.446934-30.446934s12.680533-30.446933 30.446934-30.446933S168.96 287.931733 168.96 305.698133 153.736533 336.213333 138.513067 336.213333z m372.992 461.806933c-45.6704 0-83.729067 38.058667-83.729067 83.746133s38.058667 83.729067 83.729067 83.729067 83.729067-38.058667 83.729066-83.729067-38.058667-83.746133-83.729066-83.746133z m0 114.193067c-17.749333 0-30.446933-12.680533-30.446934-30.446934 0-15.223467 12.6976-30.446933 30.446934-30.446933s30.446933 12.680533 30.446933 30.446933c0 15.223467-15.223467 30.446933-30.446933 30.446934z" p-id="6928"></path></svg> -->
-                 <svg t="1709611594182" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="19888" width="30" height="30"><path d="M582.464 228.202667L490.666667 192l91.797333-36.202667L618.666667 64l36.202666 91.797333L746.666667 192l-91.797334 36.202667L618.666667 320l-36.202667-91.797333z m213.333333-64L704 128l91.797333-36.202667L832 0l36.202667 91.797333L960 128l-91.797333 36.202667L832 256l-36.202667-91.797333z m64 213.333333L768 341.333333l91.797333-36.202666L896 213.333333l36.202667 91.797334L1024 341.333333l-91.797333 36.202667L896 469.333333l-36.202667-91.797333zM512 42.666667v85.333333C299.925333 128 128 299.925333 128 512s171.925333 384 384 384 384-171.925333 384-384h85.333333c0 259.2-210.133333 469.333333-469.333333 469.333333S42.666667 771.2 42.666667 512 252.8 42.666667 512 42.666667z m-181.013333 670.165333l60.330666-60.330667a170.666667 170.666667 0 0 0 241.365334 0l60.330666 60.330667c-99.968 99.989333-262.058667 99.989333-362.026666 0zM362.666667 533.333333a64 64 0 1 1 0-128 64 64 0 0 1 0 128z m298.666666 0a64 64 0 1 1 0-128 64 64 0 0 1 0 128z" fill="#000000" p-id="19889"></path></svg>
-                </a-icon>
+
+                    <a-icon
+                        :style="{
+                            width: '20px',
+                            fontSize: '20px',
+                            display: 'flex',
+                            flexDection: 'row',
+                            justifyContent: 'center'
+                        }"
+                    >
+                        <!-- <svg t="1709610574999" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="6922" width="30" height="30"><path d="M435.387733 610.184533l-55.825066-32.9728v-134.485333h55.825066z" p-id="6923"></path><path d="M511.505067 782.728533l-233.437867-134.485333V379.2896l233.437867-134.485333 233.437866 134.485333v268.9536zM331.349333 617.813333l180.155734 104.106667 180.155733-104.106667V409.736533l-180.155733-104.106666-180.155734 104.106666z" p-id="6924"></path><path d="M486.126933 513.774933h50.756267V752.298667h-50.756267z" p-id="6925"></path><path d="M498.824533 490.922667l208.059734-119.2448 25.378133 45.6704-208.059733 119.261866z" p-id="6926"></path><path d="M290.747733 416.068267l26.589867-46.08L523.946667 489.045333l-26.641067 46.199467zM580.010667 917.213867L554.666667 871.543467l304.469333-175.086934V361.5232h53.282133V711.68a26.624 26.624 0 0 1-12.680533 22.8352z m-137.0112 0l-319.709867-182.613334A26.641067 26.641067 0 0 1 110.592 711.68V361.5232H163.84v334.933333l304.5376 175.086934zM199.406933 300.629333L174.08 254.958933l324.795733-187.733333a23.005867 23.005867 0 0 1 25.378134 0l324.778666 187.733333-25.378133 45.6704-312.149333-180.155733z" p-id="6927"></path><path d="M884.514133 221.969067c-45.6704 0-83.746133 38.058667-83.746133 83.729066s38.075733 83.746133 83.746133 83.746134 83.729067-38.075733 83.729067-83.746134-38.058667-83.729067-83.729067-83.729066z m0 114.176c-17.7664 0-30.446933-12.680533-30.446933-30.446934s12.680533-30.446933 30.446933-30.446933 30.446933 12.680533 30.446934 30.446933S902.263467 336.213333 884.514133 336.213333z m-746.001066-114.176c-45.6704 0-83.746133 38.058667-83.746134 83.729066S92.842667 386.901333 138.513067 386.901333s83.729067-38.058667 83.729066-83.746133-38.058667-81.186133-83.729066-81.186133z m0 114.176c-17.7664 0-30.446933-12.680533-30.446934-30.446934s12.680533-30.446933 30.446934-30.446933S168.96 287.931733 168.96 305.698133 153.736533 336.213333 138.513067 336.213333z m372.992 461.806933c-45.6704 0-83.729067 38.058667-83.729067 83.746133s38.058667 83.729067 83.729067 83.729067 83.729067-38.058667 83.729066-83.729067-38.058667-83.746133-83.729066-83.746133z m0 114.193067c-17.749333 0-30.446933-12.680533-30.446934-30.446934 0-15.223467 12.6976-30.446933 30.446934-30.446933s30.446933 12.680533 30.446933 30.446933c0 15.223467-15.223467 30.446933-30.446933 30.446934z" p-id="6928"></path></svg> -->
+                        <svg
+                            t="1709611594182"
+                            class="icon"
+                            viewBox="0 0 1024 1024"
+                            version="1.1"
+                            xmlns="http://www.w3.org/2000/svg"
+                            p-id="19888"
+                            width="30"
+                            height="30"
+                        >
+                            <path
+                                d="M582.464 228.202667L490.666667 192l91.797333-36.202667L618.666667 64l36.202666 91.797333L746.666667 192l-91.797334 36.202667L618.666667 320l-36.202667-91.797333z m213.333333-64L704 128l91.797333-36.202667L832 0l36.202667 91.797333L960 128l-91.797333 36.202667L832 256l-36.202667-91.797333z m64 213.333333L768 341.333333l91.797333-36.202666L896 213.333333l36.202667 91.797334L1024 341.333333l-91.797333 36.202667L896 469.333333l-36.202667-91.797333zM512 42.666667v85.333333C299.925333 128 128 299.925333 128 512s171.925333 384 384 384 384-171.925333 384-384h85.333333c0 259.2-210.133333 469.333333-469.333333 469.333333S42.666667 771.2 42.666667 512 252.8 42.666667 512 42.666667z m-181.013333 670.165333l60.330666-60.330667a170.666667 170.666667 0 0 0 241.365334 0l60.330666 60.330667c-99.968 99.989333-262.058667 99.989333-362.026666 0zM362.666667 533.333333a64 64 0 1 1 0-128 64 64 0 0 1 0 128z m298.666666 0a64 64 0 1 1 0-128 64 64 0 0 1 0 128z"
+                                fill="#000000"
+                                p-id="19889"
+                            ></path>
+                        </svg>
+                    </a-icon>
                 </a-button>
                 <div
                     style="
@@ -1026,7 +1066,11 @@
                     "
                 >
                     <a-upload
-                        :accept="allowFile"
+                        :accept="
+                            Object.keys(fileSrcMap)
+                                .map(key => `.${key}`)
+                                .join(',')
+                        "
                         ref="ref4"
                         v-model:file-list="fileListBT"
                         name="file"
@@ -1081,7 +1125,13 @@
                     rows="1"
                     :type="'text'"
                     @keydown="keydownHandle"
-                    :placeholder="!iflogin ? '请先登录' : '请输入(剩余对话次数' + userinfo.chance.totalChatChance + ')'"
+                    :placeholder="
+                        !iflogin
+                            ? '请先登录'
+                            : '请输入(剩余对话次数' +
+                              userinfo.chance.totalChatChance +
+                              '，文件上传扣除1次对话，图片生成扣除10次对话)'
+                    "
                     v-model:value="value"
                 ></a-textarea>
 
@@ -1118,7 +1168,7 @@
                         </template>
                         <template #icon>
                             <div
-                                v-if="outmodel == 0"
+                                v-if="outmodel == '0'"
                                 :style="{
                                     fontSize: '18px',
                                     display: 'flex',
@@ -1130,7 +1180,7 @@
                                 <CloudSyncOutlined />
                             </div>
                             <div
-                                v-if="outmodel == 1"
+                                v-if="outmodel == '1'"
                                 :style="{
                                     fontSize: '18px',
                                     display: 'flex',
@@ -1142,7 +1192,7 @@
                                 <FileTextOutlined />
                             </div>
                             <div
-                                v-if="outmodel == 2"
+                                v-if="outmodel == '2'"
                                 :style="{
                                     fontSize: '18px',
                                     display: 'flex',
@@ -1242,6 +1292,7 @@ import VueOfficeDocx from '@vue-office/docx'
 import '@vue-office/docx/lib/index.css'
 import commonContent from '../common/commoncontent'
 import confetti from 'canvas-confetti'
+import { anyType } from 'ant-design-vue/es/_util/type'
 const leadeopen = ref<boolean>(false)
 const current = ref(0)
 const ref1 = ref(null)
@@ -1252,7 +1303,7 @@ const ref5 = ref(null)
 const ref6 = ref(null)
 const iffirstopen = ref(false)
 const showcanvas = ref(null)
-const allowFile = ref(' .pdf,.pdfx,.docx,.doc,.exc,.ppt,.pptx,.xls,.xlsx,.wps')
+const allowFile = ref('.pdf,.pdfx,.docx,.doc,.exc,.ppt,.pptx,.xls,.xlsx,.wps')
 const steps: TourProps['steps'] = [
     {
         title: '历史对话',
@@ -1318,7 +1369,7 @@ const text = ref('# Hello Editor')
 const outmodel = ref('0')
 const historyChat = ref([])
 const handleMenuClick: MenuProps['onClick'] = e => {
-    console.log('click', e)
+    // console.log('click', e)
     outmodel.value = e.key
 }
 //map筛选
@@ -1331,26 +1382,26 @@ var srcMap = {
 }
 
 var fileSrcMap = {
-    // .pdf,.pdfx,.docx,.doc,.exc,.ppt,.pptx,.xls,.xlsx
-    // doc: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAA8CAYAAAAkNenBAAAACXBIWXMAABYlAAAWJQFJUiTwAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAUnSURBVHgB7ZrtTxRXFMafWdblRcKrImDFRdBUVJCKCgQUqyWNtWkaa6ppv/Qt/Vga0zQm/R/wc9Nq28R+aEzRVptqm7qoWNLEUDFaYwtsBRaovOpiFRemz/Gy3Wp5GWQvO2t4ksnc2Z0Z7u+ec8859y4GKLO01I2AcRgw1vMyBRFWX++Qt93bWVyMwUGrzzgUhKOJEFWwAYQoMDrmjlkQVzeTZxyEOAibAPxXpoGq5gVZtVbvd/B4CTaVaZg1l2KX1Fi51wG7yzRqm5yZVdPdZn8QyuEw6pqQ6Z7yHkSFzBSHC2eakDLpXI4SkAeaMpJFE8iUkSyqQESTRbKoA3mgCSJZdILg/5HMliAxMVa69XAksyVIfJzL6q3/RjLDLCk3YUPdGhqGr6sfIyP3p73XMI2DtgWZqZzQqa3lwF+9wMg9oOVP6JQ+kH17gD27CTEC3PYDtVwtXL0OXdIz2fNygOergWXLgMxMYGUeUFEOndIDEp8AJCSo9vFjwMJEYNcunhdCl/SAZGcRJl61W9vUOTYWWJEDXdKfRzIWYy6kB6SvT0Uq0eJoBrnWAvSP7+TIhJ8D6QEZHgaGhlS7ZKM636OFLv8GXdI3Ry40EMgfuvb7oVP6QMQio6OqLRANDdApfSCXrwJ3R1RbgLxe6JQ+EMkbQUlO2bkTOqUPpHoHN2KTVdvF9UV+PrBFX5miB2Tt08CO7QpAIpgoLQ346ADwQjV0KPwgcbEKYmm2uj7yJdDTo9qphKncCuQ8hXAr/CCbNgDPFBOI86K9Haj7Fjh0WLVFpSXAW28wUYYXJrzrkeQkzoNKINetrj85pNYiJ0/Rxe4A+2uUVZ6lVRJZCR/9Gmi+EnK/WSi8IOvW0BrrlTWaLwG/XFQZXXTugipX3n1HfS/AUiV/dZTlTL+aT4/Kf5t12wCPfnWeE5D0VGDbFnZuqbr+9HOgty/0/Z2/ge9Ps2Qh6IbxskUi2fvvAfeZb2Im6MpogMcY0NUFfEMXrT/Hdw5oBHHyNYWFQHmZbEqp8kR+/pMR3/0iIdOB1au5HskLPTM2qhJlrCu0dglKwGT3xMXA4VpAd+QgFRTQugQ78d3EXUA4lJUBbKffLxov2RO5Inx9LzcfqkIuI3WXRC8ZZZk37R3AAEc3h4utVbRMUrIaBFnjt7J6vsYCMy6OuYhzKjeX4Tt1yi7MDkRGs3Ad/b2C0Wpj6PPCItmYAnw+5f/tPHfcADp9yu9buaPSc1Pdu4TwZZuZe/ieDFpuDUd+5So1GN3dwB8tynr+zCkLz8ff15IsXcQOV5SFXKanW416ixe4/jt9mx330b/bblh7ZzY7u3kTLcyzm5ZKT1OfiwXPM1jUnwdu9iJ8IM9tAz7Yr3w3KHGdL44Ap3/kH+sLRavHkZMulsRQnjA+d8TdZKEWCEz+CGaiApr8lZdphcqHIUTiAmcZVTp8mLUCdKX+AXVYlHWQIuaIAx9yz2rcjSSJBbd3xJ08ZwnThkjJWomyiJPw7TdDEBJtfjil2jIRr3DtccaDSMqaRfa9yqy9VrWlZvqZeWJFvrqWyVdPa3R2I5KaHkQydu5ytVsYlGRmsY5MQo+Hy9hGRFrTg0ixd5E1k3u5qpWC2zuSsE6cBH6iNYZuIdKyFn5l2SqT/bW9an6IJT7+TCWou7MIs2HUE/NDT9T+qvuo5kHspnkQu2kexG4SEMv/W2tnEcT8FdGv4w44TW77RbVVBuF01TiMxkYvnGPc4zSPIbrEwTc9hCg2Gj3efwCUII0Nk7tXmQAAAABJRU5ErkJggg==',
+    // .pdf,.pdfx,.docx,.doc,.exc,.ppt,.pptx,.xls,.xlsx...
     pdf: 'https://openai-1259183477.cos.ap-shanghai.myqcloud.com/fileicon%2Fpdf.png',
     pdfx: 'https://openai-1259183477.cos.ap-shanghai.myqcloud.com/fileicon%2Fpdf.png',
-
     docx: 'https://openai-1259183477.cos.ap-shanghai.myqcloud.com/fileicon%2Fdox.png',
     wps: 'https://openai-1259183477.cos.ap-shanghai.myqcloud.com/fileicon%2Fdox.png',
-
-
     doc: 'https://openai-1259183477.cos.ap-shanghai.myqcloud.com/fileicon%2Fdox.png',
     exc: 'https://openai-1259183477.cos.ap-shanghai.myqcloud.com/exc.png',
-    // docx: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAA8CAYAAAAkNenBAAAACXBIWXMAABYlAAAWJQFJUiTwAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAUnSURBVHgB7ZrtTxRXFMafWdblRcKrImDFRdBUVJCKCgQUqyWNtWkaa6ppv/Qt/Vga0zQm/R/wc9Nq28R+aEzRVptqm7qoWNLEUDFaYwtsBRaovOpiFRemz/Gy3Wp5GWQvO2t4ksnc2Z0Z7u+ec8859y4GKLO01I2AcRgw1vMyBRFWX++Qt93bWVyMwUGrzzgUhKOJEFWwAYQoMDrmjlkQVzeTZxyEOAibAPxXpoGq5gVZtVbvd/B4CTaVaZg1l2KX1Fi51wG7yzRqm5yZVdPdZn8QyuEw6pqQ6Z7yHkSFzBSHC2eakDLpXI4SkAeaMpJFE8iUkSyqQESTRbKoA3mgCSJZdILg/5HMliAxMVa69XAksyVIfJzL6q3/RjLDLCk3YUPdGhqGr6sfIyP3p73XMI2DtgWZqZzQqa3lwF+9wMg9oOVP6JQ+kH17gD27CTEC3PYDtVwtXL0OXdIz2fNygOergWXLgMxMYGUeUFEOndIDEp8AJCSo9vFjwMJEYNcunhdCl/SAZGcRJl61W9vUOTYWWJEDXdKfRzIWYy6kB6SvT0Uq0eJoBrnWAvSP7+TIhJ8D6QEZHgaGhlS7ZKM636OFLv8GXdI3Ry40EMgfuvb7oVP6QMQio6OqLRANDdApfSCXrwJ3R1RbgLxe6JQ+EMkbQUlO2bkTOqUPpHoHN2KTVdvF9UV+PrBFX5miB2Tt08CO7QpAIpgoLQ346ADwQjV0KPwgcbEKYmm2uj7yJdDTo9qphKncCuQ8hXAr/CCbNgDPFBOI86K9Haj7Fjh0WLVFpSXAW28wUYYXJrzrkeQkzoNKINetrj85pNYiJ0/Rxe4A+2uUVZ6lVRJZCR/9Gmi+EnK/WSi8IOvW0BrrlTWaLwG/XFQZXXTugipX3n1HfS/AUiV/dZTlTL+aT4/Kf5t12wCPfnWeE5D0VGDbFnZuqbr+9HOgty/0/Z2/ge9Ps2Qh6IbxskUi2fvvAfeZb2Im6MpogMcY0NUFfEMXrT/Hdw5oBHHyNYWFQHmZbEqp8kR+/pMR3/0iIdOB1au5HskLPTM2qhJlrCu0dglKwGT3xMXA4VpAd+QgFRTQugQ78d3EXUA4lJUBbKffLxov2RO5Inx9LzcfqkIuI3WXRC8ZZZk37R3AAEc3h4utVbRMUrIaBFnjt7J6vsYCMy6OuYhzKjeX4Tt1yi7MDkRGs3Ad/b2C0Wpj6PPCItmYAnw+5f/tPHfcADp9yu9buaPSc1Pdu4TwZZuZe/ieDFpuDUd+5So1GN3dwB8tynr+zCkLz8ff15IsXcQOV5SFXKanW416ixe4/jt9mx330b/bblh7ZzY7u3kTLcyzm5ZKT1OfiwXPM1jUnwdu9iJ8IM9tAz7Yr3w3KHGdL44Ap3/kH+sLRavHkZMulsRQnjA+d8TdZKEWCEz+CGaiApr8lZdphcqHIUTiAmcZVTp8mLUCdKX+AXVYlHWQIuaIAx9yz2rcjSSJBbd3xJ08ZwnThkjJWomyiJPw7TdDEBJtfjil2jIRr3DtccaDSMqaRfa9yqy9VrWlZvqZeWJFvrqWyVdPa3R2I5KaHkQydu5ytVsYlGRmsY5MQo+Hy9hGRFrTg0ixd5E1k3u5qpWC2zuSsE6cBH6iNYZuIdKyFn5l2SqT/bW9an6IJT7+TCWou7MIs2HUE/NDT9T+qvuo5kHspnkQu2kexG4SEMv/W2tnEcT8FdGv4w44TW77RbVVBuF01TiMxkYvnGPc4zSPIbrEwTc9hCg2Gj3efwCUII0Nk7tXmQAAAABJRU5ErkJggg==',
     ppt: 'https://openai-1259183477.cos.ap-shanghai.myqcloud.com/fileicon%2Fppt.png',
     pptx: 'https://openai-1259183477.cos.ap-shanghai.myqcloud.com/fileicon%2Fppt.png',
     xls: 'https://openai-1259183477.cos.ap-shanghai.myqcloud.com/fileicon%2Fexl.png',
     xlsx: 'https://openai-1259183477.cos.ap-shanghai.myqcloud.com/fileicon%2Fexl.png',
-    notfound:'https://openai-1259183477.cos.ap-shanghai.myqcloud.com/file-unknown-fill(1).png'
-
-    // pdf: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAA8CAYAAAAkNenBAAAACXBIWXMAABYlAAAWJQFJUiTwAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAUnSURBVHgB7ZrtTxRXFMafWdblRcKrImDFRdBUVJCKCgQUqyWNtWkaa6ppv/Qt/Vga0zQm/R/wc9Nq28R+aEzRVptqm7qoWNLEUDFaYwtsBRaovOpiFRemz/Gy3Wp5GWQvO2t4ksnc2Z0Z7u+ec8859y4GKLO01I2AcRgw1vMyBRFWX++Qt93bWVyMwUGrzzgUhKOJEFWwAYQoMDrmjlkQVzeTZxyEOAibAPxXpoGq5gVZtVbvd/B4CTaVaZg1l2KX1Fi51wG7yzRqm5yZVdPdZn8QyuEw6pqQ6Z7yHkSFzBSHC2eakDLpXI4SkAeaMpJFE8iUkSyqQESTRbKoA3mgCSJZdILg/5HMliAxMVa69XAksyVIfJzL6q3/RjLDLCk3YUPdGhqGr6sfIyP3p73XMI2DtgWZqZzQqa3lwF+9wMg9oOVP6JQ+kH17gD27CTEC3PYDtVwtXL0OXdIz2fNygOergWXLgMxMYGUeUFEOndIDEp8AJCSo9vFjwMJEYNcunhdCl/SAZGcRJl61W9vUOTYWWJEDXdKfRzIWYy6kB6SvT0Uq0eJoBrnWAvSP7+TIhJ8D6QEZHgaGhlS7ZKM636OFLv8GXdI3Ry40EMgfuvb7oVP6QMQio6OqLRANDdApfSCXrwJ3R1RbgLxe6JQ+EMkbQUlO2bkTOqUPpHoHN2KTVdvF9UV+PrBFX5miB2Tt08CO7QpAIpgoLQ346ADwQjV0KPwgcbEKYmm2uj7yJdDTo9qphKncCuQ8hXAr/CCbNgDPFBOI86K9Haj7Fjh0WLVFpSXAW28wUYYXJrzrkeQkzoNKINetrj85pNYiJ0/Rxe4A+2uUVZ6lVRJZCR/9Gmi+EnK/WSi8IOvW0BrrlTWaLwG/XFQZXXTugipX3n1HfS/AUiV/dZTlTL+aT4/Kf5t12wCPfnWeE5D0VGDbFnZuqbr+9HOgty/0/Z2/ge9Ps2Qh6IbxskUi2fvvAfeZb2Im6MpogMcY0NUFfEMXrT/Hdw5oBHHyNYWFQHmZbEqp8kR+/pMR3/0iIdOB1au5HskLPTM2qhJlrCu0dglKwGT3xMXA4VpAd+QgFRTQugQ78d3EXUA4lJUBbKffLxov2RO5Inx9LzcfqkIuI3WXRC8ZZZk37R3AAEc3h4utVbRMUrIaBFnjt7J6vsYCMy6OuYhzKjeX4Tt1yi7MDkRGs3Ad/b2C0Wpj6PPCItmYAnw+5f/tPHfcADp9yu9buaPSc1Pdu4TwZZuZe/ieDFpuDUd+5So1GN3dwB8tynr+zCkLz8ff15IsXcQOV5SFXKanW416ixe4/jt9mx330b/bblh7ZzY7u3kTLcyzm5ZKT1OfiwXPM1jUnwdu9iJ8IM9tAz7Yr3w3KHGdL44Ap3/kH+sLRavHkZMulsRQnjA+d8TdZKEWCEz+CGaiApr8lZdphcqHIUTiAmcZVTp8mLUCdKX+AXVYlHWQIuaIAx9yz2rcjSSJBbd3xJ08ZwnThkjJWomyiJPw7TdDEBJtfjil2jIRr3DtccaDSMqaRfa9yqy9VrWlZvqZeWJFvrqWyVdPa3R2I5KaHkQydu5ytVsYlGRmsY5MQo+Hy9hGRFrTg0ixd5E1k3u5qpWC2zuSsE6cBH6iNYZuIdKyFn5l2SqT/bW9an6IJT7+TCWou7MIs2HUE/NDT9T+qvuo5kHspnkQu2kexG4SEMv/W2tnEcT8FdGv4w44TW77RbVVBuF01TiMxkYvnGPc4zSPIbrEwTc9hCg2Gj3efwCUII0Nk7tXmQAAAABJRU5ErkJggg=='
+    txt: 'https://openai-1259183477.cos.ap-shanghai.myqcloud.com/txt%E6%96%87%E4%BB%B6(1).png',
+    md: 'https://openai-1259183477.cos.ap-shanghai.myqcloud.com/markdown(2).png',
+    csv: 'https://openai-1259183477.cos.ap-shanghai.myqcloud.com/fileicon%2Fexl.png',
+    png: null,
+    jpg: null,
+    gif: null
 }
+var fileError = 'https://openai-1259183477.cos.ap-shanghai.myqcloud.com/file-unknown-fill(1).png'
+
 const customUpload = options => {
     // 阻止默认的上传行为
     options.onSuccess()
@@ -1360,15 +1411,12 @@ const beforeUploadBT = file => {
     // 将文件添加到fileListBT数组
     fileListBT.value.push(file)
     isDragging.value = false
-    console.log(isDragging.value)
+    // console.log(isDragging.value)
 
-    console.log(fileListBT.value)
+    // console.log(fileListBT.value)
     return false // 返回false以阻止自动上传
 }
-const uploadAllFiles = () => {
-    // 这里可以使用之前提到的上传逻辑
-    // ...
-}
+
 function timestampToDateString(timestamp) {
     // 将毫秒时间戳转换为秒
     var seconds = Math.floor(timestamp / 1000)
@@ -1493,7 +1541,7 @@ const handlepwOk = (e: MouseEvent) => {
     pwvisible.value = false
 }
 const cheekpasswordres = (e: any) => {
-    console.log(e)
+    // console.log(e)
 }
 
 //文件上传部分
@@ -1520,7 +1568,12 @@ const sevepw = async () => {
                     'POST'
                 )
                 const res = await senduserinfo.json()
-                console.log(res)
+                if(res.status===-1){
+            clearinfo()
+            closeProfile()
+            return
+        }
+                // console.log(res)
 
                 if (res.status == 1) {
                     MessageApi.open({
@@ -1546,7 +1599,7 @@ const sevepw = async () => {
             } finally {
             }
         } catch (e) {
-            console.log(e)
+            // console.log(e)
 
             MessageApi.open({
                 type: 'error',
@@ -1653,7 +1706,7 @@ const dialogId = ref(0)
 // 声明一个showRetry变量，用于存储是否显示重试按钮的布尔值
 const showRetry = ref(false)
 // 声明一个userinfo变量，用于存储用户信息
-const userinfo = ref({ chance: { totalChatChance: 0 } })
+const userinfo = ref({ chance: { totalChatChance: 0, level: 0, levelExpiredAt: '' }, name: '', phone: '', avatar: '' })
 // 声明一个upSending变量，用于存储是否正在上传消息的布尔值
 const upSending = ref(false)
 // 声明一个value变量，用于存储输入框的值
@@ -1675,7 +1728,7 @@ const isModalOpen = ref(false)
 // 声明一个setIsModalOpen变量，用于存储是否设置模态的布尔值
 const allfinished = ref(false)
 //选中的商品
-const selectedGoods = ref({})
+const selectedGoods = ref({ title: null, price: null, description: null })
 //充值结果显示
 const showpayres = ref(false)
 
@@ -1732,39 +1785,10 @@ interface Option {
 const shoplist = ref([
     {
         id: 1,
-        price: '1元',
+        price: 1,
         title: '首充一元',
-        rolelist: ['支持科大讯飞模型', '国内模型次数可用']
-    },
-    {
-        id: 2,
-        price: '1元',
-        title: '十元充值',
-        rolelist: ['支持科大讯飞模型', '国内模型次数可用']
-    },
-    {
-        id: 3,
-        price: '1元',
-        title: '五十元充值',
-        rolelist: ['支持科大讯飞模型', '国内模型次数可用', 'gpt4模型可用']
-    },
-    {
-        id: 4,
-        price: '1元',
-        title: '月度会员',
-        rolelist: ['支持科大讯飞模型', '国内模型次数可用', 'gpt4模型可用']
-    },
-    {
-        id: 5,
-        price: '1元',
-        title: '季度会员',
-        rolelist: ['支持科大讯飞模型', '国内模型次数可用', 'gpt4模型可用']
-    },
-    {
-        id: 6,
-        price: '1元',
-        title: '年度会员',
-        rolelist: ['支持科大讯飞模型', '国内模型次数可用', 'gpt3.5模型可用', 'gpt4模型可用']
+        rolelist: ['支持科大讯飞模型', '国内模型次数可用'],
+        description: ''
     }
 ])
 const options: Option[] = ref([
@@ -1946,7 +1970,7 @@ const options: Option[] = ref([
 
 const couldcontinue = ref(true)
 
-const commommodel = ref([null,null])
+const commommodel = ref([null, null])
 interface Chat {
     content: string
     dialogId: number
@@ -1957,6 +1981,7 @@ interface Chat {
     role: string
     avatar: string | null
     isEffect: boolean
+    file: { type: null; url: null; name: any; ext: ''; size: 0 }
 }
 type Response = {
     achat: Chat[]
@@ -1968,7 +1993,7 @@ const showchargeModal = async () => {
     try {
         const shoplistRes = await httppay('list', {}, 'get')
         const shoplistQes = await shoplistRes.json()
-        console.log(shoplistQes)
+        // console.log(shoplistQes)
         if (shoplistQes.status != 1) {
             MessageApi.open({
                 type: 'error',
@@ -1992,7 +2017,7 @@ const handchargeleOk = async () => {}
 const paysuccess = async () => {
     showpayres.value = true
     requestAnimationFrame(() => {
-        console.log(showcanvas.value)
+        // console.log(showcanvas.value)
 
         const canvasScan = confetti.create(showcanvas.value)
 
@@ -2082,6 +2107,7 @@ onMounted(async () => {
         linkback.value = true
         const data = await http('config', {}, 'GET')
         const res = await data.json()
+      
         if (res.status === 1) {
             // console.log(res.data)
             localStorage.setItem('config', JSON.stringify(res.data))
@@ -2136,7 +2162,7 @@ onMounted(async () => {
     if (chatListDom.value) {
         chatListDom.value.addEventListener('scroll', function () {
             //判断滚轮是否为上滑动
-                
+
             // console.log(chatListDom.value?.scrollHeight );
             // console.log(-chatListDom.value?.scrollTop + chatListDom.value?.clientHeight);
             // // console.log(
@@ -2144,7 +2170,7 @@ onMounted(async () => {
 
             // )
             if (
-                chatListDom.value?.scrollHeight-2  <=
+                chatListDom.value?.scrollHeight - 2 <=
                     -chatListDom.value?.scrollTop + chatListDom.value?.clientHeight &&
                 iflogin.value &&
                 clock === false &&
@@ -2236,7 +2262,7 @@ const refreshData = async () => {
 
         clock = false
     }
-    console.log(achat.value)
+    // console.log(achat.value)
 
     // ifuserup.value = false
 }
@@ -2305,6 +2331,11 @@ const sendDelmsg = async () => {
     try {
         const data = await http('del-dialog', {}, 'GET')
         const res = await data.json()
+        if(res.status===-1){
+            clearinfo()
+            closeProfile()
+            return
+        }
         // console.log(res)
         if (res.status == 1) {
             // userinfo.value = res.data
@@ -2385,7 +2416,7 @@ function insertNewLine(event: { ctrlKey: any; metaKey: any; keyCode: number }) {
     if ((event.ctrlKey || event.metaKey) && event.keyCode === 13) {
         // 在输入框中插入换行字符
         value.value += '\n'
-        console.log(event.target.scrollHeight)
+        // console.log(event.target.scrollHeight)
 
         toBottom(event.target)
     }
@@ -2400,7 +2431,7 @@ function toBottom(inputElement) {
 
 const stopmsg = () => {
     couldcontinue.value = false
-    console.log(couldcontinue.value)
+    // console.log(couldcontinue.value)
 }
 function convertBytesToBestUnit(sizeInBytes: number): string {
     const units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
@@ -2427,7 +2458,7 @@ const sendMessage = async () => {
         clickConfig()
         return 0
     }
-    console.log(fileListBT.value.length)
+    // console.log(fileListBT.value.length)
 
     if (sending.value) return 0
     try {
@@ -2453,7 +2484,7 @@ const sendMessage = async () => {
         const input = value.value
         value.value = ''
         sending.value = true
-        console.log(fileListBT.value)
+        // console.log(fileListBT.value)
 
         if (fileListBT.value.length >= 1) {
             //循环
@@ -2466,10 +2497,24 @@ const sendMessage = async () => {
                 formData.append('dialogId', dialogId.value)
                 formData.append('file', fileitem.originFileObj)
 
-                console.log(fileitem)
+                // console.log(fileitem)
 
                 fileitem.type = 'sending'
-                fileitem.ext = '正在上传中'
+
+                fileitem.ext = ' '
+
+                //   const input = event.target;
+                const reader = new FileReader()
+
+                // 确保文件是图片类型
+                if (fileitem.originFileObj.type.match('image.*')) {
+                    fileitem.ext = fileitem.originFileObj.type
+                    reader.onload = function (e) {
+                        // 将Base64字符串设置为img的src属性
+                        fileitem.url = e.target.result
+                    }
+                    reader.readAsDataURL(fileitem.originFileObj) // 读取文件内容，并转换为Base64编码
+                }
 
                 const aindex = achat.value.push({
                     avatar: userinfo.value.avatar || config.value.DEFAULT_AVATAR_USER,
@@ -2487,7 +2532,8 @@ const sendMessage = async () => {
                     .then(res => {
                         res.data.file.type = 'done'
                         achat.value[aindex - 1].file = res.data.file
-                        console.log(res.data.file)
+
+                        // console.log(res.data.file)
                     })
                     .catch(error => {
                         achat.value[aindex - 1].file.type = 'error'
@@ -2496,7 +2542,7 @@ const sendMessage = async () => {
                             duration: 3000,
                             content: '解析失败'
                         })
-                        console.log(error)
+                        // console.log(error)
                     })
 
                 promiselist.push(p)
@@ -2537,7 +2583,7 @@ const sendMessage = async () => {
                 await getChatStream(input)
                 await getUserInfo()
             }
-            console.log(12312312)
+            // console.log(12312312)
             const qes = await getDailogList(0, 10, dialogId.value)
             if (qes.length > 0) {
                 // console.log(qes);
@@ -2616,14 +2662,10 @@ const getChatStream = async (input = '') => {
     while (true && couldcontinue.value) {
         sending.value = true
         const onceData = await reader.read()
-        console.log(onceData)
+        // console.log(onceData)
 
         if (onceData.done && !onceData.value) {
-            MessageApi.open({
-                type: 'error',
-                duration: 3000,
-                content: '首次输入的字符过多'
-            })
+          
             achat.value.pop()
 
             throw new Error('无返回内容')
@@ -2654,7 +2696,7 @@ const getChatStream = async (input = '') => {
                 if (data.chatId > 0) break
             } else {
                 achat.value.pop()
-                console.log(res)
+                // console.log(res)
                 MessageApi.open({
                     type: 'error',
                     duration: 6000,
@@ -2685,6 +2727,11 @@ const getUserInfo = async () => {
     try {
         const data = await http('userinfo', {}, 'GET')
         const res = await data.json()
+        if (res.status === -1) {
+            clearinfo()
+            closeProfile()
+            return
+        }
         // console.log(res)
         if (res.status == 1) {
             userinfo.value = res.data
@@ -2698,12 +2745,16 @@ const getUserInfo = async () => {
 
             if (res.data.phone) form.phone = res.data.phone
         } else {
-            clearinfo()
-            closeProfile()
+            throw new Error(res.msg)
         }
     } catch (e) {
-        clearinfo()
-        closeProfile()
+        // clearinfo()
+        // closeProfile()
+        MessageApi.open({
+            type: 'error',
+            duration: 3000,
+            content: e.message
+        })
     }
 }
 const logout = async () => {
@@ -2759,7 +2810,9 @@ const getListChat = async (lastId = 0, pageSize = 10, dialogId) => {
             },
             'POST'
         )
+
         const res = await adata.json()
+
         if (res.status == -1) {
             MessageApi.open({
                 type: 'error',
@@ -2924,7 +2977,7 @@ const sevemsg = async () => {
                 'POST'
             )
             const res = await senduserinfo.json()
-            console.log(res)
+            // console.log(res)
 
             if (res.status == -1) {
                 MessageApi.open({
@@ -2932,6 +2985,10 @@ const sevemsg = async () => {
                     duration: 3000,
                     content: '保存失败'
                 })
+
+                clearinfo()
+                closeProfile()
+                return
             } else {
                 MessageApi.open({
                     type: 'success',
@@ -2955,10 +3012,9 @@ let stopMonitoringFunction
 const choseItem = async (e: {}) => {
     chargecodeopen.value = true
     chargeopen.value = false
-    console.log(e)
+
     const choseItemIntoE = JSON.parse(JSON.stringify(e))
     selectedGoods.value = e
-    console.log(choseItemIntoE)
 
     try {
         const getShopQRcodeIMG = await httppay(
@@ -2970,7 +3026,7 @@ const choseItem = async (e: {}) => {
             'POST'
         )
         const getShopQRcodeIMGRes = await getShopQRcodeIMG.json()
-        console.log(getShopQRcodeIMGRes)
+        // console.log(getShopQRcodeIMGRes)
         if (getShopQRcodeIMGRes.status == 1) {
             shopQRcode.value = getShopQRcodeIMGRes.data.base64
 
@@ -3011,7 +3067,7 @@ const monitorPayment = paymentId => {
                 paysuccess()
                 await getUserInfo()
                 // 这里可以添加支付完成后的逻辑，例如更新UI或通知用户
-                console.log('Payment completed!')
+                // console.log('Payment completed!')
             }
         } catch (error) {
             console.error('Error monitoring payment:', error)
@@ -3069,7 +3125,7 @@ const handleDrop = (event: DragEvent) => {
 const openFile = (url, name, ext) => {
     officeName.value = name
 
-    if (ext == 'pdf') {
+    if (ext == 'pdf' || ext == 'txt' || ext == 'md') {
         officeViewerUrl.value = url
     } else {
         officeViewerUrl.value = `https://view.officeapps.live.com/op/embed.aspx?src=${url}`
@@ -3112,7 +3168,7 @@ function convertTimestamp(isoString) {
 // 使用示例
 const isoTimestamp = '2024-02-20T08:57:54.097Z'
 const formattedTimestamp = convertTimestamp(isoTimestamp)
-console.log(formattedTimestamp) // 输出: 2024-02-20 08:57:54
+// console.log(formattedTimestamp) // 输出: 2024-02-20 08:57:54
 //历史删除对话
 const deldailog = async (event: DragEvent) => {
     if (historyChat.value.length >= 0) {
@@ -3120,7 +3176,7 @@ const deldailog = async (event: DragEvent) => {
             // console.log(123)
             const adata = await http(`del-dialog?id=${event}`, {}, 'GET')
             const res = await adata.json()
-            console.log(res)
+            // console.log(res)
 
             if (res.status == -1) {
                 MessageApi.open({
@@ -3149,7 +3205,7 @@ const deldailog = async (event: DragEvent) => {
             // console.log(adata)
         } finally {
         }
-        console.log(event)
+        // console.log(event)
     } else {
         // 不许删除
         MessageApi.open({
@@ -3178,7 +3234,7 @@ const ondailogLoadMore = async () => {
 }
 //新建对话
 const newdailogclock = ref(false)
-const newdailog = async (event: DragEvent) => {
+const newdailog = async () => {
     if (newdailogclock.value == false) {
         newdailogclock.value = true
         try {
@@ -3216,7 +3272,7 @@ const newdailog = async (event: DragEvent) => {
 
 //对话跳转
 const todailog = async (event: DragEvent, index) => {
-    console.log(event, index)
+    // console.log(event, index)
     dialogId.value = event
     dailogindex.value = index
     iffirstloud.value = true
@@ -3352,10 +3408,10 @@ pre {
     display: flex;
     align-items: center;
     justify-content: center;
-    
+
     /* height: 100%; */
 
- /* overflow: hidden; */
+    /* overflow: hidden; */
 }
 
 .asvg {
