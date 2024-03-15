@@ -768,13 +768,13 @@
                     ></div>
 
                     <div
-                        v-else-if="item.file && !item.file.ext.match('image.*')"
+                        v-if="item.file && !item.file.ext.match('image.*')"
                         style="cursor: pointer"
                         class="filebox mb-2 mt-3"
-                        @click="item.file.type != 'error' ? openFile(item.file.url, item.file.name, item.file.ext) : ''"
+                        @click="item.file.type !== 'error' ?? openFile(item.file.url, item.file.name, item.file.ext)"
                     >
                         <div class="fileitem py-2 max-w-60 px-3">
-                            <a-spin :spinning="item.file.type == 'sending'" tip="正在解析中...">
+                            <a-spin :spinning="item.file.type == 'sending'" tip="解析中...">
                                 <div class="fileitembox">
                                     <div class="flileimg">
                                         <img style="width: 40px" :src="fileSrcMap[item.file.ext] || fileError" alt="" />
@@ -805,13 +805,13 @@
                     </div>
 
                     <div
-                        v-else-if="item.file && item.file.ext.match('image.*')"
+                        v-if="item.file && item.file.ext.match('image.*')"
                         class="filebox mb-2 mt-3"
-                        style="padding: 22px"
+                        style="padding: 15px; max-width: 450px"
                     >
                         <a-config-provider :locale="zhCN">
-                            <a-spin :spinning="item.file.type == 'sending'" tip="正在上传中...">
-                                <a-image :maxWidth="450" :maxHeight="450" :src="item.file.url" />
+                            <a-spin :spinning="item.file.type === 'sending'" tip="上传中...">
+                                <a-image :src="item.file.url" />
                             </a-spin>
                         </a-config-provider>
                     </div>
@@ -1904,7 +1904,7 @@ interface Chat {
     role: string
     avatar: string | null
     isEffect: boolean
-    file?: { type: ''; url: null; name: any; ext: ''; size: 0 }
+    file?: { type: string; url: string; name: string; ext: string; size: number }
 }
 type Response = {
     achat: Chat[]
