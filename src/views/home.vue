@@ -753,15 +753,22 @@
                 </div>
 
                 <div>
-                    <MdPreview
-                        v-if="item.content"
-                        :modelValue="item.content"
-                        style="padding: 0px; background-color: rgba(0, 0, 0, 0)"
-                    />
-
                     <Loding style="margin-left: 20px" v-if="!item.content && !item.file" />
+
+                    <MdPreview
+                        v-else-if="item.content && item.role !== 'user'"
+                        :no-img-zoom-in="true"
+                        v-model="item.content"
+                        style="padding: 0; background: none"
+                    />
                     <div
-                        v-if="item.file && !item.file.ext.match('image.*')"
+                        style="padding: 20px; background: none"
+                        v-else-if="item.content && item.role === 'user'"
+                        v-html="md.render(item.content)"
+                    ></div>
+
+                    <div
+                        v-else-if="item.file && !item.file.ext.match('image.*')"
                         style="cursor: pointer"
                         class="filebox mb-2 mt-3"
                         @click="item.file.type != 'error' ? openFile(item.file.url, item.file.name, item.file.ext) : ''"
@@ -798,17 +805,15 @@
                     </div>
 
                     <div
-                        v-if="item.file && item.file.ext.match('image.*')"
+                        v-else-if="item.file && item.file.ext.match('image.*')"
                         class="filebox mb-2 mt-3"
-                        style="margin-left: 22px"
+                        style="padding: 22px"
                     >
-                        <div style="width: 500px">
-                            <a-config-provider :locale="zhCN">
-                                <a-spin :spinning="item.file.type == 'sending'" tip="正在解析中...">
-                                    <a-image :maxWidth="450" :maxHeight="450" :src="item.file.url" />
-                                </a-spin>
-                            </a-config-provider>
-                        </div>
+                        <a-config-provider :locale="zhCN">
+                            <a-spin :spinning="item.file.type == 'sending'" tip="正在上传中...">
+                                <a-image :maxWidth="450" :maxHeight="450" :src="item.file.url" />
+                            </a-spin>
+                        </a-config-provider>
                     </div>
                 </div>
             </div>
@@ -1121,16 +1126,15 @@
                         flexDection: 'row',
                         justifyContent: 'center'
                     }"
-                    class="input"
-                    rows="1"
+                    autosize
                     :type="'text'"
                     @keydown="keydownHandle"
                     :placeholder="
                         !iflogin
                             ? '请先登录'
-                            : '请输入(剩余对话次数' +
+                            : '剩余对话次数' +
                               userinfo.chance.totalChatChance +
-                              '，文件上传扣除1次对话，图片生成扣除10次对话)'
+                              '，文件上传消耗1次对话，图片生成消耗10次对话'
                     "
                     v-model:value="value"
                 ></a-textarea>
@@ -1220,35 +1224,16 @@
 </template>
 
 <script setup lang="ts">
-// import VueOfficePreview from 'vue-office-preview';
 import zhCN from 'ant-design-vue/es/locale/zh_CN'
-import type { ChatMessage } from '@/types'
-import {
-    ref,
-    createVNode,
-    watch,
-    watchEffect,
-    nextTick,
-    computed,
-    onMounted,
-    onUpdated,
-    onBeforeUnmount,
-    toRefs
-} from 'vue'
+import { ref, computed, onMounted, onUpdated, onBeforeUnmount, toRefs } from 'vue'
 import { EventSourceParserStream } from 'eventsource-parser/stream'
-import { chat } from '@/libs/gpt'
-import cryptoJS from 'crypto-js'
 import Loding from '@/components/Loding.vue'
 import Copy from '@/components/Copy.vue'
-// import { md } from "@/libs/markdown";
+import { md } from '@/libs/markdown'
 import LoginModal from '@/components/LoginModal.vue'
 import { http, sse, httppay } from '@/common/request.js'
-import { msgtemplate } from '@/common/msg.js'
 
-import { Display, Loading, Seedling } from '@icon-park/vue-next'
-import { MessageApi } from 'vue3-dxui'
-import { Cascader } from 'ant-design-vue'
-import { Space } from 'ant-design-vue'
+import { Cascader, notification } from 'ant-design-vue'
 
 import {
     PlusCircleOutlined,
@@ -1303,7 +1288,6 @@ const ref5 = ref(null)
 const ref6 = ref(null)
 const iffirstopen = ref(false)
 const showcanvas = ref(null)
-const allowFile = ref('.pdf,.pdfx,.docx,.doc,.exc,.ppt,.pptx,.xls,.xlsx,.wps')
 const steps: TourProps['steps'] = [
     {
         title: '历史对话',
@@ -1384,21 +1368,21 @@ var srcMap = {
 var fileSrcMap = {
     // .pdf,.pdfx,.docx,.doc,.exc,.ppt,.pptx,.xls,.xlsx...
     pdf: 'https://openai-1259183477.cos.ap-shanghai.myqcloud.com/fileicon%2Fpdf.png',
-    pdfx: 'https://openai-1259183477.cos.ap-shanghai.myqcloud.com/fileicon%2Fpdf.png',
-    docx: 'https://openai-1259183477.cos.ap-shanghai.myqcloud.com/fileicon%2Fdox.png',
     wps: 'https://openai-1259183477.cos.ap-shanghai.myqcloud.com/fileicon%2Fdox.png',
     doc: 'https://openai-1259183477.cos.ap-shanghai.myqcloud.com/fileicon%2Fdox.png',
-    exc: 'https://openai-1259183477.cos.ap-shanghai.myqcloud.com/exc.png',
+    docx: 'https://openai-1259183477.cos.ap-shanghai.myqcloud.com/fileicon%2Fdox.png',
     ppt: 'https://openai-1259183477.cos.ap-shanghai.myqcloud.com/fileicon%2Fppt.png',
     pptx: 'https://openai-1259183477.cos.ap-shanghai.myqcloud.com/fileicon%2Fppt.png',
     xls: 'https://openai-1259183477.cos.ap-shanghai.myqcloud.com/fileicon%2Fexl.png',
     xlsx: 'https://openai-1259183477.cos.ap-shanghai.myqcloud.com/fileicon%2Fexl.png',
+    et: 'https://openai-1259183477.cos.ap-shanghai.myqcloud.com/fileicon%2Fexl.png',
+    csv: 'https://openai-1259183477.cos.ap-shanghai.myqcloud.com/fileicon%2Fexl.png',
     txt: 'https://openai-1259183477.cos.ap-shanghai.myqcloud.com/txt%E6%96%87%E4%BB%B6(1).png',
     md: 'https://openai-1259183477.cos.ap-shanghai.myqcloud.com/markdown(2).png',
-    csv: 'https://openai-1259183477.cos.ap-shanghai.myqcloud.com/fileicon%2Fexl.png',
-    png: null,
     jpg: null,
-    gif: null
+    png: null,
+    jpeg: null,
+    webp: null
 }
 var fileError = 'https://openai-1259183477.cos.ap-shanghai.myqcloud.com/file-unknown-fill(1).png'
 
@@ -1442,30 +1426,7 @@ const formStatepw: UnwrapRef<FormStatepw> = reactive({
     checkPass: '',
     age: undefined
 })
-let checkAge = async (rule: RuleObject, value: number) => {
-    if (!value) {
-        return Promise.reject('Please input the age')
-    }
-    if (!Number.isInteger(value)) {
-        return Promise.reject('Please input digits')
-    } else {
-        if (value < 18) {
-            return Promise.reject('Age must be greater than 18')
-        } else {
-            return Promise.resolve()
-        }
-    }
-}
-let validatePass = async (rule: RuleObject, value: string) => {
-    if (value === '') {
-        return Promise.reject('请输入新的密码')
-    } else {
-        if (formStatepw.checkPass !== '') {
-            formRef.value.validateFields('checkPass')
-        }
-        return Promise.resolve()
-    }
-}
+
 let validatePass2 = async (rule: RuleObject, value: string) => {
     if (value === '') {
         return Promise.reject(new Error('请再次输入密码'))
@@ -1559,53 +1520,25 @@ const sevepw = async () => {
         try {
             const checkPassword = await formRef.value.validate()
             // console.log(checkPassword.checkPass);
-            try {
-                const senduserinfo = await http(
-                    'update-user',
-                    {
-                        password: checkPassword.checkPass
-                    },
-                    'POST'
-                )
-                const res = await senduserinfo.json()
-                if(res.status===-1){
-            clearinfo()
-            closeProfile()
-            return
-        }
-                // console.log(res)
-
-                if (res.status == 1) {
-                    MessageApi.open({
-                        type: 'success',
-                        duration: 3000,
-                        content: '修改密码成功'
-                    })
-                    formStatepw.checkPass = ''
-                    formStatepw.pass = ''
-                    pwvisible.value = false
-                } else {
-                    MessageApi.open({
-                        type: 'error',
-                        duration: 3000,
-                        content: '修改密码失败'
-                    })
-                    getUserInfo()
-                }
-
-                // console.log(data)
-
-                // console.log(adata)
-            } finally {
+            const result = await http('update-user', { password: checkPassword.checkPass }, 'POST')
+            const res = await result.json()
+            if (res.status === -1) {
+                clearinfo()
+                closeProfile()
+                return
             }
+            // console.log(res)
+
+            if (res.status == 1) {
+                notification.success({ duration: 3000, description: '', message: res.msg })
+                formStatepw.checkPass = ''
+                formStatepw.pass = ''
+                pwvisible.value = false
+                getUserInfo()
+            } else notification.error({ duration: 3000, description: '', message: res.msg })
         } catch (e) {
             // console.log(e)
-
-            MessageApi.open({
-                type: 'error',
-                duration: 3000,
-                content: e.errorFields[0].errors[0]
-            })
+            notification.error({ duration: 3000, description: '', message: e.message })
         }
         sevepwclock.value = false
     }
@@ -1759,18 +1692,8 @@ const onSubmit = () => {
 
     localStorage.setItem('prompt', toRaw(formState).desc)
 
-    // confirmLoading.value = true;
     openfase.value = false
-    MessageApi.open({
-        type: 'success',
-        duration: 3000,
-        content: '保存成功'
-    })
-    // confirmLoading.value = false;
-    // setTimeout(() => {
-    //   openfase.value = false;
-    //   confirmLoading.value = false;
-    // }, 2000);
+    notification.success({ duration: 3000, description: '', message: '已保存' })
 }
 const labelCol = { style: { width: '70px' } }
 const wrapperCol = { span: 19 }
@@ -1981,7 +1904,7 @@ interface Chat {
     role: string
     avatar: string | null
     isEffect: boolean
-    file: { type: null; url: null; name: any; ext: ''; size: 0 }
+    file?: { type: ''; url: null; name: any; ext: ''; size: 0 }
 }
 type Response = {
     achat: Chat[]
@@ -1992,21 +1915,12 @@ const chargecodeopen = ref(false)
 const showchargeModal = async () => {
     try {
         const shoplistRes = await httppay('list', {}, 'get')
-        const shoplistQes = await shoplistRes.json()
+        const res = await shoplistRes.json()
         // console.log(shoplistQes)
-        if (shoplistQes.status != 1) {
-            MessageApi.open({
-                type: 'error',
-                duration: 3000,
-                content: '获取失败'
-            })
-        } else {
-            shoplist.value = shoplistQes.data
-        }
-
-        // console.log(data)
-
-        // console.log(adata)
+        if (res.status === 1) shoplist.value = res.data
+        else notification.error({ duration: 3000, description: '', message: res.msg })
+    } catch (e) {
+        notification.error({ duration: 3000, description: '', message: e.message })
     } finally {
         upSending.value = false
     }
@@ -2107,17 +2021,10 @@ onMounted(async () => {
         linkback.value = true
         const data = await http('config', {}, 'GET')
         const res = await data.json()
-      
-        if (res.status === 1) {
-            // console.log(res.data)
-            localStorage.setItem('config', JSON.stringify(res.data))
-        }
-    } catch {
-        MessageApi.open({
-            type: 'error',
-            duration: 3000,
-            content: '服务器出错'
-        })
+
+        if (res.status === 1) localStorage.setItem('config', JSON.stringify(res.data))
+    } catch (e) {
+        notification.error({ duration: 3000, description: '', message: e.message })
         historyChat.value = []
     } finally {
         linkback.value = false
@@ -2134,21 +2041,14 @@ onMounted(async () => {
 
         achat.value = [
             {
-                avatar: '',
-
                 chatId: 0,
-
+                avatar: '',
                 content: commonContent.content,
-
                 dialogId: 0,
-
                 isEffect: true,
                 model: commommodel.value[0],
-
                 resourceId: null,
-
                 role: 'assistant',
-
                 subModel: commommodel.value[1]
             }
         ]
@@ -2237,15 +2137,7 @@ const refreshData = async () => {
     if (clock == false) {
         clock = true
         let data = await getListChat(nowList.chatId, 10, dialogId.value)
-        // console.log(data);
-        if (data.length == 0) {
-            // MessageApi.open({
-            //     type: 'error',
-            //     duration: 3000,
-            //     content: '没有更多了'
-            // })
-            allfinished.value = true
-        }
+        if (data.length == 0) allfinished.value = true
 
         // console.log(data);
         for (const i in data) {
@@ -2331,59 +2223,31 @@ const sendDelmsg = async () => {
     try {
         const data = await http('del-dialog', {}, 'GET')
         const res = await data.json()
-        if(res.status===-1){
+        if (res.status === -1) {
             clearinfo()
             closeProfile()
             return
         }
         // console.log(res)
         if (res.status == 1) {
-            // userinfo.value = res.data
-            // localStorage.setItem('userinfo', JSON.stringify(res.data))
-            // console.log('删除成功');
-            MessageApi.open({
-                type: 'success',
-                duration: 4000,
-                content: '删除成功'
-            })
-
             achat.value = [
                 {
-                    avatar: '',
-
                     chatId: 0,
-
+                    avatar: '',
                     content: commonContent.content,
-
                     dialogId: 0,
-
                     isEffect: true,
-
                     model: commommodel.value[0],
-
                     resourceId: null,
-
                     role: 'assistant',
-
                     subModel: commommodel.value[1]
                 }
             ]
-        } else {
-            MessageApi.open({
-                type: 'success',
-                duration: 4000,
-                content: '删除失败'
-            })
-
-            // clearinfo()
-            // closeProfile()
-        }
+            notification.success({ duration: 3000, description: '', message: res.msg })
+        } else throw new Error(res.msg)
     } catch (e) {
-        // clearinfo()
-        // closeProfile()
+        notification.error({ duration: 3000, description: '', message: e.message })
     }
-
-    // console.log('OK');
 }
 
 function keydownHandle(event: {
@@ -2450,57 +2314,39 @@ function convertBytesToBestUnit(sizeInBytes: number): string {
 }
 // 发送消息
 const sendMessage = async () => {
-    ifusersend.value = true
-    if (!iflogin.value) {
-        // console.log('请先登录')
-        // visible.value = true
-        value.value = ''
-        clickConfig()
-        return 0
-    }
-    // console.log(fileListBT.value.length)
-
-    if (sending.value) return 0
     try {
+        // check login
+        ifusersend.value = true
+        if (!iflogin.value) return clickConfig()
+
+        // is sending?
+        if (sending.value) return
+
         couldcontinue.value = true
         // check input
         ifuserup.value = false
-        // console.log(ifuserup.value)
 
         if (!value.value.trim() && fileListBT.value.length == 0) return
-        if (!userinfo.value.chance.totalChatChance) {
-            MessageApi.open({
-                type: 'error',
-                duration: 3000,
-                content: '对话次数用尽'
-            })
-            // throw new Error('对话次数用尽')
-            return
-        }
-        if (sending.value) return
-        // const check = await this.getChat()
-        // if (check && check.dataId === 0) throw new Error('当前有流对话尚未结束')
+        if (!userinfo.value.chance.totalChatChance)
+            return notification.error({ description: '请点击右上角充值按钮进行充值！', message: '次数用尽' })
 
         const input = value.value
         value.value = ''
         sending.value = true
         // console.log(fileListBT.value)
 
-        if (fileListBT.value.length >= 1) {
-            //循环
-            let promiselist = []
+        if (fileListBT.value.length) {
+            // send files
+            const promiselist = []
 
             for (let index = 0; index < fileListBT.value.length; index++) {
                 const formData = new FormData()
-                let fileitem = fileListBT.value[index]
+                const fileitem = fileListBT.value[index] as any
 
-                formData.append('dialogId', dialogId.value)
+                formData.append('dialogId', dialogId.value.toString())
                 formData.append('file', fileitem.originFileObj)
 
-                // console.log(fileitem)
-
                 fileitem.type = 'sending'
-
                 fileitem.ext = ' '
 
                 //   const input = event.target;
@@ -2509,137 +2355,115 @@ const sendMessage = async () => {
                 // 确保文件是图片类型
                 if (fileitem.originFileObj.type.match('image.*')) {
                     fileitem.ext = fileitem.originFileObj.type
-                    reader.onload = function (e) {
-                        // 将Base64字符串设置为img的src属性
-                        fileitem.url = e.target.result
-                    }
+                    reader.onload = e => (fileitem.url = e.target.result)
                     reader.readAsDataURL(fileitem.originFileObj) // 读取文件内容，并转换为Base64编码
                 }
 
                 const aindex = achat.value.push({
+                    chatId: 0,
                     avatar: userinfo.value.avatar || config.value.DEFAULT_AVATAR_USER,
                     content: '',
                     role: 'user',
                     dialogId: dialogId.value,
-                    userId: userinfo.value.id,
-                    chatId: 0,
-                    type: true,
-                    file: fileitem
+                    resourceId: null,
+                    model: null,
+                    subModel: null,
+                    isEffect: true,
+                    file: fileitem as any
                 })
 
-                const p = http('upload', formData, 'POST')
-                    .then(resp => resp.json())
-                    .then(res => {
-                        res.data.file.type = 'done'
-                        achat.value[aindex - 1].file = res.data.file
-
-                        // console.log(res.data.file)
-                    })
-                    .catch(error => {
-                        achat.value[aindex - 1].file.type = 'error'
-                        MessageApi.open({
-                            type: 'error',
-                            duration: 3000,
-                            content: '解析失败'
+                promiselist.push(
+                    http('upload', formData, 'POST')
+                        .then(resp => resp.json())
+                        .then(res => {
+                            res.data.file.type = 'done'
+                            achat.value[aindex - 1].file = res.data.file
                         })
-                        // console.log(error)
-                    })
-
-                promiselist.push(p)
+                        .catch(e => {
+                            achat.value[aindex - 1].file.type = 'error'
+                            notification.error(e.message)
+                        })
+                )
             }
             fileListBT.value = []
+
+            // send user message
             if (input) {
+                // user
                 achat.value.push({
                     avatar: userinfo.value.avatar || config.value.DEFAULT_AVATAR_USER,
                     content: input,
                     role: 'user',
                     dialogId: dialogId.value,
-                    userId: userinfo.value.id,
                     chatId: 0,
-                    type: true,
                     model: commommodel.value[0],
-
                     resourceId: null,
-
-                    subModel: commommodel.value[1]
+                    subModel: commommodel.value[1],
+                    isEffect: true
                 })
+                // model
                 achat.value.push({
                     avatar: userinfo.value.avatar || config.value.DEFAULT_AVATAR_USER,
                     content: '',
                     role: 'assistant',
                     dialogId: dialogId.value,
-                    userId: userinfo.value.id,
                     chatId: 0,
-                    type: true,
                     model: commommodel.value[0],
-
                     resourceId: null,
-
-                    subModel: commommodel.value[1]
+                    subModel: commommodel.value[1],
+                    isEffect: true
                 })
             }
-            const all = await Promise.all(promiselist)
+            await Promise.all(promiselist)
             if (input) {
                 await getChatStream(input)
                 await getUserInfo()
             }
-            // console.log(12312312)
             const qes = await getDailogList(0, 10, dialogId.value)
-            if (qes.length > 0) {
-                // console.log(qes);
-                historyChat.value[dailogindex.value] = qes[0]
-            }
+
+            // cover chat
+            if (qes.length > 0) historyChat.value[dailogindex.value] = qes[0]
         } else {
-            //用户
+            // user
             achat.value.push({
+                chatId: 0,
                 avatar: userinfo.value.avatar || config.value.DEFAULT_AVATAR_USER,
                 content: input,
                 role: 'user',
                 dialogId: dialogId.value,
-                userId: userinfo.value.id,
-                chatId: 0,
-                type: true
+                resourceId: null,
+                isEffect: true,
+                model: null,
+                subModel: null
             })
+            // model
             achat.value.push({
+                chatId: 0,
                 avatar: userinfo.value.avatar || config.value.DEFAULT_AVATAR_USER,
                 content: '',
                 role: 'assistant',
                 dialogId: dialogId.value,
-                userId: userinfo.value.id,
-                chatId: 0,
-                type: true,
                 model: commommodel.value[0],
-
                 resourceId: null,
-
-                subModel: commommodel.value[1]
+                subModel: commommodel.value[1],
+                isEffect: true
             })
 
             await getChatStream(input)
+            await getUserInfo()
 
             const qes = await getDailogList(0, 10, dialogId.value)
-            if (qes.length > 0) {
-                // console.log(qes);
-                historyChat.value[dailogindex.value] = qes[0]
-            }
 
-            await getUserInfo()
+            if (qes.length > 0) historyChat.value[dailogindex.value] = qes[0]
         }
     } catch (e) {
-        console.log(e)
-        // MessageApi.open({
-        //     type: 'error',
-        //     duration: 8000,
-        //     content: '请遵守相应法律法规'
-        // })
-
-        throw e
+        notification.error({ message: '错误', description: e.message })
     } finally {
         sending.value = false
+        ifusersend.value = false
     }
-    ifusersend.value = false
 }
-let render
+
 const getChatStream = async (input = '') => {
     //创建sse流式传输
     const response = await sse('chat-stream', {
@@ -2648,7 +2472,6 @@ const getChatStream = async (input = '') => {
         dialogId: dialogId.value,
         provider: commommodel.value[0],
         model: commommodel.value[1],
-        // role: formState.name,
         assistant: formState.startmsg,
         system: formState.desc,
         mode: outmodel.value * 1
@@ -2665,7 +2488,6 @@ const getChatStream = async (input = '') => {
         // console.log(onceData)
 
         if (onceData.done && !onceData.value) {
-          
             achat.value.pop()
 
             throw new Error('无返回内容')
@@ -2676,42 +2498,28 @@ const getChatStream = async (input = '') => {
         const data = res.data
         //  console.log(111111111);
         let end
-        if (couldcontinue.value == true) {
-            if (res.status === 1) {
-                if (achat.value.length == 0) {
-                    end = achat.value.length
-                } else {
-                    end = achat.value.length - 1
-                }
-
-                if (!data) break
-                if (data.dialogId !== dialogId.value) break
-
-                // achat.value[end] = data
-                if (achat.value[end].chatId === 0) achat.value[end] = data
-                if (achat.value[end].chatId !== data.chatId) achat.value.push(data)
-                if (onceData.done) {
-                    break
-                }
-                if (data.chatId > 0) break
-            } else {
-                achat.value.pop()
-                // console.log(res)
-                MessageApi.open({
-                    type: 'error',
-                    duration: 6000,
-                    content: res.msg
-                })
-
-                throw new Error(res.msg)
-            }
-        } else {
-            MessageApi.open({
-                type: 'success',
-                duration: 3000,
-                content: '回答终止'
-            })
+        if (!couldcontinue.value) {
+            notification.info({ message: '回答终止' })
             break
+        }
+        if (res.status === 1) {
+            if (achat.value.length == 0) {
+                end = achat.value.length
+            } else {
+                end = achat.value.length - 1
+            }
+
+            if (!data) break
+            if (data.dialogId !== dialogId.value) break
+
+            // achat.value[end] = data
+            if (achat.value[end].chatId === 0) achat.value[end] = data
+            if (achat.value[end].chatId !== data.chatId) achat.value.push(data)
+
+            if (onceData.done || data.chatId) break
+        } else {
+            achat.value.pop()
+            throw new Error(res.msg)
         }
     }
     sending.value = false
@@ -2744,27 +2552,14 @@ const getUserInfo = async () => {
             if (res.data.name) form.name = res.data.name
 
             if (res.data.phone) form.phone = res.data.phone
-        } else {
-            throw new Error(res.msg)
-        }
+        } else throw new Error(res.msg)
     } catch (e) {
-        // clearinfo()
-        // closeProfile()
-        MessageApi.open({
-            type: 'error',
-            duration: 3000,
-            content: e.message
-        })
+        notification.error({ message: e.message })
     }
 }
 const logout = async () => {
-    // window.scrollTo(0, document.body.scrollHeight);
     clearinfo()
-    MessageApi.open({
-        type: 'success',
-        duration: 3000,
-        content: '退出成功'
-    })
+    notification.success({ message: '已退出' })
 }
 
 const clearinfo = async () => {
@@ -2775,20 +2570,13 @@ const clearinfo = async () => {
     achat.value = [
         {
             avatar: '',
-
             chatId: 0,
-
             content: commonContent.content,
-
             dialogId: 0,
-
             isEffect: true,
             model: commommodel.value[0],
-
             resourceId: null,
-
             role: 'assistant',
-
             subModel: commommodel.value[1]
         }
     ]
@@ -2814,22 +2602,13 @@ const getListChat = async (lastId = 0, pageSize = 10, dialogId) => {
         const res = await adata.json()
 
         if (res.status == -1) {
-            MessageApi.open({
-                type: 'error',
-                duration: 3000,
-                content: '登录失效，请重新登录'
-            })
+            notification.error({ message: res.msg })
             clearinfo()
             historyChat.value = []
-
             data = []
         } else {
             data = res.data
         }
-
-        // console.log(data)
-
-        // console.log(adata)
     } finally {
         upSending.value = false
     }
@@ -2853,11 +2632,7 @@ const getDailogList = async (lastId = 0, pageSize = 10, id = null) => {
         )
         const res = await adata.json()
         if (res.status == -1) {
-            MessageApi.open({
-                type: 'error',
-                duration: 3000,
-                content: '登录失效，请重新登录'
-            })
+            notification.error({ message: res.msg })
             clearinfo()
             data = []
         } else {
@@ -2980,27 +2755,15 @@ const sevemsg = async () => {
             // console.log(res)
 
             if (res.status == -1) {
-                MessageApi.open({
-                    type: 'error',
-                    duration: 3000,
-                    content: '保存失败'
-                })
+                notification.error({ message: res.msg })
 
                 clearinfo()
                 closeProfile()
                 return
             } else {
-                MessageApi.open({
-                    type: 'success',
-                    duration: 3000,
-                    content: '保存成功'
-                })
+                notification.success({ message: '保存成功' })
                 getUserInfo()
             }
-
-            // console.log(data)
-
-            // console.log(adata)
         } finally {
             sevemsgClock.value = false
         }
@@ -3171,48 +2934,25 @@ const formattedTimestamp = convertTimestamp(isoTimestamp)
 // console.log(formattedTimestamp) // 输出: 2024-02-20 08:57:54
 //历史删除对话
 const deldailog = async (event: DragEvent) => {
-    if (historyChat.value.length >= 0) {
-        try {
-            // console.log(123)
-            const adata = await http(`del-dialog?id=${event}`, {}, 'GET')
-            const res = await adata.json()
-            // console.log(res)
+    try {
+        const adata = await http(`del-dialog?id=${event}`, {}, 'GET')
+        const res = await adata.json()
 
-            if (res.status == -1) {
-                MessageApi.open({
-                    type: 'error',
-                    duration: 3000,
-                    content: '登录失效，请重新登录'
-                })
-                clearinfo()
-            } else if (res.status == 1) {
-                MessageApi.open({
-                    type: 'success',
-                    duration: 3000,
-                    content: '删除成功'
-                })
-                historyChat.value = await getDailogList()
+        if (res.status == -1) {
+            notification.error({ message: res.msg })
+            clearinfo()
+        } else if (res.status == 1) {
+            notification.success({ message: res.msg })
+            historyChat.value = await getDailogList()
 
-                if (event == dialogId.value) {
-                    dialogId.value = historyChat.value[0].id
+            if (event == dialogId.value) {
+                dialogId.value = historyChat.value[0].id
 
-                    todailog(dialogId.value, 0)
-                }
+                todailog(dialogId.value, 0)
             }
-
-            // console.log(data)
-
-            // console.log(adata)
-        } finally {
-        }
-        // console.log(event)
-    } else {
-        // 不许删除
-        MessageApi.open({
-            type: 'error',
-            duration: 3000,
-            content: '需保留一个对话'
-        })
+        } else throw new Error(res.msg)
+    } catch (e) {
+        notification.error({ message: e.message })
     }
 }
 const ondailogLoadMore = async () => {
@@ -3220,13 +2960,7 @@ const ondailogLoadMore = async () => {
     let data = await getDailogList(lastdailgid, 10)
     if (data.length != 0) {
         historyChat.value = [...historyChat.value, ...data]
-    } else {
-        MessageApi.open({
-            type: 'info',
-            duration: 3000,
-            content: '没有更多了'
-        })
-    }
+    } else notification.info({ message: '没有更多了' })
 
     // console.log(historyChat.value[historyChat.value.length-1].id);
 
@@ -3244,18 +2978,10 @@ const newdailog = async () => {
             // console.log(res.data.id)
 
             if (res.status == -1) {
-                MessageApi.open({
-                    type: 'error',
-                    duration: 3000,
-                    content: '登录失效，请重新登录'
-                })
+                notification.error({ message: res.msg })
                 clearinfo()
             } else if (res.status == 1) {
-                MessageApi.open({
-                    type: 'success',
-                    duration: 3000,
-                    content: '新建成功'
-                })
+                notification.success({ message: res.msg })
                 const dailogList = await getDailogList()
                 historyChat.value = dailogList
             }
@@ -3285,22 +3011,14 @@ const todailog = async (event: DragEvent, index) => {
         if (data.length === 0) {
             achat.value = [
                 {
-                    avatar: '',
-
                     chatId: 0,
-
+                    avatar: '',
                     content: commonContent.content,
-
                     dialogId: 0,
-
                     isEffect: true,
-
                     model: commommodel.value[0],
-
                     resourceId: null,
-
                     role: 'assistant',
-
                     subModel: commommodel.value[1]
                 }
             ]

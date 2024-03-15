@@ -1,10 +1,11 @@
-<script setup lang="ts">
-</script>
+<!-- @format -->
+
+<script setup lang="ts"></script>
 
 <template>
-  <Suspense>
-    <RouterView />
-  </Suspense>
+    <Suspense>
+        <RouterView />
+    </Suspense>
 </template>
 
 <style></style>
