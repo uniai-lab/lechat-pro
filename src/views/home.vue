@@ -771,7 +771,7 @@
                         v-if="item.file && !item.file.ext.match('image.*')"
                         style="cursor: pointer"
                         class="filebox mb-2 mt-3"
-                        @click="item.file.type !== 'error' ?? openFile(item.file.url, item.file.name, item.file.ext)"
+                        @click="openFile(item.file.url, item.file.name, item.file.ext)"
                     >
                         <div class="fileitem py-2 max-w-60 px-3">
                             <a-spin :spinning="item.file.type == 'sending'" tip="解析中...">
@@ -2885,14 +2885,12 @@ const handleDrop = (event: DragEvent) => {
     event.preventDefault()
     isDragging.value = false
 }
-const openFile = (url, name, ext) => {
+const openFile = (url: string, name: string, ext: string) => {
+    if (!url) return
     officeName.value = name
-
-    if (ext == 'pdf' || ext == 'txt' || ext == 'md') {
-        officeViewerUrl.value = url
-    } else {
+    if (['doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'csv', 'wps', 'et'].includes(ext))
         officeViewerUrl.value = `https://view.officeapps.live.com/op/embed.aspx?src=${url}`
-    }
+    else officeViewerUrl.value = url
     ifshowopenfile.value = true
 }
 const renderedHandler = () => {
