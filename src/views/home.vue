@@ -3,9 +3,8 @@
 <template>
     <div
         ref="dropzoneRef"
-        @dragover.prevent="handleOver"
-        @dragenter.preven
-        @dragleave.preven="handleLeave"
+        @dragenter.prevent="handleOver"
+        @dragleave.prevent="handleLeave"
         @drop="handleDrop"
         class="flex flex-col h-screen bg-gray-000 dark bg"
     >
@@ -55,7 +54,7 @@
 
         <login-modal
             @custom-event="handleCustomEvent"
-            style="position: absolute; height: 100vh; z-index: 999"
+            style="height: 100%; z-index: 999"
             v-if="visible"
             @hideModal="clickConfig"
         ></login-modal>
@@ -249,7 +248,7 @@
         <!-- 顶部/ -->
         <div
             class="flex flex-row flex-nowrap fixed w-full items-baseline top-0 px-6 py-4 bg-gray-950 justify-between items-center"
-            style="align-items: center; height: 60px; z-index: 888"
+            style="align-items: center; z-index: 888"
         >
             <div class="flex flex-row text-2xl font-bold text-zinc-50">
                 LeChat
@@ -260,7 +259,7 @@
                     pro
                 </div>
             </div>
-            <div v-if="ifphone" class="ml-4 text-sm text-zinc-200">基于Uni-AI的自然语言模型对话</div>
+            <div v-if="ifphone" class="ml-4 text-sm text-zinc-200">基于UniAI的自然语言模型对话</div>
             <!-- <div class="ml-2 text-xs text-zinc-100 text-gray-100"> V1.0.0</div> -->
 
             <div
@@ -295,10 +294,21 @@
         </div>
         <!-- 充值弹框 -->
 
-        <a-modal :width="720" :footer="null" v-model:open="chargeopen" title="充值" :afterClose="handchargeleOk">
+        <a-modal
+            :width="!ifphone ? '80%' : '800px'"
+            :footer="null"
+            v-model:open="chargeopen"
+            title="充值"
+            :afterClose="handchargeleOk"
+        >
             <!-- <a-watermark :content="['价格仅供内部测试', '正式版本权益清空']"> -->
-            <div style="padding: 10px; display: flex; flex-direction: row; flex-wrap: wrap; justify-content: center">
-                <div class="shoplist" v-for="item in shoplist">
+            <a-row
+                :gutter="{ lg: 30, md: 10, sm: 10, xs: 5 }"
+                align="middle"
+                justify="center"
+                style="width: 100%; margin: 30px auto"
+            >
+                <a-col v-for="(item, index) in shoplist" :key="index" :xs="24" :sm="24" :md="12" :lg="6">
                     <div
                         @click="choseItem(item)"
                         class="flex flex-clo shopitem border-[#cfcfcf] border-[2px] rounded-[10px] cursor-pointer items-center relative overflow-hidden mx-1 my-1"
@@ -359,12 +369,17 @@
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
+                </a-col>
+            </a-row>
 
-            <div class="" style="display: flex; justify-content: center">
-                如果您遇到了问题请联系，《AI乐聊》微信小程序客服。
+            <div style="text-align: center; margin-top: 20px">
+                注意：文件上传消耗
+                <b>1</b>
+                次对话，图片生成消耗
+                <b>10</b>
+                次对话
             </div>
+            <div style="text-align: center; margin-top: 5px">如果您遇到了问题请联系，《AI乐聊》微信小程序客服</div>
             <!-- </a-watermark> -->
         </a-modal>
 
@@ -643,15 +658,17 @@
         <div
             class="mx-2 pb-2"
             style="
-                height: auto;
                 display: flex;
                 flex-direction: column-reverse;
-                position: relative;
-                top: 60px;
-                left: 0px;
-                right: 0px;
-                margin-bottom: 140px;
                 overflow-y: scroll;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: fit-content;
+                max-height: 100%;
+                padding-top: 64px;
+                padding-bottom: 80px;
             "
             ref="chatListDom"
         >
@@ -700,7 +717,14 @@
                 <div class="flex flex-row justify-between items-center" style="">
                     <div v-if="item.role != 'assistant'" class="flex flex-row justify-between items-center">
                         <div
-                            style="height: 44px; width: 44px; border-radius: 50%; font-size: 18px; margin-left: 12px"
+                            style="
+                                height: 44px;
+                                width: 44px;
+                                border-radius: 50%;
+                                font-size: 18px;
+                                margin: 10px 0;
+                                margin-left: 10px;
+                            "
                             :class="
                                 index == 1
                                     ? 'flex flex-row justify-center items-center   bg-gray-900 text-gray-100  '
@@ -1121,7 +1145,7 @@
                 </div>
                 <a-textarea
                     :style="{
-                        padding: '4px 0px 4px 28px',
+                        padding: '5px 5px 5px 28px',
                         display: 'flex',
                         flexDection: 'row',
                         justifyContent: 'center'
@@ -1129,13 +1153,7 @@
                     autosize
                     :type="'text'"
                     @keydown="keydownHandle"
-                    :placeholder="
-                        !iflogin
-                            ? '请先登录'
-                            : '剩余对话次数' +
-                              userinfo.chance.totalChatChance +
-                              '，文件上传消耗1次对话，图片生成消耗10次对话'
-                    "
+                    :placeholder="!iflogin ? '请先登录' : '剩余对话次数' + userinfo.chance.totalChatChance"
                     v-model:value="value"
                 ></a-textarea>
 
@@ -1271,8 +1289,6 @@ import 'md-editor-v3/lib/preview.css'
 import type { RuleObject, ValidateErrorEntity } from 'ant-design-vue/es/form/interface'
 import VueComposition from '../components/vue-composition.vue'
 import VueLegacy from '../components/vue-legacy.vue'
-//引入VueOfficeDocx组件
-import VueOfficeDocx from '@vue-office/docx'
 //引入相关样式
 import '@vue-office/docx/lib/index.css'
 import commonContent from '../common/commoncontent'
@@ -1342,7 +1358,6 @@ const steps: TourProps['steps'] = [
 const handleOpenlade = (val: boolean): void => {
     leadeopen.value = val
 }
-const docx = ref('')
 const linkback = ref(true)
 const dailogindex = ref(0)
 const fileListBT = ref([])
@@ -1351,7 +1366,7 @@ const isDragging = ref(false)
 
 const text = ref('# Hello Editor')
 const outmodel = ref('0')
-const historyChat = ref([])
+const historyChat = ref<any>([])
 const handleMenuClick: MenuProps['onClick'] = e => {
     // console.log('click', e)
     outmodel.value = e.key
@@ -1379,6 +1394,7 @@ var fileSrcMap = {
     csv: 'https://openai-1259183477.cos.ap-shanghai.myqcloud.com/fileicon%2Fexl.png',
     txt: 'https://openai-1259183477.cos.ap-shanghai.myqcloud.com/txt%E6%96%87%E4%BB%B6(1).png',
     md: 'https://openai-1259183477.cos.ap-shanghai.myqcloud.com/markdown(2).png',
+    json: 'https://openai-1259183477.cos.ap-shanghai.myqcloud.com/txt.png',
     jpg: null,
     png: null,
     jpeg: null,
@@ -2374,14 +2390,14 @@ const sendMessage = async () => {
 
                 promiselist.push(
                     http('upload', formData, 'POST')
-                        .then(resp => resp.json())
+                        .then(res => res.json())
                         .then(res => {
                             res.data.file.type = 'done'
                             achat.value[aindex - 1].file = res.data.file
                         })
                         .catch(e => {
-                            achat.value[aindex - 1].file.type = 'error'
-                            notification.error(e.message)
+                            achat.value[aindex - 1].file!.type = 'error'
+                            console.error(e)
                         })
                 )
             }
@@ -2582,71 +2598,50 @@ const clearinfo = async () => {
     ]
     dialogId.value = 0
 }
-const getListChat = async (lastId = 0, pageSize = 10, dialogId) => {
+const getListChat = async (lastId: number = 0, pageSize: number = 10, dialogId: number | null = null) => {
     let data = []
     try {
         if (upSending.value) return
-
         upSending.value = true
-        // console.log(123)
-        const adata = await http(
-            'list-chat',
-            {
-                lastId,
-                pageSize,
-                dialogId
-            },
-            'POST'
-        )
 
+        const adata = await http('list-chat', { lastId, pageSize, dialogId }, 'POST')
         const res = await adata.json()
 
         if (res.status == -1) {
             notification.error({ message: res.msg })
-            clearinfo()
             historyChat.value = []
-            data = []
-        } else {
-            data = res.data
+            return clearinfo()
         }
+        if (res.status === 1) data = res.data
+        else throw new Error(res.msg)
+    } catch (e: any) {
+        notification.error({ message: e.message })
     } finally {
         upSending.value = false
     }
     return data
 }
-const getDailogList = async (lastId = 0, pageSize = 10, id = null) => {
+const getDailogList = async (lastId: number = 0, pageSize: number = 10, id: number | null = null) => {
     let data = []
     try {
         if (upSending.value) return
-
         upSending.value = true
-        // console.log(123)
-        const adata = await http(
-            'list-dialog',
-            {
-                lastId,
-                pageSize,
-                id
-            },
-            'POST'
-        )
+
+        const adata = await http('list-dialog', { lastId, pageSize, id }, 'POST')
         const res = await adata.json()
+
         if (res.status == -1) {
             notification.error({ message: res.msg })
-            clearinfo()
-            data = []
-        } else {
-            data = res.data
+            return clearinfo()
         }
 
-        // console.log(data)
-
-        // console.log(adata)
+        if (res.status === 1) data = res.data
+        else throw new Error(res.msg)
+    } catch (e: any) {
+        notification.error({ message: e.message })
     } finally {
         upSending.value = false
     }
-    console.log(data)
-
     return data
 }
 
@@ -2668,43 +2663,25 @@ const init = async () => {
             achat.value = [
                 {
                     avatar: '',
-
                     chatId: 0,
-
                     content: commonContent.content,
-
                     dialogId: 0,
-
                     isEffect: true,
-
                     model: commommodel.value[0],
-
                     resourceId: null,
-
                     role: 'assistant',
-
                     subModel: commommodel.value[1]
                 }
             ]
         }
+
         for (const item of data) {
-            // console.log(item)
             dialogId.value = item.dialogId
             achat.value.push(item)
         }
 
         window.scrollTo(0, document.body.scrollHeight)
-
-        // loopChat()
-    } catch (e) {
-        // uni.showToast({
-        //   title: e.message,
-        //   duration: 3000,
-        //   icon: 'none'
-        // })
-        // console.log(e)
     } finally {
-        // console.log(123, achat.value)
         iffirstloud.value = false
     }
 }
@@ -2780,14 +2757,7 @@ const choseItem = async (e: {}) => {
     selectedGoods.value = e
 
     try {
-        const getShopQRcodeIMG = await httppay(
-            'create',
-            {
-                type: 'wechat',
-                id: choseItemIntoE.id
-            },
-            'POST'
-        )
+        const getShopQRcodeIMG = await httppay('create', { type: 'wechat', id: choseItemIntoE.id }, 'POST')
         const getShopQRcodeIMGRes = await getShopQRcodeIMG.json()
         // console.log(getShopQRcodeIMGRes)
         if (getShopQRcodeIMGRes.status == 1) {
@@ -2803,34 +2773,19 @@ const choseItem = async (e: {}) => {
     }
 }
 
-const checkPaymentStatus = async paymentId => {
-    try {
-        const response = await httppay(`check?id=${paymentId}`, 'get')
-
-        const data = await response.json()
-        return data
-    } catch (error) {
-        console.error('Error checking payment status:', error)
-        return null
-    }
-}
 // 监听支付状态的函数
-const monitorPayment = paymentId => {
-    let isPaymentComplete = false
-
+const monitorPayment = (paymentId: string) => {
     // 设置一个定时器，每隔一段时间检查支付状态
     const intervalId = setInterval(async () => {
         try {
-            const payRes = await checkPaymentStatus(paymentId)
+            const response = await httppay(`check?id=${paymentId}`, 'get')
+            const payRes = await response.json()
 
             if (payRes && payRes.data.status === 1) {
                 // 支付已完成，停止定时器
                 clearInterval(intervalId)
-                isPaymentComplete = true
                 paysuccess()
                 await getUserInfo()
-                // 这里可以添加支付完成后的逻辑，例如更新UI或通知用户
-                // console.log('Payment completed!')
             }
         } catch (error) {
             console.error('Error monitoring payment:', error)
@@ -3053,24 +3008,26 @@ const todailog = async (event: DragEvent, index) => {
 }
 </style>
 <style scoped>
+.h-screen {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
 .upload-box {
-    position: absolute;
-
-    /* border: 1px solid #000; */
-
+    position: fixed;
     z-index: 9999;
-
     background-color: rgba(255, 255, 255, 0.4);
-    /* //毛玻璃 */
     display: flex;
     flex-direction: column;
     justify-content: center;
     backdrop-filter: blur(10px);
-    top: 0px;
-    bottom: 0px;
-    right: 0px;
-    left: 0px;
-    padding: 10px;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    padding: 20px;
 }
 .upbox {
     width: 90vw;
@@ -3171,9 +3128,6 @@ textarea {
     color: white;
 }
 
-.bg {
-}
-
 .filebox {
     display: flex;
     flex-direction: column;
@@ -3227,21 +3181,13 @@ textarea {
     font-size: 11px;
 }
 
-.shoplist {
-    /* width: 600px; */
-    flex-wrap: wrap;
-    justify-content: flex-start;
-}
-
 .shopitem {
     display: flex;
     flex-direction: column;
-    width: 155px;
-    height: 260px;
+    width: 100%;
     padding-bottom: 20px;
     border: 2px solid #cfcfcf;
 }
-
 .shopitem:hover {
     border: 2px solid #e2b460;
 }
