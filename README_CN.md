@@ -76,4 +76,8 @@ VITE v3.2.5 启动完成，用时 294 毫秒
 
 如果您打算打包项目以进行本地部署，请参考 [这里](/docs/electron-packaging-guide.md)。
 
+## 作者
+[虞威龙](https://github.com/mrkk1)
+
+[黄有为](https://github.com/devilyouwei)
 本项目采用 [MIT 许可协议](LICENSE)。
