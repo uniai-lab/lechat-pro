@@ -4,7 +4,7 @@
 
 <p align=center>An application developed on <b>UniAI</b>, inspired by <b>KimiChat</b>, integrated with multiple AI models.</p>
 
-<p align=center> <a href="./README.md">中文说明</a></p>
+<p align=center> <a href="./README_CN.md">中文说明</a></p>
 
 ## Introduction
 
