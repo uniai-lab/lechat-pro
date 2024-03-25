@@ -80,4 +80,5 @@ VITE v3.2.5 启动完成，用时 294 毫秒
 [虞威龙](https://github.com/mrkk1)
 
 [黄有为](https://github.com/devilyouwei)
+
 本项目采用 [MIT 许可协议](LICENSE)。
