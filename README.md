@@ -70,9 +70,17 @@ VITE v3.2.5 ready in 294 ms
 ➜ Local: http://localhost:5173/
 ➜ Network: use --host to expose
 ```
+## Contributors
+[Weilong Yu](https://github.com/mrkk1)
+
+[Youwei Huang](https://github.com/devilyouwei)
 
 Hold down `Ctrl` or `Command` and click on the Local link to open the project in your browser. You can then log in via QR code or mobile verification code to start using the application.
+## Contributors
 
+[Youwei Huang](https://github.com/devilyouwei)
+
+[Weilong Yu](https://github.com/mrkk1)
 If you intend to package the project for local deployment, [check here](/docs/electron-packaging-guide.md).
 
 This project is licensed under the [MIT License](LICENSE).
