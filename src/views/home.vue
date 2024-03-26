@@ -58,6 +58,8 @@
             v-if="visible"
             @hideModal="clickConfig"
         ></login-modal>
+        <cost v-if="showCost" @close="showCost = false" style="z-index: 999" />
+
         <!-- <a-float-button
             v-if="!ifphone"
             @click="cleanchat"
@@ -259,7 +261,7 @@
                     pro
                 </div>
             </div>
-            <div v-if="ifphone" class="ml-4 text-sm text-zinc-200">基于UniAI的自然语言模型对话</div>
+            <div v-if="ifphone" class="ml-4 text-sm text-zinc-200">乐聊多模型文档解析工具</div>
             <!-- <div class="ml-2 text-xs text-zinc-100 text-gray-100"> V1.0.0</div> -->
 
             <div
@@ -373,11 +375,13 @@
             </a-row>
 
             <div style="text-align: center; margin-top: 20px">
-                注意：文件上传消耗
+                *注意：文件上传消耗
                 <b>1</b>
                 次对话，图片生成消耗
                 <b>10</b>
-                次对话
+                次对话。 不同模型消耗的次数不同
+                <br />
+                <a-button @click="(showCost = true), (chargeopen = false)" type="link">查询模型消费对照表</a-button>
             </div>
             <div style="text-align: center; margin-top: 5px">如果您遇到了问题请联系，《AI乐聊》微信小程序客服</div>
             <!-- </a-watermark> -->
@@ -660,15 +664,17 @@
             style="
                 display: flex;
                 flex-direction: column-reverse;
+                align-items: center;
                 overflow-y: scroll;
                 position: fixed;
                 top: 0;
                 left: 0;
                 right: 0;
+                margin: 0;
                 height: fit-content;
                 max-height: 100%;
                 padding-top: 64px;
-                padding-bottom: 80px;
+                padding-bottom: 90px;
             "
             ref="chatListDom"
         >
@@ -709,7 +715,7 @@
             <a-spin v-if="linkback" style="margin-top: 120px" tip="正在连接服务器..."></a-spin>
 
             <div
-                class="group flex mt-2 px-4 py-3 text-gray-900 hover:bg-gray-100 rounded-lg"
+                class="group flex mt-2 px-4 py-3 text-gray-900 rounded-lg"
                 v-for="(item, index) in achat.slice().reverse()"
                 :key="index"
                 style="flex-direction: column; justify-content: flex-end"
@@ -974,7 +980,20 @@
         </div>
 
         <!-- 底部 -->
-        <div class="bottom-0 w-full p-4 bg-gray-100" style="position: absolute">
+        <div
+            class="bottom-0 w-full p-4"
+            style="
+                position: fixed;
+                max-width: 1000px;
+                width: 100%;
+                margin: 0 auto;
+                left: 0;
+                right: 0;
+                bottom: 8px;
+                background: rgba(0, 0, 0, 0.2);
+                border-radius: 10px;
+            "
+        >
             <div class="upload-list" style="position: absolute; right: 28px; width: 300px; bottom: 80px">
                 <a-upload
                     :accept="
@@ -1022,7 +1041,7 @@
                     <Cascader
                         ref="ref2"
                         v-if="ifphone"
-                        style="width: auto; min-width: 1px"
+                        style="min-width: 160px"
                         :allowClear="false"
                         :defaultValue="commommodel"
                         class="mr-0 p-1"
@@ -1249,6 +1268,7 @@ import Loding from '@/components/Loding.vue'
 import Copy from '@/components/Copy.vue'
 import { md } from '@/libs/markdown'
 import LoginModal from '@/components/LoginModal.vue'
+import Cost from '@/components/Cost.vue'
 import { http, sse, httppay } from '@/common/request.js'
 
 import { Cascader, notification } from 'ant-design-vue'
@@ -1363,6 +1383,7 @@ const dailogindex = ref(0)
 const fileListBT = ref([])
 
 const isDragging = ref(false)
+const showCost = ref(false)
 
 const text = ref('# Hello Editor')
 const outmodel = ref('0')
@@ -3006,6 +3027,22 @@ const todailog = async (event: DragEvent, index) => {
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2) !important;
     border: none !important;
 }
+/* 针对所有元素 */
+*::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+}
+
+/* 针对Firefox浏览器 */
+* {
+    scrollbar-width: none;
+}
+
+/* 针对Chrome、Safari和Edge浏览器 */
+body::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+}
 </style>
 <style scoped>
 .h-screen {
@@ -3234,5 +3271,9 @@ textarea {
     box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.4) !important;
 
     backdrop-filter: blur(10px);
+}
+.group {
+    width: 100%;
+    max-width: 1000px;
 }
 </style>
