@@ -379,11 +379,12 @@
                 <b>1</b>
                 次对话，图片生成消耗
                 <b>10</b>
-                次对话。 不同模型消耗的次数不同
+                次对话。
+                <b>不同模型消耗的次数不同！</b>
                 <br />
                 <a-button @click="(showCost = true), (chargeopen = false)" type="link">查询模型消费对照表</a-button>
             </div>
-            <div style="text-align: center; margin-top: 5px">如果您遇到了问题请联系，《AI乐聊》微信小程序客服</div>
+            <div style="text-align: center; margin-top: 5px">如果您遇到了问题，请联系《AI乐聊》微信小程序客服</div>
             <!-- </a-watermark> -->
         </a-modal>
 

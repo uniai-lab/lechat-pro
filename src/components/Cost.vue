@@ -5,95 +5,55 @@
         <table class="table-auto">
             <thead>
                 <tr>
-                    <th colspan="3">模型消费对照表</th>
-                </tr>
-                <tr>
                     <th>供应商</th>
                     <th>模型</th>
-                    <th>消耗次</th>
+                    <th>消耗次数</th>
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td rowspan="5">OpenAI</td>
-                    <td>gpt-3.5-turbo</td>
-                    <td>2</td>
-                </tr>
-                <tr>
-                    <td>gpt-3.5-turbo-16k</td>
-                    <td>4</td>
-                </tr>
-                <tr>
-                    <td>gpt-4</td>
-                    <td>10</td>
-                </tr>
-                <tr>
-                    <td>gpt-4-turbo-preview</td>
-                    <td>10</td>
-                </tr>
-                <tr>
-                    <td>gpt-4-vision-preview</td>
-                    <td>15</td>
-                </tr>
-
-                <tr>
-                    <td rowspan="2">Google</td>
-                    <td>gemini-pro</td>
-                    <td>4</td>
-                </tr>
-                <tr>
-                    <td>gemini-vision</td>
-                    <td>15</td>
-                </tr>
-
-                <tr>
-                    <td rowspan="2">GLM</td>
-                    <td>glm-4</td>
-                    <td>4</td>
-                </tr>
-                <tr>
-                    <td>glm-4v</td>
-                    <td>15</td>
-                </tr>
-
-                <tr>
-                    <td rowspan="1">Baidu</td>
-                    <td>completions_pro</td>
-                    <td>4</td>
-                </tr>
-
-                <tr>
-                    <td rowspan="3">MoonShot</td>
-                    <td>moonshot-v1-8k</td>
-                    <td>2</td>
-                </tr>
-                <tr>
-                    <td>moonshot-v1-32k</td>
-                    <td>4</td>
-                </tr>
-                <tr>
-                    <td>moonshot-v1-128k</td>
-                    <td>10</td>
-                </tr>
-
-                <td colspan="3" class="tip">
-    请注意，部分高级AI模型的使用次数会有所限制和额外消耗。请参考以上消费对照表格，理解并合理使用各模型。对于未在表格中的模型，默认消耗为1次。
-</br>
-    为了确保我们能持续提供这些高价值的功能，我们正在寻求更经济有效的解决方案。对于可能带来的不便，我们深感歉意，也非常感谢您的理解与配合。
-</td>
+                <template v-for="(item, index) in provider" :key="index">
+                    <tr v-for="(item2, index2) in models[item]" :key="index2">
+                        <td v-if="index2 === 0" :rowspan="models[item].length">{{ item }}</td>
+                        <td :class="item2.chance >= 20 ? 'red' : ''">{{ item2.model }}</td>
+                        <td :class="item2.chance >= 20 ? 'red' : ''">{{ item2.chance }}</td>
+                    </tr>
+                </template>
             </tbody>
         </table>
     </div>
 </template>
 
 <script setup>
+import { http } from '@/common/request.js'
+import { onMounted, ref } from 'vue'
+import { notification } from 'ant-design-vue'
 const emit = defineEmits(['close'])
+const provider = ref([])
+const models = ref({})
 
 function close() {
     emit('close')
 }
+
+async function load() {
+    try {
+        const res = await http('model-cost', {}, 'GET')
+        const data = await res.json()
+        if (data.status === 1) {
+            for (const item of data.data) {
+                provider.value.push(item.provider)
+                models.value[item.provider] = []
+                for (const item2 of item.model) if (item2.chance > 1) models.value[item.provider].push(item2)
+            }
+        } else throw new Error(data.message)
+    } catch (e) {
+        notification.error({ duration: 3000, description: 'Error', message: e.message })
+    }
+}
+
+onMounted(load)
 </script>
-<style scoped>
+<style lang="scss" scoped>
 .cost {
     position: fixed;
     top: 0;
@@ -104,35 +64,38 @@ function close() {
     align-items: center;
     justify-content: center;
     background: rgba(0, 0, 0, 0.6);
-}
-table {
-    max-width: 600px;
-    width: 100%;
-    border-collapse: collapse; /* 使表格线更清晰 */
-    font-size: 0.9em;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
-}
-table thead tr {
-    background-color: #009879;
-    color: #ffffff;
-    text-align: center;
-}
-table th,
-table td {
-    padding: 12px 15px;
-    text-align: center;
-}
-table tbody tr {
-    border-bottom: 1px solid #dddddd;
-    background-color: #f3f3f3;
-}
-table tbody tr:last-of-type {
-    border-bottom: 2px solid #009879;
-}
-.tip {
-    background-color: #f3f3f3;
-    padding: 10px;
-    font-size: 12px;
-    color: #3f3f3f;
+    table {
+        max-width: 800px;
+        width: 100%;
+        border-collapse: collapse; /* 使表格线更清晰 */
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+        thead {
+            font-size: 0.9em;
+            tr {
+                background-color: #009879;
+                color: #ffffff;
+                text-align: center;
+                th {
+                    padding: 12px 15px;
+                    text-align: center;
+                }
+            }
+        }
+        tbody {
+            font-size: 0.75em;
+            tr {
+                border-bottom: 1px solid #dddddd;
+                background-color: #f3f3f3;
+                td {
+                    padding: 12px 15px;
+                    text-align: center;
+                    &.red {
+                        color: red;
+                        font-weight: bold;
+                    }
+                }
+            }
+        }
+    }
 }
 </style>

@@ -37,6 +37,8 @@
     "prettier": "^3.2.5",
     "qrcode": "^1.5.3",
     "react": "^18.2.0",
+    "sass": "^1.77.2",
+    "sass-loader": "^14.2.1",
     "vue": "^3.2.47",
     "vue-demi": "^0.14.7",
     "vue-router": "^4.1.6",

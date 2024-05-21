@@ -2,6 +2,7 @@
 
 import config from '@/common/config'
 const URL = config.url
+const UPLOAD = config.upload
 // export async function chat(url,data={},method='GET' ,header={}, apiKey) {
 //   try {
 //     const result = await fetch(URL+'/web'+url, {
@@ -26,30 +27,34 @@ const URL = config.url
 //   }
 // }
 
-export const http = async (url, data = {}, method = 'GET', header = {}) => {
+export const http = async (action, data = {}, method = 'GET', header = {}) => {
     const options = {
         method,
-        // signal: AbortSignal.timeout(8000),
-        // 开启后到达设定时间会中断流式输出
+        mode: 'cors',
         headers: {
             token: localStorage.getItem('token') || '',
             id: localStorage.getItem('id') || 0,
             'app-type': 'web',
-            // "Content-Type": "application/json",
             ...header
         }
     }
-    if (method === 'POST' || method === 'post') {
+
+    let url = `${URL}/web/${action}`
+    if (method.toLowerCase() === 'post') {
         console.log(data)
 
-        if (data instanceof FormData) options.body = data
-        else if (typeof data === 'object') {
+        if (data instanceof FormData) {
+            url = `${UPLOAD}/web/${action}`
+            options.body = data
+        } else if (typeof data === 'object') {
             options.headers['Content-Type'] = 'application/json'
             options.body = JSON.stringify(data)
+            url = `${URL}/web/${action}`
         }
     }
+    console.log(url)
 
-    const result = await fetch(URL + '/web/' + url, options)
+    const result = await fetch(url, options)
     return result
 }
 export const httppay = async (url, data = {}, method = 'GET', header = {}) => {
