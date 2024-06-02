@@ -3,14 +3,14 @@
 </p>
 
 <p align=center>
-受 <b>KimiChat</b> 启发，基于 <b>UniAI</b> 开发，集成多种 AI 大模型的文档分析应用。
+<b>KimiChat</b> 启发，基于 <b>UniAI</b> 开发，集成多种 AI 大模型的文档分析应用。
 </p>
 
 <p align=center> <a href="./README.md">English Readme</a></p>
 
 ## 简介
 
-我们欣赏和敬仰 [月之暗面](https://www.moonshot.cn/)及其旗下产品 [KimiChat](https://kimi.moonshot.cn/)。受其启发，我们开发并开源了 LeChat，这是一款基于大模型的文件解析工具，其功能紧跟 KimiChat ！
+我们欣赏[月之暗面](https://www.moonshot.cn/)及其旗下产品 [KimiChat](https://kimi.moonshot.cn/)。受其启发，我们开发并开源了 LeChat，这是一款基于大模型的文件解析工具，支持全套Office文件解析，功能紧跟 KimiChat 开发！
 
 与获得红杉资本10亿投资的 KimiChat不同，我们的项目显得较为简陋。我们没有投资，项目团队仅由一位不知名科研院所的全职工程师（也就是我本人）和一位即将毕业的实习生组成。目前项目实习生已离职，只有我一个人在维护，因个人精力和资金有限（项目目前允许免费有限使用），我们决定开源所有代码，包括前端、后端以及核心类库。如果你对项目感兴趣，不妨给我们 Star 或贡献代码，这是我们持续研发的动力来源。
 
@@ -27,21 +27,27 @@
 
 如果你是开源的忠实粉丝，不能接受在项目中使用商业模型，我们也为你提供了对 ChatGLM-6B 的支持。如需部署，请按照 https://github.com/uni-openai/GLM-API 的指引操作，然后参照后端环境变量配置部分，添加 GLM_API 地址即可。
 
-更进一步，你还可以考虑接入马斯克的 Grok-1，当然，你同样需要参与到 UniAI 核心类库的开发中来。
+![preview](https://raw.githubusercontent.com/uni-openai/uniai/main/icon/lechat-pro.png)
 
-![preview](img/preview.gif)
-
-产品试用地址：
+体验地址：
 
 👉 <https://lechat.cas-ll.cn>
 
-开源地址：
+后端开源地址：
 
 👉 <https://github.com/uni-openai/uniai-maas>
 
 核心类库：
 
 👉 <https://github.com/uni-openai/uniai>
+
+## 实现功能
+
+- 多模型接入/切换 ✅
+- 全格式Office文件上传和解析 ✅
+- 图片识别 ✅
+- 图片生成 ✅
+- 图表生成 ✅
 
 ## 快速开始
 

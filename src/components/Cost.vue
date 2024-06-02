@@ -14,8 +14,8 @@
                 <template v-for="(item, index) in provider" :key="index">
                     <tr v-for="(item2, index2) in models[item]" :key="index2">
                         <td v-if="index2 === 0" :rowspan="models[item].length">{{ item }}</td>
-                        <td :class="item2.chance >= 20 ? 'red' : ''">{{ item2.model }}</td>
-                        <td :class="item2.chance >= 20 ? 'red' : ''">{{ item2.chance }}</td>
+                        <td :class="item2.chance >= 10 ? 'red' : ''">{{ item2.model }}</td>
+                        <td :class="item2.chance >= 10 ? 'red' : ''">{{ item2.chance }}</td>
                     </tr>
                 </template>
             </tbody>

@@ -319,18 +319,7 @@
                             {{ item.title }}
                         </div>
                         <div class="text-[22px] mt-[12px] text-[#e2b460] font-medium">￥{{ item.price }}</div>
-                        <div
-                            class="text-[13px] text-[#bcbcbc] mb-[12px] text-center px-[5px]"
-                            style="
-                                text-decoration: line-through;
-                                text-decoration-color: #bcbcbc;
-                                text-decoration-thickness: 1px;
-                                text-decoration-style: solid;
-                            "
-                        >
-                            {{ item.price * 2 }}元
-                        </div>
-
+                        <br />
                         <div class="text-[12px]" style="width: 85%; height: auto" v-for="role in item.description">
                             <div
                                 class="flex flex-row mt-1"
@@ -363,12 +352,6 @@
                                     {{ role }}
                                 </div>
                             </div>
-                            <div
-                                class="text-[12px] text-[#573B18] absolute right-0 top-0 rounded-[8px] py-[2px] px-[6px] rounded-r-none truncate"
-                                style="background: linear-gradient(90deg, rgb(249, 229, 189), rgb(226, 180, 96))"
-                            >
-                                限时折扣
-                            </div>
                         </div>
                     </div>
                 </a-col>
@@ -382,7 +365,9 @@
                 次对话。
                 <b>不同模型消耗的次数不同！</b>
                 <br />
-                <a-button @click="(showCost = true), (chargeopen = false)" type="link">查询模型消费对照表</a-button>
+                <a-button @click="(showCost = true), (chargeopen = false)" type="link">
+                    购买前请点此查询模型消费对照表
+                </a-button>
             </div>
             <div style="text-align: center; margin-top: 5px">如果您遇到了问题，请联系《AI乐聊》微信小程序客服</div>
             <!-- </a-watermark> -->

@@ -25,15 +25,13 @@ You can also implement interfaces to integrate with more models by contributing 
 
 If you are an open-source enthusiast who does not want commercial models in your project, we also support ChatGLM-6B. To deploy it, please refer to: <https://github.com/uni-openai/GLM-API>. After deployment, follow the backend environment variable configuration section and add the GLM API address.
 
-Furthermore, you may consider integrating Musk's [Grok-1](https://huggingface.co/xai-org/grok-1) on your own, which would require developing the UniAI core library as well.
-
-![preview](img/preview.gif)
+![preview](https://raw.githubusercontent.com/uni-openai/uniai/main/icon/lechat-pro.png)
 
 Experience it here:
 
 👉 [LeChat](https://lechat.cas-ll.cn)
 
-Open-source repository:
+Open-source backend repository:
 
 👉 [UniAI-MaaS](https://github.com/uni-openai/uniai-maas)
 
@@ -41,6 +39,13 @@ Core library:
 
 👉 [UniAI Core Library](https://github.com/uni-openai/uniai)
 
+## Features
+
+- 🧠 Multiple AI models support
+- 📃 Office files uploading and parsing
+- 👀 Image Recognition
+- 🎨 Image generation
+- 📈 Chart Plotting
 
 ## Quick Start
 
