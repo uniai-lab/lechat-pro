@@ -1191,7 +1191,7 @@
                                     <FileTextOutlined />
                                     文字模式
                                 </a-menu-item>
-                                <a-menu-item key="2">
+                                <a-menu-item key="3">
                                     <FileImageOutlined />
                                     图片模式
                                 </a-menu-item>
@@ -1223,7 +1223,7 @@
                                 <FileTextOutlined />
                             </div>
                             <div
-                                v-if="outmodel == '2'"
+                                v-if="outmodel == '3'"
                                 :style="{
                                     fontSize: '18px',
                                     display: 'flex',
