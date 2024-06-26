@@ -49,7 +49,7 @@ this function introduce the http request from `request.js` and set data from the
 
 # loading.vue
 
-it seems defined alot of animation when loading, but it does not appear in the project. I guess this may someone try to make a loading animation by himself but in the last he give up and use the ant design's animation instead. Maybe anythings else.
+it seems defined alot of animation when loading, and it is used when the chat is loading. infact this should be "loadingAnimation"
 
 # loadingModal.vue
 
