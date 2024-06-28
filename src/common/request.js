@@ -3,30 +3,16 @@
 import config from '@/common/config'
 const URL = config.url
 const UPLOAD = config.upload
-// export async function chat(url,data={},method='GET' ,header={}, apiKey) {
-//   try {
-//     const result = await fetch(URL+'/web'+url, {
-//       method,
-//       // signal: AbortSignal.timeout(8000),
-//       // 开启后到达设定时间会中断流式输出
-//       headers: {
-//         "Content-Type": "application/json",
-//         Authorization: `Bearer ${apiKey}`,
-//         ...header
-//       },
-//       body: JSON.stringify({
-//         model: "gpt-3.5-turbo",
-//         stream: true,
-//         messages: messageList,
-//         ...data
-//       }),
-//     });
-//     return result;
-//   } catch (error) {
-//     throw error;
-//   }
-// }
 
+/**
+ * async http request function to send http request to server
+ *
+ * @param {string} action reqiest path, means what action this request will do
+ * @param {Object|FormData} data default is {}
+ * @param {string} method default is 'GET'
+ * @param {Object} header default is {}
+ * @returns {unknown} depends on what action it takes
+ */
 export const http = async (action, data = {}, method = 'GET', header = {}) => {
     const options = {
         method,
@@ -41,8 +27,6 @@ export const http = async (action, data = {}, method = 'GET', header = {}) => {
 
     let url = `${URL}/web/${action}`
     if (method.toLowerCase() === 'post') {
-        console.log(data)
-
         if (data instanceof FormData) {
             url = `${UPLOAD}/web/${action}`
             options.body = data
@@ -52,16 +36,24 @@ export const http = async (action, data = {}, method = 'GET', header = {}) => {
             url = `${URL}/web/${action}`
         }
     }
-    console.log(url)
 
     const result = await fetch(url, options)
     return result
 }
+
+/**
+ * async http request function to send http request to server, which is insight into pay
+ *
+ * @param {string} url request url
+ * @param {Object} data default is {}
+ * @param {string} method default is 'GET'
+ * @param {Object} header default is {}
+ * @returns {Object}
+ * @throws {Error} when this request failed
+ */
 export const httppay = async (url, data = {}, method = 'GET', header = {}) => {
     const options = {
         method,
-        // signal: AbortSignal.timeout(8000),
-        // 开启后到达设定时间会中断流式输出
         headers: {
             token: localStorage.getItem('token') || '',
             id: localStorage.getItem('id') || 0,
@@ -82,6 +74,14 @@ export const httppay = async (url, data = {}, method = 'GET', header = {}) => {
         throw error
     }
 }
+/**
+ * async function receive data by server sent events
+ *
+ * @param {string} url request API path
+ * @param {Object} data default is {}
+ * @param {Object} header default is {}
+ * @returns {unknown} three different
+ */
 export async function sse(url, data = {}, header = {}) {
     return await fetch(URL + '/web/' + url, {
         method: 'POST',
