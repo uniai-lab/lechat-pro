@@ -53,7 +53,7 @@ const copyToClipboard = (content: string = porps.content) => {
 </script>
 
 <template>
-    <div class="flex items-center cursor-pointer" @click="copyToClipboard()">
+    <div class="copy-btn" @click="copyToClipboard()">
         <copy v-show="btnStatus === 'copy'" :theme="btnConfig.theme" :size="btnConfig.size" :fill="btnConfig.fill" />
         <loading
             class="rotate"
@@ -74,11 +74,26 @@ const copyToClipboard = (content: string = porps.content) => {
             :size="btnConfig.size"
             :fill="btnConfig.fill"
         />
-        <span class="text-xs ml-0.5 text-gray-500 leading-none">{{ btnTips[btnStatus] }}</span>
+        <span>{{ btnTips[btnStatus] }}</span>
     </div>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
+.copy-btn {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+
+    span {
+        font-size: 0.75rem /* 12px */;
+        line-height: 1rem /* 16px */;
+        margin-left: 0.125rem /* 2px */;
+        --tw-text-opacity: 1;
+        color: rgb(107 114 128 / var(--tw-text-opacity)); /* #6b7280 */
+        line-height: 1;
+    }
+}
+
 @keyframes spin {
     0% {
         transform: rotate(0deg);
