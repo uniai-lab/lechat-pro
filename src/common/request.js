@@ -48,7 +48,7 @@ export const http = async (action, data = {}, method = 'GET', header = {}) => {
  * @param {Object} data default is {}
  * @param {string} method default is 'GET'
  * @param {Object} header default is {}
- * @returns {Object}
+ * @returns {unknown} depends on what url it sends
  * @throws {Error} when this request failed
  */
 export const httppay = async (url, data = {}, method = 'GET', header = {}) => {
@@ -80,7 +80,7 @@ export const httppay = async (url, data = {}, method = 'GET', header = {}) => {
  * @param {string} url request API path
  * @param {Object} data default is {}
  * @param {Object} header default is {}
- * @returns {unknown} three different
+ * @returns {unknown} three different types
  */
 export async function sse(url, data = {}, header = {}) {
     return await fetch(URL + '/web/' + url, {

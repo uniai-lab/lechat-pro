@@ -52,12 +52,12 @@
             </a-upload-dragger>
         </div>
 
-        <login-modal
+        <LoginModal
             @custom-event="handleCustomEvent"
             style="height: 100%; z-index: 999"
             v-if="visible"
             @hideModal="clickConfig"
-        ></login-modal>
+        ></LoginModal>
         <cost v-if="showCost" @close="showCost = false" style="z-index: 999" />
 
         <!-- <a-float-button
@@ -1254,11 +1254,11 @@
 import zhCN from 'ant-design-vue/es/locale/zh_CN'
 import { ref, computed, onMounted, onUpdated, onBeforeUnmount, toRefs } from 'vue'
 import { EventSourceParserStream } from 'eventsource-parser/stream'
-import Loding from '@/components/Loding.vue'
-import Copy from '@/components/Copy.vue'
+import Loding from '@/components/LodingAnimation.vue'
+import Copy from '@/components/CopyBtn.vue'
 import { md } from '@/libs/markdown'
-import LoginModal from '@/components/LoginModal.vue'
-import Cost from '@/components/Cost.vue'
+import LoginModal from '@/components/LoginModal/LoginModal.vue'
+import Cost from '@/components/CostTable.vue'
 import { http, sse, httppay } from '@/common/request.js'
 
 import { Cascader, notification } from 'ant-design-vue'
