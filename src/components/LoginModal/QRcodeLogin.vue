@@ -56,7 +56,6 @@ async function getQrcode() {
             }
         } catch (error) {
             console.log(error)
-            message.error('二维码获取失败')
         } finally {
             forbidSend.value = false
             clearTimeout(refreshQRcode)

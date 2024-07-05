@@ -3,12 +3,14 @@
 <template>
     <div id="captcha"></div>
     <div class="main">
-        <a-form :model="phoneForm" :label-col="{ span: 6 }" autocomplete="off">
-            <a-form-item label="手机号" name="phone" :rules="[{ required: true, message: '请输入您的手机号' }]">
+        <a-form :model="phoneForm" :wrapper-col="{ span: 24 }" autocomplete="off">
+            <a-form-item class="item-area" name="phone" :rules="[{ required: true, message: '请输入手机号' }]">
+                <label>手机号</label>
                 <a-input v-model:value="phoneForm.phone" />
             </a-form-item>
 
-            <a-form-item label="验证码" name="vertifycode" :rules="[{ required: true, message: '请输入您的验证码' }]">
+            <a-form-item class="item-area" name="vertifycode" :rules="[{ required: true, message: '请输入验证码' }]">
+                <label>验证码</label>
                 <a-input-group compact>
                     <a-input v-model:value="phoneForm.vertifycode" class="vertify-code-input" />
                     <a-button :disabled="forbidSend" @click="getVertifyCode">
@@ -18,8 +20,8 @@
             </a-form-item>
 
             <a-form-item>
-                <div class="centralized-area btn">
-                    <a-button type="primary" @click="lastCheckPhone">登录</a-button>
+                <div class="centralized-area">
+                    <a-button type="primary" class="login-btn" @click="lastCheckPhone">登录</a-button>
                 </div>
             </a-form-item>
         </a-form>
@@ -135,29 +137,29 @@ function lastCheckPhone() {
 
 <style lang="scss" scoped>
 .main {
-    margin-top: 20%;
+    margin-top: 6%;
+
+    .item-area {
+        justify-content: center;
+        align-items: center;
+        display: flex;
+        width: 225px;
+        margin: 20px auto;
+    }
 }
 
 .centralized-area {
     display: flex;
     align-items: center;
     justify-content: center;
+
+    .login-btn {
+        margin-top: 4%;
+        width: 225px;
+    }
 }
 
 .vertify-code-input {
-    width: calc(100% - 102px);
-}
-
-// when the sceen is too small, the ant input will wrap
-// so to make the btn in the right place, use this @media
-@media (max-width: 576px) {
-    .main {
-        margin-top: 0;
-    }
-}
-@media (min-width: 576px) {
-    .main {
-        margin-top: 20%;
-    }
+    width: 124px;
 }
 </style>

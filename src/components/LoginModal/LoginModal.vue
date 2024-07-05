@@ -65,7 +65,7 @@ const qrcodeToken = ref<string>('')
 // to vertify qrcode login authorization
 const startGlobalPollingTimer = ref<Function>(() => {})
 const isShowLoadingMask = ref(false)
-const curLoginMethod = ref<string>('qrcode')
+const curLoginMethod = ref<'phone' | 'qrcode' | 'password'>('qrcode')
 
 interface PhoneForm {
     phone: string
@@ -91,7 +91,7 @@ onBeforeMount(async () => {
     startGlobalPollingTimer.value = pollingRequestQRcode()
 })
 
-function changeLoginMehod(changedMethod: string) {
+function changeLoginMehod(changedMethod: 'phone' | 'qrcode' | 'password') {
     curLoginMethod.value = changedMethod
 }
 

@@ -3,17 +3,19 @@
 <template>
     <div id="captcha"></div>
     <div class="main">
-        <a-form :model="passwordForm" :label-col="{ span: 6 }" :wrapper-col="{ span: 18 }" autocomplete="off">
-            <a-form-item label="手机号" name="phone" :rules="[{ required: true, message: '请输入您的手机号' }]">
+        <a-form :model="passwordForm" :wrapper-col="{ span: 24 }" autocomplete="off">
+            <a-form-item class="item-area" name="phone" :rules="[{ required: true, message: '请输入手机号' }]">
+                <label>手机号</label>
                 <a-input v-model:value="passwordForm.phone" />
             </a-form-item>
 
-            <a-form-item label="密码" name="password" :rules="[{ required: true, message: '请输入您的验证码' }]">
+            <a-form-item class="item-area" name="password" :rules="[{ required: true, message: '请输入密码' }]">
+                <label>密码</label>
                 <a-input-password v-model:value="passwordForm.password" />
             </a-form-item>
 
             <div class="centralized-area">
-                <a-button type="primary" @click="lastCheckPhone">登录</a-button>
+                <a-button type="primary" class="login-btn" @click="lastCheckPhone">登录</a-button>
             </div>
         </a-form>
     </div>
@@ -76,24 +78,24 @@ function lastCheckPhone() {
 
 <style lang="scss" scoped>
 .main {
-    margin-top: 20%;
+    margin-top: 6%;
+
+    .item-area {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 225px;
+        margin: 20px auto;
+    }
 }
 .centralized-area {
     display: flex;
     align-items: center;
     justify-content: center;
-}
 
-// when the sceen is too small, the ant input will wrap
-// so to make the btn in the right place, use this @media
-@media (max-width: 576px) {
-    .main {
-        margin-top: 0;
-    }
-}
-@media (min-width: 576px) {
-    .main {
-        margin-top: 20%;
+    .login-btn {
+        margin-top: 4%;
+        width: 225px;
     }
 }
 </style>
