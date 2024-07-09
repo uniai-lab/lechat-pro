@@ -1,17 +1,16 @@
 <!-- @format -->
 
 <template>
+    <!-- ref="dropzoneRef" -->
     <div
-        ref="dropzoneRef"
         @dragenter.prevent="handleOver"
         @dragleave.prevent="handleLeave"
         @drop="handleDrop"
         class="flex flex-col h-screen bg-gray-000 dark bg"
     >
-        <!-- <div  v-if="visible" style="width: 100vw;position: absolute;height: 100vh;z-index: 999;"> -->
         <!-- 展示上传框的逻辑 -->
-        <!-- v-if="isDragging" -->
-        <div v-if="isDragging" class="upload-box">
+
+        <div v-if="isDragging" class="upload-mask">
             <a-upload-dragger
                 :accept="
                     Object.keys(fileSrcMap)
@@ -27,7 +26,7 @@
                 :showUploadList="false"
                 :multiple="true"
             >
-                <div class="upbox">
+                <div class="upload-container">
                     <div
                         :style="{
                             fontSize: '160px',
@@ -53,11 +52,12 @@
         </div>
 
         <LoginModal
-            @custom-event="handleCustomEvent"
+            @custom-event="handleLoginCustomEvent"
             style="height: 100%; z-index: 999"
-            v-if="visible"
-            @hideModal="clickConfig"
+            v-if="loginVisible"
+            @hideModal="switchLoginVisible"
         ></LoginModal>
+
         <cost v-if="showCost" @close="showCost = false" style="z-index: 999" />
 
         <!-- <a-float-button
@@ -69,8 +69,13 @@
             <template #icon>
                 <ClearOutlined />
             </template>
-</a-float-button> -->
-        <a-float-button v-if="!ifphone" @click="showface" type="default" style="margin-bottom: 70px; margin-right: 0px">
+        </a-float-button> -->
+        <a-float-button
+            v-if="!ifComputer"
+            @click="showface"
+            type="default"
+            style="margin-bottom: 70px; margin-right: 0px"
+        >
             <template #icon>
                 <!-- <RobotOutlined /> -->
 
@@ -149,10 +154,10 @@
             <a-form :model="formState" :label-col="labelCol" :wrapper-col="wrapperCol">
                 <!-- <a-form-item label="角色">
 
-          <a-input :placeholder="'律师？或者其他职业'" v-model:value="formState.name" />
+                <a-input :placeholder="'律师？或者其他职业'" v-model:value="formState.name" />
 
           
-        </a-form-item> -->
+                </a-form-item> -->
 
                 <a-form-item label="场景要求">
                     <a-textarea :rows="7" :placeholder="'请输入您的具体需求'" v-model:value="formState.desc" />
@@ -171,7 +176,7 @@
             title="编辑个人资料"
             :closable="true"
             :width="320"
-            :visible="msgvisible"
+            :visible="personalDrawerVisible"
             :body-style="{ paddingBottom: '80px' }"
             @close="onmsgClose"
         >
@@ -248,8 +253,17 @@
         </a-drawer>
 
         <!-- 顶部/ -->
+        <TopBar
+            :userInfo="userInfo"
+            :ifLogin="ifLogin"
+            :ifComputer="ifComputer"
+            :switchLoginVisible="switchLoginVisible"
+            @show-personal-drawer="showPersonalDrawer"
+            @show-charge-modal="showchargeModal"
+            @log-out="logOut"
+        ></TopBar>
         <div
-            class="flex flex-row flex-nowrap fixed w-full items-baseline top-0 px-6 py-4 bg-gray-950 justify-between items-center"
+            class="flex flex-row flex-nowrap fixed w-full items-baseline top-0 px-6 py-4 bg-gray-950 justify-between"
             style="align-items: center; z-index: 888"
         >
             <div class="flex flex-row text-2xl font-bold text-zinc-50">
@@ -261,25 +275,24 @@
                     pro
                 </div>
             </div>
-            <div v-if="ifphone" class="ml-4 text-sm text-zinc-200">乐聊多模型文档解析工具</div>
-            <!-- <div class="ml-2 text-xs text-zinc-100 text-gray-100"> V1.0.0</div> -->
+            <div v-if="ifComputer" class="ml-4 text-sm text-zinc-200">乐聊多模型文档解析工具</div>
 
             <div
-                v-if="!iflogin"
+                v-if="!ifLogin"
                 class="ml-auto px-3 py-2 cursor-pointer text-gray-100 bg-gray-700 hover:bg-white hover:text-gray-900 rounded-md"
-                @click.stop="clickConfig()"
+                @click.stop="switchLoginVisible"
             >
                 <div>登录</div>
             </div>
 
             <div @click.stop="showProfile()" v-else class="ml-auto" style="align-items: end; cursor: pointer">
                 <div class="text-l ml-2 text-gray-100 hover:bg-gray-100 hover:text-gray-900 px-2 py-1 rounded-md">
-                    {{ userinfo.name }}
+                    {{ userInfo.name }}
                 </div>
             </div>
 
             <div
-                v-if="iflogin && ifphone"
+                v-if="ifLogin && ifComputer"
                 @click.stop="showchargeModal"
                 style="line-height: 0.7rem"
                 class="px-3 py-2 ml-1 text-sm cursor-pointer text-gray-900 bg-white hover:bg-gray-100 hover:text-gray-900 rounded-md gold-button"
@@ -287,17 +300,70 @@
                 充值
             </div>
             <div
-                v-if="iflogin && !ifphone"
+                v-if="ifLogin && !ifComputer"
                 @click.stop="showchargeModal"
                 class="flex justify-center items-center ml-1 rounded-md flex-row text-gray-100 bg-gray-900 hover:bg-gray-600 hover:text-gray-100"
             >
                 <WalletOutlined style="font-size: 22px" />
             </div>
         </div>
+
+        <!-- 弹出框 -->
+        <div class="profile-overlay" v-if="isProfileOpen" @click="closeProfile()">
+            <a-card :bodyStyle="{ 'white-space': 'break-all' }" style="width: 340px">
+                <template #cover>
+                    <img alt="example" src="https://openai-1259183477.cos.ap-shanghai.myqcloud.com/WechatIMG925.jpg" />
+                </template>
+                <template #actions>
+                    <KeyOutlined v-if="userInfo.phone" @click="showpwModal()" />
+                    <edit-outlined @click="showPersonalDrawer()" />
+                    <LogoutOutlined @click.stop="logOut()" />
+                </template>
+                <a-card-meta :title="userInfo.name" :description="'对话次数:' + userInfo.chance.totalChatChance">
+                    <template #avatar>
+                        <a-avatar :style="'height:50px;width:50px;margin:0px 10px 10px 10px'" :src="userInfo.avatar" />
+                        <div
+                            style="
+                                width: 50px;
+                                position: relative;
+                                background: black;
+                                color: gold;
+                                border-radius: 10px;
+                                padding: 0 0px;
+                                display: flex;
+                                flex-direction: row;
+                                justify-content: center;
+                                margin-top: -5px;
+                                margin-left: 9px;
+                                font-size: 10px;
+                                font-weight: 500;
+                                z-index: 99999;
+                            "
+                        >
+                            VIP {{ userInfo.chance.level }}
+                        </div>
+                        <div
+                            v-show="userInfo.chance.level != 0"
+                            style="
+                                margin-left: 87px;
+                                margin-top: -16px;
+                                position: absolute;
+                                font-size: 12px;
+                                flex-wrap: nowrap;
+                            "
+                            class="text-gray-600"
+                        >
+                            到期时间：{{ timeStampToString(userInfo.chance.levelExpiredAt) }}
+                        </div>
+                    </template>
+                </a-card-meta>
+            </a-card>
+        </div>
+
         <!-- 充值弹框 -->
 
         <a-modal
-            :width="!ifphone ? '80%' : '800px'"
+            :width="!ifComputer ? '80%' : '800px'"
             :footer="null"
             v-model:open="chargeopen"
             title="充值"
@@ -373,58 +439,6 @@
             <!-- </a-watermark> -->
         </a-modal>
 
-        <!-- 弹出框 -->
-        <div class="profile-overlay" v-if="isProfileOpen" @click="closeProfile()">
-            <a-card :bodyStyle="{ 'white-space': 'break-all' }" style="width: 340px">
-                <template #cover>
-                    <img alt="example" src="https://openai-1259183477.cos.ap-shanghai.myqcloud.com/WechatIMG925.jpg" />
-                </template>
-                <template #actions>
-                    <!-- <setting-outlined  key="setting"   /> -->
-                    <KeyOutlined v-if="userinfo.phone" @click="showpwModal()" />
-                    <edit-outlined @click="changeuserinfo()" />
-                    <LogoutOutlined @click.stop="logout()" />
-                </template>
-                <a-card-meta :title="userinfo.name" :description="'对话次数:' + userinfo.chance.totalChatChance">
-                    <template #avatar>
-                        <a-avatar :style="'height:50px;width:50px;margin:0px 10px 10px 10px'" :src="userinfo.avatar" />
-                        <div
-                            style="
-                                width: 50px;
-                                position: relative;
-                                background: black;
-                                color: gold;
-                                border-radius: 10px;
-                                padding: 0 0px;
-                                display: flex;
-                                flex-direction: row;
-                                justify-content: center;
-                                margin-top: -5px;
-                                margin-left: 9px;
-                                font-size: 10px;
-                                font-weight: 500;
-                                z-index: 99999;
-                            "
-                        >
-                            VIP {{ userinfo.chance.level }}
-                        </div>
-                        <div
-                            v-show="userinfo.chance.level != 0"
-                            style="
-                                margin-left: 87px;
-                                margin-top: -16px;
-                                position: absolute;
-                                font-size: 12px;
-                                flex-wrap: nowrap;
-                            "
-                            class="text-gray-600"
-                        >
-                            到期时间：{{ timestampToDateString(userinfo.chance.levelExpiredAt) }}
-                        </div>
-                    </template>
-                </a-card-meta>
-            </a-card>
-        </div>
         <!-- 支付弹窗 -->
         <a-modal
             :footer="null"
@@ -610,11 +624,11 @@
         >
             <a-list item-layout="horizontal" :data-source="historyChat">
                 <template #renderItem="{ item, index }">
-                    <a-list-item class="dailogitem" @click="todailog(item.id, index)">
+                    <a-list-item class="dialogitem" @click="todialog(item.id, index)">
                         <template #actions>
                             <div
                                 style="color: black; font-size: 16px"
-                                @click.stop="deldailog(item.id)"
+                                @click.stop="deldialog(item.id)"
                                 key="list-loadmore-more"
                             >
                                 <DeleteOutlined />
@@ -629,16 +643,16 @@
                 </template>
                 <template #loadMore>
                     <div
-                        v-if="iflogin"
+                        v-if="ifLogin"
                         :style="{ textAlign: 'center', marginTop: '12px', height: '32px', lineHeight: '32px' }"
                     >
-                        <a-button style="color: black" @click="ondailogLoadMore">查看更多</a-button>
+                        <a-button style="color: black" @click="ondialogLoadMore">查看更多</a-button>
                     </div>
                 </template>
             </a-list>
             <template #footer>
-                <div class="newdailogbox">
-                    <div @click="newdailog" class="newdailogbtn">
+                <div class="newdialogbox">
+                    <div @click="newdialog" class="newdialogbtn">
                         <PlusCircleOutlined />
                         <div style="margin-left: 6px">新建对话</div>
                     </div>
@@ -666,7 +680,7 @@
         >
             <a-config-provider :locale="zhCN">
                 <a-tour
-                    v-if="ifphone"
+                    v-if="ifComputer"
                     v-model:current="current"
                     :open="leadeopen"
                     :steps="steps"
@@ -769,7 +783,7 @@
                 </div>
 
                 <div>
-                    <Loding style="margin-left: 20px" v-if="!item.content && !item.file" />
+                    <Loading style="margin-left: 20px" v-if="!item.content && !item.file" />
                     <template v-else-if="item.content && item.role !== 'user'">
                         <MdPreview
                             :no-img-zoom-in="true"
@@ -1025,12 +1039,12 @@
                             class="selected"
                         ></path>
                     </svg>
-                    <div v-if="ifphone" style="margin-left: 4px">历史对话</div>
+                    <div v-if="ifComputer" style="margin-left: 4px">历史对话</div>
                 </a-button>
                 <a-config-provider :theme="{ token: { colorPrimary: ' rgb(64, 70, 79)' } }">
                     <Cascader
                         ref="ref2"
-                        v-if="ifphone"
+                        v-if="ifComputer"
                         style="min-width: 160px"
                         :allowClear="false"
                         :defaultValue="commommodel"
@@ -1041,7 +1055,7 @@
                     />
                 </a-config-provider>
                 <div
-                    v-if="!ifphone"
+                    v-if="!ifComputer"
                     style="margin-left: 1px"
                     class="flex justify-center items-center ml-0 px-2 mr-2 rounded-md flex-row text-gray-900 bg-gray-100 hover:bg-gray-300 hover:text-gray-900"
                 >
@@ -1060,7 +1074,7 @@
                 <a-button
                     ref="ref3"
                     @click="showface"
-                    v-if="ifphone"
+                    v-if="ifComputer"
                     class="flex justify-center items-center ml-0 mr-3 px-2 mr-1 rounded-md flex-row text-gray-900 bg-gray-100"
                 >
                     <!-- <RobotOutlined :style="{ fontSize: '20px' }" /> -->
@@ -1162,7 +1176,7 @@
                     autosize
                     :type="'text'"
                     @keydown="keydownHandle"
-                    :placeholder="!iflogin ? '请先登录' : '剩余对话次数' + userinfo.chance.totalChatChance"
+                    :placeholder="!ifLogin ? '请先登录' : '剩余对话次数' + userInfo.chance.totalChatChance"
                     v-model:value="value"
                 ></a-textarea>
 
@@ -1254,7 +1268,7 @@
 import zhCN from 'ant-design-vue/es/locale/zh_CN'
 import { ref, computed, onMounted, onUpdated, onBeforeUnmount, toRefs } from 'vue'
 import { EventSourceParserStream } from 'eventsource-parser/stream'
-import Loding from '@/components/LodingAnimation.vue'
+import Loading from '@/components/LoadingAnimation.vue'
 import Copy from '@/components/CopyBtn.vue'
 import { md } from '@/libs/markdown'
 import LoginModal from '@/components/LoginModal/LoginModal.vue'
@@ -1304,6 +1318,7 @@ import '@vue-office/docx/lib/index.css'
 import commonContent from '../common/commoncontent'
 import confetti from 'canvas-confetti'
 import { anyType } from 'ant-design-vue/es/_util/type'
+import TopBar from '@/components/TopBar.vue'
 const leadeopen = ref<boolean>(false)
 const current = ref(0)
 const ref1 = ref(null)
@@ -1369,7 +1384,7 @@ const handleOpenlade = (val: boolean): void => {
     leadeopen.value = val
 }
 const linkback = ref(true)
-const dailogindex = ref(0)
+const dialogindex = ref(0)
 const fileListBT = ref([])
 
 const isDragging = ref(false)
@@ -1428,7 +1443,7 @@ const beforeUploadBT = file => {
     return false // 返回false以阻止自动上传
 }
 
-function timestampToDateString(timestamp) {
+function timeStampToString(timestamp) {
     // 将毫秒时间戳转换为秒
     var seconds = Math.floor(timestamp / 1000)
     // 创建 Date 对象
@@ -1550,7 +1565,7 @@ const sevepw = async () => {
             const result = await http('update-user', { password: checkPassword.checkPass }, 'POST')
             const res = await result.json()
             if (res.status === -1) {
-                clearinfo()
+                clearInfo()
                 closeProfile()
                 return
             }
@@ -1620,14 +1635,15 @@ const rules = {
     // description: [{ required: false, message: 'Please enter url description' }],
 }
 
-const msgvisible = ref<boolean>(false)
+const personalDrawerVisible = ref<boolean>(false)
 
-const showmsgDrawer = () => {
-    msgvisible.value = true
+const showPersonalDrawer = () => {
+    personalDrawerVisible.value = true
 }
 
 const onmsgClose = () => {
-    msgvisible.value = false
+    // this may not use
+    personalDrawerVisible.value = false
 }
 
 const placement = ref<DrawerProps['placement']>('left')
@@ -1651,7 +1667,7 @@ let unload = ref(false)
 // 声明一个isProfileOpen变量，用于存储是否打开配置的布尔值
 let isProfileOpen = ref(false)
 // 声明一个visible变量，用于存储是否可见的布尔值
-const visible = ref(false)
+const loginVisible = ref(false)
 // 声明一个chatListDom变量，用于存储聊天列表DOM元素
 const chatListDom = ref<HTMLDivElement>()
 
@@ -1666,7 +1682,22 @@ const dialogId = ref(0)
 // 声明一个showRetry变量，用于存储是否显示重试按钮的布尔值
 const showRetry = ref(false)
 // 声明一个userinfo变量，用于存储用户信息
-const userinfo = ref({ chance: { totalChatChance: 0, level: 0, levelExpiredAt: '' }, name: '', phone: '', avatar: '' })
+interface UserInfo {
+    chance: {
+        totalChatChance: number
+        level: number
+        levelExpiredAt: string
+    }
+    name: string
+    phone: string
+    avatar: string
+}
+const userInfo = ref<UserInfo>({
+    chance: { totalChatChance: 0, level: 0, levelExpiredAt: '' },
+    name: '',
+    phone: '',
+    avatar: ''
+})
 // 声明一个upSending变量，用于存储是否正在上传消息的布尔值
 const upSending = ref(false)
 // 声明一个value变量，用于存储输入框的值
@@ -1680,7 +1711,7 @@ const buttonText = ref('')
 // 声明一个fristLoad变量，用于存储是否第一次加载的布尔值
 const fristLoad = ref(true)
 // 声明一个iflogin变量，用于存储是否登录的布尔值
-const iflogin = ref(false)
+const ifLogin = ref(false)
 // 声明一个ifuserup变量，用于存储是否用户上传的布尔值
 const ifuserup = ref(false)
 // 声明一个isModalOpen变量，用于存储是否打开模态的布尔值
@@ -1936,7 +1967,7 @@ interface Chat {
 type Response = {
     achat: Chat[]
 }
-const ifphone = ref(false)
+const ifComputer = ref(false)
 const chargeopen = ref(false)
 const chargecodeopen = ref(false)
 const showchargeModal = async () => {
@@ -2029,7 +2060,7 @@ onMounted(async () => {
     const screenWidth = document.body.clientWidth
     const screenHeight = document.body.clientHeight
     if (screenHeight <= screenWidth) {
-        ifphone.value = true
+        ifComputer.value = true
     }
 
     // if (localStorage.getItem("role")) {
@@ -2058,12 +2089,12 @@ onMounted(async () => {
     }
 
     if (localStorage.getItem('token')) {
-        iflogin.value = true
+        ifLogin.value = true
 
         await getUserInfo()
         await init()
     } else {
-        iflogin.value = false
+        ifLogin.value = false
         // console.log(commonContent.content);
 
         achat.value = [
@@ -2099,7 +2130,7 @@ onMounted(async () => {
             if (
                 chatListDom.value?.scrollHeight - 2 <=
                     -chatListDom.value?.scrollTop + chatListDom.value?.clientHeight &&
-                iflogin.value &&
+                ifLogin.value &&
                 clock === false &&
                 !allfinished.value
             ) {
@@ -2186,32 +2217,33 @@ const refreshData = async () => {
     // ifuserup.value = false
 }
 
-const clickConfig = () => {
-    if (!isConfig.value) {
-        clearMessageContent()
+const switchLoginVisible = () => {
+    // if (!isConfig.value) {
 
-        visible.value = !visible.value
-        // console.log(visible.value)
-    } else {
-        clearMessageContent()
-        visible.value = !visible.value
-        // console.log(visible.value)
-    }
-    switchConfigStatus()
+    clearMessageContent()
+
+    loginVisible.value = !loginVisible.value
+
+    // } else {
+    //     clearMessageContent()
+    //     loginVisible.value = !loginVisible.value
+
+    // }
+    // switchConfigStatus()
 }
 
 const getSecretKey = () => 'lianginx'
 
-const switchConfigStatus = () => (isConfig.value = !isConfig.value)
+// const switchConfigStatus = () => (isConfig.value = !isConfig.value)
 //登录监听
-const handleCustomEvent = async (options: any, param2: any) => {
+const handleLoginCustomEvent = async (options: any, param2: any) => {
     // options.value = options;
 
     // console.log('xsdsdsdsds',options);
 
     await getUserInfo()
     await init()
-    iflogin.value = true
+    ifLogin.value = true
     chatListDom.value?.scrollTo({
         top: chatListDom.value.scrollHeight,
         behavior: 'smooth' // 可选，使滚动平滑进行
@@ -2222,11 +2254,11 @@ const { confirm } = Modal
 const cleanchat = async () => {
     // isModalOpen.value=true
     // console.log(123);
-    if (!iflogin.value) {
+    if (!ifLogin.value) {
         // console.log('请先登录')
         // visible.value = true
         value.value = ''
-        clickConfig()
+        switchLoginVisible()
         return 0
     } else {
         confirm({
@@ -2251,7 +2283,7 @@ const sendDelmsg = async () => {
         const data = await http('del-dialog', {}, 'GET')
         const res = await data.json()
         if (res.status === -1) {
-            clearinfo()
+            clearInfo()
             closeProfile()
             return
         }
@@ -2344,7 +2376,7 @@ const sendMessage = async () => {
     try {
         // check login
         ifusersend.value = true
-        if (!iflogin.value) return clickConfig()
+        if (!ifLogin.value) return switchLoginVisible()
 
         // is sending?
         if (sending.value) return
@@ -2354,7 +2386,7 @@ const sendMessage = async () => {
         ifuserup.value = false
 
         if (!value.value.trim() && fileListBT.value.length == 0) return
-        if (!userinfo.value.chance.totalChatChance)
+        if (!userInfo.value.chance.totalChatChance)
             return notification.error({ description: '请点击右上角充值按钮进行充值！', message: '次数用尽' })
 
         const input = value.value
@@ -2388,7 +2420,7 @@ const sendMessage = async () => {
 
                 const aindex = achat.value.push({
                     chatId: 0,
-                    avatar: userinfo.value.avatar || config.value.DEFAULT_AVATAR_USER,
+                    avatar: userInfo.value.avatar || config.value.DEFAULT_AVATAR_USER,
                     content: '',
                     role: 'user',
                     dialogId: dialogId.value,
@@ -2418,7 +2450,7 @@ const sendMessage = async () => {
             if (input) {
                 // user
                 achat.value.push({
-                    avatar: userinfo.value.avatar || config.value.DEFAULT_AVATAR_USER,
+                    avatar: userInfo.value.avatar || config.value.DEFAULT_AVATAR_USER,
                     content: input,
                     role: 'user',
                     dialogId: dialogId.value,
@@ -2430,7 +2462,7 @@ const sendMessage = async () => {
                 })
                 // model
                 achat.value.push({
-                    avatar: userinfo.value.avatar || config.value.DEFAULT_AVATAR_USER,
+                    avatar: userInfo.value.avatar || config.value.DEFAULT_AVATAR_USER,
                     content: '',
                     role: 'assistant',
                     dialogId: dialogId.value,
@@ -2446,15 +2478,15 @@ const sendMessage = async () => {
                 await getChatStream(input)
                 await getUserInfo()
             }
-            const qes = await getDailogList(0, 10, dialogId.value)
+            const qes = await getDialogList(0, 10, dialogId.value)
 
             // cover chat
-            if (qes.length > 0) historyChat.value[dailogindex.value] = qes[0]
+            if (qes.length > 0) historyChat.value[dialogindex.value] = qes[0]
         } else {
             // user
             achat.value.push({
                 chatId: 0,
-                avatar: userinfo.value.avatar || config.value.DEFAULT_AVATAR_USER,
+                avatar: userInfo.value.avatar || config.value.DEFAULT_AVATAR_USER,
                 content: input,
                 role: 'user',
                 dialogId: dialogId.value,
@@ -2466,7 +2498,7 @@ const sendMessage = async () => {
             // model
             achat.value.push({
                 chatId: 0,
-                avatar: userinfo.value.avatar || config.value.DEFAULT_AVATAR_USER,
+                avatar: userInfo.value.avatar || config.value.DEFAULT_AVATAR_USER,
                 content: '',
                 role: 'assistant',
                 dialogId: dialogId.value,
@@ -2479,9 +2511,9 @@ const sendMessage = async () => {
             await getChatStream(input)
             await getUserInfo()
 
-            const qes = await getDailogList(0, 10, dialogId.value)
+            const qes = await getDialogList(0, 10, dialogId.value)
 
-            if (qes.length > 0) historyChat.value[dailogindex.value] = qes[0]
+            if (qes.length > 0) historyChat.value[dialogindex.value] = qes[0]
         }
     } catch (e) {
         notification.error({ message: '错误', description: e.message })
@@ -2586,13 +2618,13 @@ const getUserInfo = async () => {
         const data = await http('userinfo', {}, 'GET')
         const res = await data.json()
         if (res.status === -1) {
-            clearinfo()
+            clearInfo()
             closeProfile()
             return
         }
         // console.log(res)
         if (res.status == 1) {
-            userinfo.value = res.data
+            userInfo.value = res.data
             localStorage.setItem('userinfo', JSON.stringify(res.data))
             // console.log(res.data.models)
             options.value = res.data.models
@@ -2607,16 +2639,16 @@ const getUserInfo = async () => {
         notification.error({ message: e.message })
     }
 }
-const logout = async () => {
-    clearinfo()
-    notification.success({ message: '已退出' })
+async function logOut() {
+    await clearInfo()
+    message.success('已退出登录')
 }
 
-const clearinfo = async () => {
+const clearInfo = async () => {
     localStorage.clear()
 
     closeProfile()
-    iflogin.value = false
+    ifLogin.value = false
     achat.value = [
         {
             avatar: '',
@@ -2644,7 +2676,7 @@ const getListChat = async (lastId: number = 0, pageSize: number = 10, dialogId: 
         if (res.status == -1) {
             notification.error({ message: res.msg })
             historyChat.value = []
-            return clearinfo()
+            return clearInfo()
         }
         if (res.status === 1) data = res.data
         else throw new Error(res.msg)
@@ -2655,7 +2687,7 @@ const getListChat = async (lastId: number = 0, pageSize: number = 10, dialogId: 
     }
     return data
 }
-const getDailogList = async (lastId: number = 0, pageSize: number = 10, id: number | null = null) => {
+const getDialogList = async (lastId: number = 0, pageSize: number = 10, id: number | null = null) => {
     let data = []
     try {
         if (upSending.value) return
@@ -2666,7 +2698,7 @@ const getDailogList = async (lastId: number = 0, pageSize: number = 10, id: numb
 
         if (res.status == -1) {
             notification.error({ message: res.msg })
-            return clearinfo()
+            return clearInfo()
         }
 
         if (res.status === 1) data = res.data
@@ -2683,14 +2715,14 @@ const init = async () => {
     iffirstloud.value = true
     try {
         achat.value = []
-        const dailogList = await getDailogList()
-        // console.log(dailogList[0])
+        const dialogList = await getDialogList()
+        // console.log(dialogList[0])
 
-        historyChat.value = dailogList
-        dialogId.value = dailogList[0].id
+        historyChat.value = dialogList
+        dialogId.value = dialogList[0].id
         const data = await getListChat(0, 10, dialogId.value)
-        dailogindex.value = 0
-        console.log(dailogindex.value)
+        dialogindex.value = 0
+        console.log(dialogindex.value)
 
         // console.log(data)
         if (data.length === 0) {
@@ -2736,7 +2768,7 @@ const facehandleOk = async (e: MouseEvent) => {
 //用户信息板块
 const changeuserinfo = () => {
     // console.log(12);
-    showmsgDrawer()
+    showPersonalDrawer()
 }
 
 //保存信息
@@ -2768,7 +2800,7 @@ const sevemsg = async () => {
             if (res.status == -1) {
                 notification.error({ message: res.msg })
 
-                clearinfo()
+                clearInfo()
                 closeProfile()
                 return
             } else {
@@ -2851,7 +2883,7 @@ const handchargecodeleOk = async () => {
     // }
 }
 
-const dropzoneRef = ref(null)
+//const dropzoneRef = ref(null)
 
 const handleOver = () => {
     isDragging.value = true
@@ -2920,44 +2952,44 @@ const isoTimestamp = '2024-02-20T08:57:54.097Z'
 const formattedTimestamp = convertTimestamp(isoTimestamp)
 // console.log(formattedTimestamp) // 输出: 2024-02-20 08:57:54
 //历史删除对话
-const deldailog = async (event: DragEvent) => {
+const deldialog = async (event: DragEvent) => {
     try {
         const adata = await http(`del-dialog?id=${event}`, {}, 'GET')
         const res = await adata.json()
 
         if (res.status == -1) {
             notification.error({ message: res.msg })
-            clearinfo()
+            clearInfo()
         } else if (res.status == 1) {
             notification.success({ message: res.msg })
-            historyChat.value = await getDailogList()
+            historyChat.value = await getDialogList()
 
             if (event == dialogId.value) {
                 dialogId.value = historyChat.value[0].id
 
-                todailog(dialogId.value, 0)
+                todialog(dialogId.value, 0)
             }
         } else throw new Error(res.msg)
     } catch (e) {
         notification.error({ message: e.message })
     }
 }
-const ondailogLoadMore = async () => {
-    let lastdailgid = historyChat.value[historyChat.value.length - 1].id
-    let data = await getDailogList(lastdailgid, 10)
+const ondialogLoadMore = async () => {
+    let lastdialgid = historyChat.value[historyChat.value.length - 1].id
+    let data = await getDialogList(lastdialgid, 10)
     if (data.length != 0) {
         historyChat.value = [...historyChat.value, ...data]
     } else notification.info({ message: '没有更多了' })
 
     // console.log(historyChat.value[historyChat.value.length-1].id);
 
-    // getDailogList
+    // getDialogList
 }
 //新建对话
-const newdailogclock = ref(false)
-const newdailog = async () => {
-    if (newdailogclock.value == false) {
-        newdailogclock.value = true
+const newdialogclock = ref(false)
+const newdialog = async () => {
+    if (newdialogclock.value == false) {
+        newdialogclock.value = true
         try {
             // console.log(123)
             const adata = await http('add-dialog', {}, 'GET')
@@ -2966,28 +2998,28 @@ const newdailog = async () => {
 
             if (res.status == -1) {
                 notification.error({ message: res.msg })
-                clearinfo()
+                clearInfo()
             } else if (res.status == 1) {
                 notification.success({ message: res.msg })
-                const dailogList = await getDailogList()
-                historyChat.value = dailogList
+                const dialogList = await getDialogList()
+                historyChat.value = dialogList
             }
-            await todailog(res.data.id, 0)
+            await todialog(res.data.id, 0)
 
             // console.log(data)
 
             // console.log(adata)
         } finally {
-            newdailogclock.value = false
+            newdialogclock.value = false
         }
     }
 }
 
 //对话跳转
-const todailog = async (event: DragEvent, index) => {
+const todialog = async (event: DragEvent, index) => {
     // console.log(event, index)
     dialogId.value = event
-    dailogindex.value = index
+    dialogindex.value = index
     iffirstloud.value = true
     try {
         achat.value = []
@@ -3073,7 +3105,7 @@ body::-webkit-scrollbar {
     right: 0;
 }
 
-.upload-box {
+.upload-mask {
     position: fixed;
     z-index: 9999;
     background-color: rgba(255, 255, 255, 0.4);
@@ -3088,7 +3120,7 @@ body::-webkit-scrollbar {
     padding: 20px;
 }
 
-.upbox {
+.upload-container {
     width: 90vw;
     margin-left: 5vw;
     height: 90vh;
@@ -3268,14 +3300,14 @@ textarea {
     margin-top: 17px;
 }
 
-.newdailogbox {
+.newdialogbox {
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
 }
 
-.newdailogbtn {
+.newdialogbtn {
     display: flex;
     flex-direction: row;
     padding: 10px 30px;
@@ -3288,7 +3320,7 @@ textarea {
     cursor: pointer;
 }
 
-.dailogitem {
+.dialogitem {
     margin-bottom: 10px;
     padding: 9px 24px;
     /* box-shadow: 0px 0px 1px 1px rgba(0, 0, 0, 0.1); */
@@ -3299,7 +3331,7 @@ textarea {
     cursor: pointer;
 }
 
-.dailogitem:hover {
+.dialogitem:hover {
     box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.4) !important;
 
     backdrop-filter: blur(10px);
