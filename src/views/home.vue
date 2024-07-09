@@ -148,10 +148,12 @@
             v-model:open="openfase"
             :footer="null"
             :confirm-loading="confirmLoading"
-            title="期望角色"
+            title="角色扮演"
             @ok="facehandleOk"
         >
+            <br />
             <a-form :model="formState" :label-col="labelCol" :wrapper-col="wrapperCol">
+<<<<<<< HEAD
                 <!-- <a-form-item label="角色">
 
                 <a-input :placeholder="'律师？或者其他职业'" v-model:value="formState.name" />
@@ -161,9 +163,17 @@
 
                 <a-form-item label="场景要求">
                     <a-textarea :rows="7" :placeholder="'请输入您的具体需求'" v-model:value="formState.desc" />
+=======
+                <a-form-item label="场景描述">
+                    <a-textarea :rows="7" :placeholder="'请输入您对角色和场景的定义'" v-model:value="formState.desc" />
+>>>>>>> main
                 </a-form-item>
-                <a-form-item label="AI开场白">
-                    <a-textarea :rows="4" :placeholder="'设置您需要的开场白'" v-model:value="formState.startmsg" />
+                <a-form-item label="开场白">
+                    <a-textarea
+                        :rows="4"
+                        :placeholder="'设置该角色的开场白（可选）'"
+                        v-model:value="formState.startmsg"
+                    />
                 </a-form-item>
                 <a-form-item :wrapper-col="{ span: 14, offset: 10 }">
                     <!-- <a-button style="margin-right: 10px">取消</a-button> -->
@@ -994,8 +1004,8 @@
                 left: 0;
                 right: 0;
                 bottom: 8px;
-                background: rgba(0, 0, 0, 0.2);
-                border-radius: 10px;
+                background: rgba(0, 0, 0, 0.1);
+                border-radius: 8px;
             "
         >
             <div class="upload-list" style="position: absolute; right: 28px; width: 300px; bottom: 80px">
@@ -1197,17 +1207,17 @@
                         发送
                         <template #overlay>
                             <a-menu @click="handleMenuClick">
-                                <a-menu-item key="0">
-                                    <CloudSyncOutlined />
-                                    智能融合
-                                </a-menu-item>
                                 <a-menu-item key="1">
                                     <FileTextOutlined />
-                                    文字模式
+                                    生成文本
                                 </a-menu-item>
                                 <a-menu-item key="3">
                                     <FileImageOutlined />
-                                    图片模式
+                                    生成图片
+                                </a-menu-item>
+                                <a-menu-item key="0">
+                                    <CloudSyncOutlined />
+                                    智能生成
                                 </a-menu-item>
                             </a-menu>
                         </template>
@@ -1391,7 +1401,7 @@ const isDragging = ref(false)
 const showCost = ref(false)
 
 const text = ref('# Hello Editor')
-const outmodel = ref('0')
+const outmodel = ref('1')
 const historyChat = ref<any>([])
 const handleMenuClick: MenuProps['onClick'] = e => {
     // console.log('click', e)
