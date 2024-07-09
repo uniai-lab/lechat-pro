@@ -5,9 +5,10 @@
         <a-form-item name="qrcode" @click="qrcodeRefresh">
             <div class="title">请使用微信扫一扫</div>
             <div class="centralized-area">
-                <QRCode
+                <!-- this ant qrcode is the mask when the real qrcode is expired -->
+                <a-qrcode
                     v-if="qrcodeStatus != 'active'"
-                    :value="'this ant qrcode is the mask when the real qrcode is expired'"
+                    :value="'1145141919810'"
                     :size="170"
                     :status="qrcodeStatus"
                     :onRefresh="qrcodeRefresh"
@@ -24,7 +25,7 @@
 
 <script lang="ts" setup>
 import { onMounted, ref } from 'vue'
-import { message, QRCode } from 'ant-design-vue'
+import { message } from 'ant-design-vue'
 import { http } from '@/common/request'
 
 const qrcodeToken = defineModel<string>('qrcodeToken', { required: true })
@@ -34,7 +35,7 @@ const qrcodeSource = ref<string>('')
 let refreshQRcode: NodeJS.Timeout
 
 onMounted(async () => {
-    await getQrcode()
+    await qrcodeRefresh()
 })
 
 const forbidSend = ref<boolean>(false)
