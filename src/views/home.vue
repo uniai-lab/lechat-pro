@@ -153,20 +153,8 @@
         >
             <br />
             <a-form :model="formState" :label-col="labelCol" :wrapper-col="wrapperCol">
-<<<<<<< HEAD
-                <!-- <a-form-item label="角色">
-
-                <a-input :placeholder="'律师？或者其他职业'" v-model:value="formState.name" />
-
-          
-                </a-form-item> -->
-
-                <a-form-item label="场景要求">
-                    <a-textarea :rows="7" :placeholder="'请输入您的具体需求'" v-model:value="formState.desc" />
-=======
                 <a-form-item label="场景描述">
                     <a-textarea :rows="7" :placeholder="'请输入您对角色和场景的定义'" v-model:value="formState.desc" />
->>>>>>> main
                 </a-form-item>
                 <a-form-item label="开场白">
                     <a-textarea
