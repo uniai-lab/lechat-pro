@@ -69,18 +69,8 @@
 </template>
 
 <script lang="ts" setup>
+import type { UserInfo } from '@/types/interfaces'
 import { EditOutlined, LogoutOutlined, WalletOutlined } from '@ant-design/icons-vue'
-
-interface UserInfo {
-    chance: {
-        totalChatChance: number
-        level: number
-        levelExpiredAt: string
-    }
-    name: string
-    phone: string
-    avatar: string
-}
 
 const props = defineProps<{
     userInfo: UserInfo

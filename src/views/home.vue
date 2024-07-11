@@ -52,9 +52,8 @@
         </div>
 
         <LoginModal
-            @custom-event="handleLoginCustomEvent"
-            style="height: 100%; z-index: 999"
             v-if="loginVisible"
+            @custom-event="handleLoginCustomEvent"
             @hideModal="switchLoginVisible"
         ></LoginModal>
 
@@ -170,87 +169,15 @@
             </a-form>
         </a-modal>
 
-        <a-drawer
-            title="编辑个人资料"
-            :closable="true"
-            :width="320"
-            :visible="personalDrawerVisible"
-            :body-style="{ paddingBottom: '80px' }"
-            @close="onmsgClose"
-        >
-            <a-spin :spinning="sevemsgClock">
-                <a-form :model="form" :rules="rules" layout="vertical">
-                    <a-row :gutter="16">
-                        <a-col :span="24">
-                            <a-form-item label="头像" name="avatar">
-                                <a-upload
-                                    v-model:file-list="fileList"
-                                    name="avatar"
-                                    list-type="picture-card"
-                                    class="avatar-uploader"
-                                    :show-upload-list="false"
-                                    :customRequest="noup"
-                                    :before-upload="beforeUpload"
-                                    @change="handleChange"
-                                >
-                                    <img style="height: 100%" v-if="imageUrl" :src="imageUrl" alt="avatar" />
-                                    <div v-else>
-                                        <loading-outlined v-if="loading"></loading-outlined>
-                                        <plus-outlined v-else></plus-outlined>
-                                        <div class="ant-upload-text">上传</div>
-                                    </div>
-                                </a-upload>
-                            </a-form-item>
-                        </a-col>
-                    </a-row>
-                    <a-row :gutter="16">
-                        <a-col :span="24">
-                            <a-form-item label="用户名" name="name">
-                                <a-input v-model:value="form.name" placeholder="请输入用户名" />
-                            </a-form-item>
-                        </a-col>
-                    </a-row>
-                    <a-row :gutter="16">
-                        <a-col :span="24">
-                            <a-form-item label="手机号" name="phone">
-                                <div style="display: flex; flex-direction: row">
-                                    <a-input
-                                        style="width: 66%"
-                                        :disabled="true"
-                                        v-model:value="form.phone"
-                                        placeholder="暂未绑定"
-                                    />
-                                    <!-- <div v-if="form.phone == ''"
-                  class="ml-auto px-3 py-2  cursor-pointer text-gray-100 bg-gray-900 hover:bg-gray-700 hover:text-gray-100   rounded-md"
-                  @click="bindphone()">
-                  <div>前往绑定</div>
-                </div> -->
-                                </div>
-                            </a-form-item>
-                        </a-col>
-                    </a-row>
-                    <!-- <a-row :gutter="16">
-          <a-col :span="24">
-            <a-form-item label="Description" name="description">
-              <a-textarea v-model:value="form.description" :rows="4" placeholder="please enter url description" />
-            </a-form-item>
-          </a-col>
-        </a-row> -->
-                </a-form>
+        <PersonalDrawer
+            :personalDrawerVisible="personalDrawerVisible"
+            :savePersonalInfoClock="savePersonalInfoClock"
+            @close-personal-drawer="closePersonalDrawer"
+            @save-personal-info="savePersonalInfo"
+            v-model:personal-info-form="personalInfoForm"
+            v-model:image-url="imageUrl"
+        ></PersonalDrawer>
 
-                <div style="width: 100%; cursor: pointer" class="flex justify-center mt-20">
-                    <div
-                        @click="sevemsg()"
-                        class="flex justify-center py-2 text-gray-100 bg-gray-900 hover:bg-gray-700 hover:text-gray-100 rounded-md"
-                        style="width: 120px"
-                    >
-                        保存
-                    </div>
-                </div>
-            </a-spin>
-        </a-drawer>
-
-        <!-- 顶部/ -->
         <TopBar
             :userInfo="userInfo"
             :ifLogin="ifLogin"
@@ -260,103 +187,6 @@
             @show-charge-modal="showchargeModal"
             @log-out="logOut"
         ></TopBar>
-        <div
-            class="flex flex-row flex-nowrap fixed w-full items-baseline top-0 px-6 py-4 bg-gray-950 justify-between"
-            style="align-items: center; z-index: 888"
-        >
-            <div class="flex flex-row text-2xl font-bold text-zinc-50">
-                LeChat
-                <div
-                    class="flex flex-row ml-1 bg-gray-600 px-1 rounded-md justify-between items-center text-sm"
-                    style="height: 20px"
-                >
-                    pro
-                </div>
-            </div>
-            <div v-if="ifComputer" class="ml-4 text-sm text-zinc-200">乐聊多模型文档解析工具</div>
-
-            <div
-                v-if="!ifLogin"
-                class="ml-auto px-3 py-2 cursor-pointer text-gray-100 bg-gray-700 hover:bg-white hover:text-gray-900 rounded-md"
-                @click.stop="switchLoginVisible"
-            >
-                <div>登录</div>
-            </div>
-
-            <div @click.stop="showProfile()" v-else class="ml-auto" style="align-items: end; cursor: pointer">
-                <div class="text-l ml-2 text-gray-100 hover:bg-gray-100 hover:text-gray-900 px-2 py-1 rounded-md">
-                    {{ userInfo.name }}
-                </div>
-            </div>
-
-            <div
-                v-if="ifLogin && ifComputer"
-                @click.stop="showchargeModal"
-                style="line-height: 0.7rem"
-                class="px-3 py-2 ml-1 text-sm cursor-pointer text-gray-900 bg-white hover:bg-gray-100 hover:text-gray-900 rounded-md gold-button"
-            >
-                充值
-            </div>
-            <div
-                v-if="ifLogin && !ifComputer"
-                @click.stop="showchargeModal"
-                class="flex justify-center items-center ml-1 rounded-md flex-row text-gray-100 bg-gray-900 hover:bg-gray-600 hover:text-gray-100"
-            >
-                <WalletOutlined style="font-size: 22px" />
-            </div>
-        </div>
-
-        <!-- 弹出框 -->
-        <div class="profile-overlay" v-if="isProfileOpen" @click="closeProfile()">
-            <a-card :bodyStyle="{ 'white-space': 'break-all' }" style="width: 340px">
-                <template #cover>
-                    <img alt="example" src="https://openai-1259183477.cos.ap-shanghai.myqcloud.com/WechatIMG925.jpg" />
-                </template>
-                <template #actions>
-                    <KeyOutlined v-if="userInfo.phone" @click="showpwModal()" />
-                    <edit-outlined @click="showPersonalDrawer()" />
-                    <LogoutOutlined @click.stop="logOut()" />
-                </template>
-                <a-card-meta :title="userInfo.name" :description="'对话次数:' + userInfo.chance.totalChatChance">
-                    <template #avatar>
-                        <a-avatar :style="'height:50px;width:50px;margin:0px 10px 10px 10px'" :src="userInfo.avatar" />
-                        <div
-                            style="
-                                width: 50px;
-                                position: relative;
-                                background: black;
-                                color: gold;
-                                border-radius: 10px;
-                                padding: 0 0px;
-                                display: flex;
-                                flex-direction: row;
-                                justify-content: center;
-                                margin-top: -5px;
-                                margin-left: 9px;
-                                font-size: 10px;
-                                font-weight: 500;
-                                z-index: 99999;
-                            "
-                        >
-                            VIP {{ userInfo.chance.level }}
-                        </div>
-                        <div
-                            v-show="userInfo.chance.level != 0"
-                            style="
-                                margin-left: 87px;
-                                margin-top: -16px;
-                                position: absolute;
-                                font-size: 12px;
-                                flex-wrap: nowrap;
-                            "
-                            class="text-gray-600"
-                        >
-                            到期时间：{{ timeStampToString(userInfo.chance.levelExpiredAt) }}
-                        </div>
-                    </template>
-                </a-card-meta>
-            </a-card>
-        </div>
 
         <!-- 充值弹框 -->
 
@@ -1264,12 +1094,14 @@
 
 <script setup lang="ts">
 import zhCN from 'ant-design-vue/es/locale/zh_CN'
-import { ref, computed, onMounted, onUpdated, onBeforeUnmount, toRefs } from 'vue'
+import { ref, computed, onMounted, onUpdated, onBeforeUnmount, toRefs, onBeforeMount } from 'vue'
 import { EventSourceParserStream } from 'eventsource-parser/stream'
 import Loading from '@/components/LoadingAnimation.vue'
 import Copy from '@/components/CopyBtn.vue'
 import { md } from '@/libs/markdown'
 import LoginModal from '@/components/LoginModal/LoginModal.vue'
+import TopBar from '@/components/TopBar.vue'
+import PersonalDrawer from '@/components/PersonalDrawer.vue'
 import Cost from '@/components/CostTable.vue'
 import { http, sse, httppay } from '@/common/request.js'
 
@@ -1316,7 +1148,8 @@ import '@vue-office/docx/lib/index.css'
 import commonContent from '../common/commoncontent'
 import confetti from 'canvas-confetti'
 import { anyType } from 'ant-design-vue/es/_util/type'
-import TopBar from '@/components/TopBar.vue'
+
+import type { FileInfo, FileItem, PersonalInfoForm } from '@/types/interfaces'
 const leadeopen = ref<boolean>(false)
 const current = ref(0)
 const ref1 = ref(null)
@@ -1509,24 +1342,24 @@ const resetForm = () => {
     formRef.value.resetFields()
 }
 
-interface FileItem {
-    uid: string
-    name?: string
-    status?: string
-    response?: string
-    url?: string
-    type?: string
-    size: number
-    originFileObj: any
-}
+// interface FileItem {
+//     uid: string
+//     name?: string
+//     status?: string
+//     response?: string
+//     url?: string
+//     type?: string
+//     size: number
+//     originFileObj: any
+// }
 
-interface FileInfo {
-    file: FileItem
-    fileList: FileItem[]
-}
+// interface FileInfo {
+//     file: FileItem
+//     fileList: FileItem[]
+// }
 
 const leftFileList = ref([])
-const form = reactive({
+const personalInfoForm = ref<PersonalInfoForm>({
     name: '',
     phone: ''
 })
@@ -1594,15 +1427,15 @@ function getBase64(img: Blob, callback: (base64Url: string) => void) {
 }
 
 const fileList = ref([])
-const loading = ref<boolean>(false)
+const avatarLoading = ref<boolean>(false)
 const imageUrl = ref<string>('')
 
-const handleChange = (info: FileInfo) => {
+const handleAvatarChange = (info: FileInfo) => {
     if (info.file.status === 'uploading') {
-        loading.value = true
+        avatarLoading.value = true
         getBase64(info.file.originFileObj, (base64Url: string) => {
             imageUrl.value = base64Url
-            loading.value = false
+            avatarLoading.value = false
         })
         return
     }
@@ -1610,12 +1443,12 @@ const handleChange = (info: FileInfo) => {
         // Get this url from response in real world.
         getBase64(info.file.originFileObj, (base64Url: string) => {
             imageUrl.value = base64Url
-            loading.value = false
+            avatarLoading.value = false
         })
     }
 }
-const noup = () => {}
-const beforeUpload = (file: FileItem) => {
+const forbidDefaultUpload = () => {}
+const beforeAvatarUpload = (file: FileItem) => {
     const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png'
     if (!isJpgOrPng) {
         message.error('You can only upload JPG file!')
@@ -1639,8 +1472,7 @@ const showPersonalDrawer = () => {
     personalDrawerVisible.value = true
 }
 
-const onmsgClose = () => {
-    // this may not use
+const closePersonalDrawer = () => {
     personalDrawerVisible.value = false
 }
 
@@ -2038,6 +1870,7 @@ const component = computed(
             legacy: VueLegacy
         })[type.value]
 )
+
 onMounted(async () => {
     console.log(`
  ██╗      ████████╗  ███████╗██╗  ██╗ █████╗████████╗
@@ -2054,6 +1887,7 @@ onMounted(async () => {
         "font-family: '微软雅黑';color: #9C27B0;font-size: 12px;",
         'color: red;font-size: 14px;'
     )
+
     //获取屏幕宽高
     const screenWidth = document.body.clientWidth
     const screenHeight = document.body.clientHeight
@@ -2617,7 +2451,6 @@ const getUserInfo = async () => {
         const res = await data.json()
         if (res.status === -1) {
             clearInfo()
-            closeProfile()
             return
         }
         // console.log(res)
@@ -2629,9 +2462,9 @@ const getUserInfo = async () => {
 
             if (res.data.avatar) imageUrl.value = res.data.avatar
 
-            if (res.data.name) form.name = res.data.name
+            if (res.data.name) personalInfoForm.value.name = res.data.name
 
-            if (res.data.phone) form.phone = res.data.phone
+            if (res.data.phone) personalInfoForm.value.phone = res.data.phone
         } else throw new Error(res.msg)
     } catch (e) {
         notification.error({ message: e.message })
@@ -2770,25 +2603,25 @@ const changeuserinfo = () => {
 }
 
 //保存信息
-const sevemsgClock = ref(false)
-const sevemsg = async () => {
+const savePersonalInfoClock = ref<boolean>(false)
+async function savePersonalInfo() {
     // console.log(imageUrl.value, form.name)
-    let changeimageUrl = null
+    let changeImageUrl = null
 
-    if (!sevemsgClock.value) {
+    if (!savePersonalInfoClock.value) {
         if (imageUrl.value.slice(0, 4) == 'http') {
-            changeimageUrl = null
+            changeImageUrl = null
         } else {
-            changeimageUrl = imageUrl.value
+            changeImageUrl = imageUrl.value
         }
 
         try {
-            sevemsgClock.value = true
-            const senduserinfo = await http(
+            savePersonalInfoClock.value = true
+            const senduserinfo: any = await http(
                 'update-user',
                 {
-                    avatar: changeimageUrl,
-                    name: form.name
+                    avatar: changeImageUrl,
+                    name: personalInfoForm.value.name
                 },
                 'POST'
             )
@@ -2796,17 +2629,18 @@ const sevemsg = async () => {
             // console.log(res)
 
             if (res.status == -1) {
-                notification.error({ message: res.msg })
-
+                message.error('保存失败')
+                console.log(res.msg)
                 clearInfo()
-                closeProfile()
+                // closeProfile()
                 return
             } else {
-                notification.success({ message: '保存成功' })
+                message.success('保存成功')
+                closePersonalDrawer()
                 getUserInfo()
             }
         } finally {
-            sevemsgClock.value = false
+            savePersonalInfoClock.value = false
         }
     }
 }

@@ -57,6 +57,8 @@ import { KeyOutlined, MobileOutlined, QrcodeOutlined, CloseCircleOutlined } from
 import PhoneLogin from '@/components/LoginModal/PhoneLogin.vue'
 import PasswordLogin from '@/components/LoginModal/PasswordLogin.vue'
 import QRcodeLogin from '@/components/LoginModal/QRcodeLogin.vue'
+import type { PasswordForm, PhoneForm } from '@/types/interfaces'
+// import { PasswordForm, PhoneForm } from '@/types/interfaces'
 
 // qrcode token is used to confirm with the backend
 const qrcodeToken = ref<string>('')
@@ -64,22 +66,14 @@ const qrcodeToken = ref<string>('')
 // to send confirming request to backend
 // to vertify qrcode login authorization
 const startGlobalPollingTimer = ref<Function>(() => {})
-const isShowLoadingMask = ref(false)
+const isShowLoadingMask = ref<boolean>(false)
 const curLoginMethod = ref<'phone' | 'qrcode' | 'password'>('qrcode')
 
-interface PhoneForm {
-    phone: string
-    vertifycode: string
-}
 const phoneForm = ref<PhoneForm>({
     phone: '',
     vertifycode: ''
 })
 
-interface PasswordForm {
-    phone: string
-    password: string
-}
 const passwordForm = ref<PasswordForm>({
     phone: '',
     password: ''
@@ -219,6 +213,7 @@ function pollingRequestQRcode() {
     align-items: center;
     justify-content: center;
     background-color: rgb(0 0 0 / 0.5) /* #000000 */;
+    z-index: 999;
 
     .login-modal {
         background-color: rgb(255, 255, 255);
