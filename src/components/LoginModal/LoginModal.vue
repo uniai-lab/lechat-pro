@@ -58,7 +58,6 @@ import PhoneLogin from '@/components/LoginModal/PhoneLogin.vue'
 import PasswordLogin from '@/components/LoginModal/PasswordLogin.vue'
 import QRcodeLogin from '@/components/LoginModal/QRcodeLogin.vue'
 import type { PasswordForm, PhoneForm } from '@/types/interfaces'
-// import { PasswordForm, PhoneForm } from '@/types/interfaces'
 
 // qrcode token is used to confirm with the backend
 const qrcodeToken = ref<string>('')

@@ -7,6 +7,7 @@
         class="drawer"
         :visible="props.personalDrawerVisible"
         @close="emitClosePersonalDrawer"
+        width="320"
     >
         <a-spin :spinning="props.savePersonalInfoClock">
             <a-form :model="personalInfoForm" :rules="formRule" layout="vertical">
@@ -124,7 +125,6 @@ function handleAvatarChange(info: FileInfo) {
 
 <style lang="scss" scoped>
 .drawer {
-    width: 320;
     padding-bottom: 80px;
     z-index: 999;
 

@@ -44,3 +44,12 @@ export interface PersonalInfoForm {
     name: string
     phone: string
 }
+
+// ShopList used in ChargeModal
+export interface ShopList {
+    id: number
+    price: number
+    title: string
+    rolelist: string[]
+    description: string
+}

@@ -23,13 +23,15 @@
     </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { http } from '@/common/request.js'
 import { onMounted, ref } from 'vue'
-import { notification } from 'ant-design-vue'
+import { message } from 'ant-design-vue'
+
 const emit = defineEmits(['close'])
-const provider = ref([])
-const models = ref({})
+
+const provider = ref<any>([])
+const models = ref<any>({})
 
 function close() {
     emit('close')
@@ -37,7 +39,7 @@ function close() {
 
 async function load() {
     try {
-        const res = await http('model-cost', {}, 'GET')
+        const res: any = await http('model-cost', {}, 'GET')
         const data = await res.json()
         if (data.status === 1) {
             for (const item of data.data) {
@@ -46,8 +48,9 @@ async function load() {
                 for (const item2 of item.model) if (item2.chance > 1) models.value[item.provider].push(item2)
             }
         } else throw new Error(data.message)
-    } catch (e) {
-        notification.error({ duration: 3000, description: 'Error', message: e.message })
+    } catch (e: any) {
+        message.error('请求查询价格失败')
+        console.log(e.message)
     }
 }
 
@@ -64,14 +67,18 @@ onMounted(load)
     align-items: center;
     justify-content: center;
     background: rgba(0, 0, 0, 0.6);
+    z-index: 999;
+
     table {
         table-layout: auto;
         max-width: 800px;
         width: 100%;
         border-collapse: collapse; /* 使表格线更清晰 */
         box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+
         thead {
             font-size: 0.9em;
+
             tr {
                 background-color: #009879;
                 color: #ffffff;
@@ -82,14 +89,18 @@ onMounted(load)
                 }
             }
         }
+
         tbody {
             font-size: 0.75em;
+
             tr {
                 border-bottom: 1px solid #dddddd;
                 background-color: #f3f3f3;
+
                 td {
                     padding: 12px 15px;
                     text-align: center;
+
                     &.red {
                         color: red;
                         font-weight: bold;
