@@ -24,13 +24,11 @@
 <script lang="ts" setup>
 import { onMounted, ref } from 'vue'
 import { message } from 'ant-design-vue'
+import type { PasswordForm } from '@/types/interfaces'
+//  import { PasswordForm } from '@/types/interfaces'
 
 const captchaObj: any = ref({}) // the captchaObj is like a symbol of the captcha
 
-interface PasswordForm {
-    phone: string
-    password: string
-}
 const passwordForm = defineModel<PasswordForm>({ required: true })
 
 const emits = defineEmits(['after-click-password-login'])

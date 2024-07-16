@@ -32,6 +32,7 @@
 import { onMounted, ref } from 'vue'
 import { message } from 'ant-design-vue'
 import { http } from '@/common/request'
+import type { PhoneForm } from '@/types/interfaces'
 
 // this ref will also be used in how many seconds left in sending vertifyCode
 const vertifyBtnText = ref('获取验证码')
@@ -40,10 +41,6 @@ const leftSeconds = ref(0)
 // the captchaObj is like a symbol of the captcha
 const captchaObj: any = ref({})
 
-interface PhoneForm {
-    phone: string
-    vertifycode: string
-}
 const phoneForm = defineModel<PhoneForm>({ required: true })
 
 const emits = defineEmits(['after-click-phone-login'])
