@@ -88,7 +88,7 @@ onMounted(() => {})
 
 defineExpose({
     clearText() {
-        text = ''
+        text.value = ''
     }
 })
 </script>
