@@ -1,8 +1,8 @@
 /** @format */
 
-import Markdown from 'markdown-it'
+import Markdown, { type Options } from 'markdown-it'
 
-const mdOptions: Markdown.Options = {
+const mdOptions: Options = {
     typographer: true,
     breaks: true
 }

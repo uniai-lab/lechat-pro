@@ -196,265 +196,19 @@
             @get-user-info="getUserInfo"
         ></ChargeModal>
 
-        <!-- <a-modal
-            :width="!isComputer ? '80%' : '800px'"
-            :footer="null"
-            v-model:open="isChargeOpen"
-            title="充值"
-            :afterClose="handleChargeOk"
-        >
-            <a-row
-                :gutter="{ lg: 30, md: 10, sm: 10, xs: 5 }"
-                align="middle"
-                justify="center"
-                style="width: 100%; margin: 30px auto"
-            >
-                <a-col v-for="(item, index) in shopList" :key="index" :xs="24" :sm="24" :md="12" :lg="6">
-                    <div
-                        @click="choseItem(item)"
-                        class="flex flex-clo shopitem border-[#cfcfcf] border-[2px] rounded-[10px] cursor-pointer items-center relative overflow-hidden mx-1 my-1"
-                    >
-                        <div class="text-[16px] mt-[25px]">
-                            {{ item.title }}
-                        </div>
-                        <div class="text-[22px] mt-[12px] text-[#e2b460] font-medium">￥{{ item.price }}</div>
-                        <br />
-                        <div class="text-[12px]" style="width: 85%; height: auto" v-for="role in item.description">
-                            <div
-                                class="flex flex-row mt-1"
-                                style="display: flex; flex-direction: row; justify-content: start; align-items: start"
-                            >
-                                <svg
-                                    stroke="currentColor"
-                                    fill="none"
-                                    stroke-width="2"
-                                    viewBox="0 0 24 24"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    class="h-4 text-green-700"
-                                    height="30px"
-                                    width="30px"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                >
-                                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                                </svg>
-                                <div
-                                    style="
-                                        width: 95%;
-                                        display: flex;
-                                        flex-direction: row;
-                                        justify-content: left;
-                                        align-items: start;
-                                    "
-                                >
-                                    {{ role }}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </a-col>
-            </a-row>
-
-            <div style="text-align: center; margin-top: 20px">
-                *注意：文件上传消耗
-                <b>1</b>
-                次对话，图片生成消耗
-                <b>10</b>
-                次对话。
-                <b>不同模型消耗的次数不同！</b>
-                <br />
-                <a-button @click="(showCost = true), (isChargeOpen = false)" type="link">
-                    购买前请点此查询模型消费对照表
-                </a-button>
-            </div>
-            <div style="text-align: center; margin-top: 5px">如果您遇到了问题，请联系《AI乐聊》微信小程序客服</div>
-        </a-modal> -->
-
-        <!-- <a-modal
-            :footer="null"
-            style="height: 400px"
-            v-model:open="ispayModalOpen"
-            :title="selectedGood.title"
-            :afterClose="handchargecodeleOk"
-        >
-            
-            <div v-if="!isPayResultShow" style="padding: 10px; justify-content: space-between" class="flex flex-row">
-                <div style="display: flex; flex-direction: column">
-                    <div class="mt-2" style="font-size: 16px">您正在购买《LeChatPro》{{ selectedGood.title }}</div>
-                    
-                    <div class="text-[20px] mt-[5px] text-[#01b085] font-medium">
-                        支付金额:￥{{ selectedGood.price }}
-                    </div>
-                    <div class="mt-2 mb-1" style="font-size: 16px">解锁权益：</div>
-                    
-                    <div class="" v-for="arole in selectedGood.description">
-                        <div class="h-8 gap-1 flex flex-row justify-start items-center text-sm">
-                            <svg
-                                stroke="currentColor"
-                                fill="none"
-                                stroke-width="2"
-                                viewBox="0 0 24 24"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                class="h-5 w-5 text-green-700"
-                                height="1em"
-                                width="1em"
-                                xmlns="http://www.w3.org/2000/svg"
-                            >
-                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                                <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                            </svg>
-                            <span>
-                                {{ arole }}
-                            </span>
-                        </div>
-                    </div>
-                </div>
-                <div style="display: flex; flex-direction: column">
-                    <div class="flex flex-row mt-2" style="width: 200px; justify-content: center; align-items: center">
-                        <div class="flex">
-                            <img
-                                src="data:image/png;base64,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"
-                                class="w-[25px] h-[25px]"
-                                alt=""
-                            />
-                            <span class="pl-[8px] text-[15px] font-medium">微信支付</span>
-                        </div>
-                    </div>
-
-                    <div
-                        class="bg-gray-000 flex flex-col"
-                        style="justify-content: center; height: 200px; width: 200px; align-items: center"
-                    >
-                        <img v-show="shopQrcode" style="height: 200px; width: 200px" :src="shopQrcode" />
-                        <div v-show="!shopQrcode">
-                            <svg
-                                version="1.1"
-                                id="Layer_1"
-                                xmlns="http://www.w3.org/2000/svg"
-                                xmlns:xlink="http://www.w3.org/1999/xlink"
-                                x="0px"
-                                y="0px"
-                                width="24px"
-                                height="30px"
-                                viewBox="0 0 24 30"
-                                style="enable-background: new 0 0 50 50"
-                                xml:space="preserve"
-                            >
-                                <rect x="0" y="10" width="4" height="10" fill="#333" opacity="0.2">
-                                    <animate
-                                        attributeName="opacity"
-                                        attributeType="XML"
-                                        values="0.2; 1; .2"
-                                        begin="0s"
-                                        dur="0.6s"
-                                        repeatCount="indefinite"
-                                    />
-                                    <animate
-                                        attributeName="height"
-                                        attributeType="XML"
-                                        values="10; 20; 10"
-                                        begin="0s"
-                                        dur="0.6s"
-                                        repeatCount="indefinite"
-                                    />
-                                    <animate
-                                        attributeName="y"
-                                        attributeType="XML"
-                                        values="10; 5; 10"
-                                        begin="0s"
-                                        dur="0.6s"
-                                        repeatCount="indefinite"
-                                    />
-                                </rect>
-                                <rect x="8" y="10" width="4" height="10" fill="#333" opacity="0.2">
-                                    <animate
-                                        attributeName="opacity"
-                                        attributeType="XML"
-                                        values="0.2; 1; .2"
-                                        begin="0.15s"
-                                        dur="0.6s"
-                                        repeatCount="indefinite"
-                                    />
-                                    <animate
-                                        attributeName="height"
-                                        attributeType="XML"
-                                        values="10; 20; 10"
-                                        begin="0.15s"
-                                        dur="0.6s"
-                                        repeatCount="indefinite"
-                                    />
-                                    <animate
-                                        attributeName="y"
-                                        attributeType="XML"
-                                        values="10; 5; 10"
-                                        begin="0.15s"
-                                        dur="0.6s"
-                                        repeatCount="indefinite"
-                                    />
-                                </rect>
-                                <rect x="16" y="10" width="4" height="10" fill="#333" opacity="0.2">
-                                    <animate
-                                        attributeName="opacity"
-                                        attributeType="XML"
-                                        values="0.2; 1; .2"
-                                        begin="0.3s"
-                                        dur="0.6s"
-                                        repeatCount="indefinite"
-                                    />
-                                    <animate
-                                        attributeName="height"
-                                        attributeType="XML"
-                                        values="10; 20; 10"
-                                        begin="0.3s"
-                                        dur="0.6s"
-                                        repeatCount="indefinite"
-                                    />
-                                    <animate
-                                        attributeName="y"
-                                        attributeType="XML"
-                                        values="10; 5; 10"
-                                        begin="0.3s"
-                                        dur="0.6s"
-                                        repeatCount="indefinite"
-                                    />
-                                </rect>
-                            </svg>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <a-result
-                :style="{ position: 'relative' }"
-                v-if="isPayResultShow"
-                status="success"
-                title="支付成功"
-                :sub-title="`订单编号:${lastTransactionId} , 可能存在1-3分钟的延迟，如长时间没有到账，请联系客服`"
-            >
-                <template #extra>
-                    <canvas
-                        style="z-index: 999999; position: absolute; left: 0; bottom: 0; width: 472px; height: 100%"
-                        ref="canvasConfetti"
-                    ></canvas>
-                </template>
-            </a-result>
-        </a-modal> -->
-
         <!-- 中心区域 -->
         <a-drawer
             title="历史对话"
             :closable="true"
-            :placement="placement"
-            :open="open"
-            @close="onClose"
+            :placement="historyDrawerPlace"
+            :open="isHistoryDrawerOpen"
+            @close="historyDrawerClose"
             :get-container="false"
             :style="{ position: 'absolute' }"
         >
             <a-list item-layout="horizontal" :data-source="historyChat">
                 <template #renderItem="{ item, index }">
-                    <a-list-item class="dialogitem" @click="todialog(item.id, index)">
+                    <a-list-item class="dialogitem" @click="toDialog(item.id, index)">
                         <template #actions>
                             <div
                                 style="color: black; font-size: 16px"
@@ -489,7 +243,16 @@
                 </div>
             </template>
         </a-drawer>
-        <div
+
+        <MainArea
+            :link-back="linkBack"
+            v-model:up-sending="upSending"
+            v-model:a-chat="aChat"
+            v-model:generating="generating"
+            v-model:could-continue="couldContinue"
+            ref="chatListDom"
+        ></MainArea>
+        <!-- <div
             class="mx-2 pb-2"
             style="
                 display: flex;
@@ -512,23 +275,22 @@
                 <a-tour
                     v-if="isComputer"
                     v-model:current="current"
-                    :open="leadeopen"
+                    :open="leadeOpen"
                     :steps="steps"
-                    @close="handleOpenlade(false)"
+                    @close="handleLead(false)"
                     :arrow="false"
                 />
             </a-config-provider>
 
-            <!-- 文件预览 -->
             <a-modal
                 :footer="null"
                 style="width: 900px"
-                v-model:open="ifshowopenfile"
+                v-model:open="isFilePreviewOpen"
                 :title="officeName"
                 @ok="handlefileOk"
             >
                 <iframe
-                    v-if="ifshowopenfile"
+                    v-if="isFilePreviewOpen"
                     :src="officeViewerUrl"
                     style="
                         width: 100%;
@@ -546,7 +308,7 @@
 
             <div
                 class="group flex mt-2 px-4 py-3 text-gray-900 rounded-lg"
-                v-for="(item, index) in achat.slice().reverse()"
+                v-for="(item, index) in aChat.slice().reverse()"
                 :key="index"
                 style="flex-direction: column; justify-content: flex-end"
             >
@@ -570,7 +332,10 @@
                             Me
                         </div>
                     </div>
-                    <div v-if="item.role == 'assistant' && !sending" class="flex flex-row justify-between items-center">
+                    <div
+                        v-if="item.role == 'assistant' && !generating"
+                        class="flex flex-row justify-between items-center"
+                    >
                         <img
                             :style="
                                 index == 0
@@ -589,7 +354,10 @@
                         <div class="ml-1">{{ item.subModel || '' }}</div>
                     </div>
 
-                    <div v-if="item.role == 'assistant' && sending" class="flex flex-row justify-between items-center">
+                    <div
+                        v-if="item.role == 'assistant' && generating"
+                        class="flex flex-row justify-between items-center"
+                    >
                         <img
                             :style="
                                 index == 0
@@ -777,7 +545,7 @@
             </div>
         </div>
         <div
-            v-if="sending"
+            v-if="generating"
             style="
                 z-index: 999;
                 background-color: (0, 0, 0, 0);
@@ -787,7 +555,7 @@
                 bottom: 70px;
                 cursor: pointer;
             "
-            @click="stopmsg"
+            @click="stopChating"
             class="flex-1 flex-row mb-2 my-4 text-gray-100 text-slate-600 leading-relaxed flex justify-center items-center"
         >
             <div class="stop py-1 px-9 flex justify-center items-center flex-row">
@@ -811,9 +579,10 @@
                 </div>
                 <div class="ml-2">停止响应</div>
             </div>
-        </div>
+        </div> -->
 
         <!-- 底部 -->
+
         <div
             class="bottom-0 w-full p-4"
             style="
@@ -907,8 +676,6 @@
                     v-if="isComputer"
                     class="flex justify-center items-center ml-0 mr-3 px-2 mr-1 rounded-md flex-row text-gray-900 bg-gray-100"
                 >
-                    <!-- <RobotOutlined :style="{ fontSize: '20px' }" /> -->
-
                     <a-icon
                         :style="{
                             width: '20px',
@@ -918,7 +685,6 @@
                             justifyContent: 'center'
                         }"
                     >
-                        <!-- <svg t="1709610574999" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="6922" width="30" height="30"><path d="M435.387733 610.184533l-55.825066-32.9728v-134.485333h55.825066z" p-id="6923"></path><path d="M511.505067 782.728533l-233.437867-134.485333V379.2896l233.437867-134.485333 233.437866 134.485333v268.9536zM331.349333 617.813333l180.155734 104.106667 180.155733-104.106667V409.736533l-180.155733-104.106666-180.155734 104.106666z" p-id="6924"></path><path d="M486.126933 513.774933h50.756267V752.298667h-50.756267z" p-id="6925"></path><path d="M498.824533 490.922667l208.059734-119.2448 25.378133 45.6704-208.059733 119.261866z" p-id="6926"></path><path d="M290.747733 416.068267l26.589867-46.08L523.946667 489.045333l-26.641067 46.199467zM580.010667 917.213867L554.666667 871.543467l304.469333-175.086934V361.5232h53.282133V711.68a26.624 26.624 0 0 1-12.680533 22.8352z m-137.0112 0l-319.709867-182.613334A26.641067 26.641067 0 0 1 110.592 711.68V361.5232H163.84v334.933333l304.5376 175.086934zM199.406933 300.629333L174.08 254.958933l324.795733-187.733333a23.005867 23.005867 0 0 1 25.378134 0l324.778666 187.733333-25.378133 45.6704-312.149333-180.155733z" p-id="6927"></path><path d="M884.514133 221.969067c-45.6704 0-83.746133 38.058667-83.746133 83.729066s38.075733 83.746133 83.746133 83.746134 83.729067-38.075733 83.729067-83.746134-38.058667-83.729067-83.729067-83.729066z m0 114.176c-17.7664 0-30.446933-12.680533-30.446933-30.446934s12.680533-30.446933 30.446933-30.446933 30.446933 12.680533 30.446934 30.446933S902.263467 336.213333 884.514133 336.213333z m-746.001066-114.176c-45.6704 0-83.746133 38.058667-83.746134 83.729066S92.842667 386.901333 138.513067 386.901333s83.729067-38.058667 83.729066-83.746133-38.058667-81.186133-83.729066-81.186133z m0 114.176c-17.7664 0-30.446933-12.680533-30.446934-30.446934s12.680533-30.446933 30.446934-30.446933S168.96 287.931733 168.96 305.698133 153.736533 336.213333 138.513067 336.213333z m372.992 461.806933c-45.6704 0-83.729067 38.058667-83.729067 83.746133s38.058667 83.729067 83.729067 83.729067 83.729067-38.058667 83.729066-83.729067-38.058667-83.746133-83.729066-83.746133z m0 114.193067c-17.749333 0-30.446933-12.680533-30.446934-30.446934 0-15.223467 12.6976-30.446933 30.446934-30.446933s30.446933 12.680533 30.446933 30.446933c0 15.223467-15.223467 30.446933-30.446933 30.446934z" p-id="6928"></path></svg> -->
                         <svg
                             t="1709611594182"
                             class="icon"
@@ -1015,7 +781,7 @@
                         ref="ref5"
                         @click="sendMessage"
                         type="primary"
-                        :loading="sending"
+                        :loading="generating"
                         :style="{
                             display: 'flex',
                             flexDirection: 'row',
@@ -1081,16 +847,10 @@
                         </template>
                     </a-dropdown-button>
                 </a-config-provider>
-                <!-- <div
-                    v-if="ifphone"
-                    @click="cleanchat"
-                    class="flex justify-center items-center ml-2 px-2 rounded-md flex-row text-gray-100 bg-gray-900 hover:bg-gray-600 hover:text-gray-100"
-                    style="height: 34px; margin-top: 4px"
-                >
-                    <DeleteOutlined :style="{ fontSize: '20px' }" />
-                </div> -->
             </div>
         </div>
+
+        <!-- end of bottom -->
     </div>
 </template>
 
@@ -1099,12 +859,15 @@ import zhCN from 'ant-design-vue/es/locale/zh_CN'
 import { ref, computed, onMounted, onUpdated, onBeforeUnmount, toRefs, onBeforeMount } from 'vue'
 import { EventSourceParserStream } from 'eventsource-parser/stream'
 import Loading from '@/components/LoadingAnimation.vue'
-import Copy from '@/components/CopyBtn.vue'
+import Copy from '@/components/MainArea/ChatTopBar/CopyBtn.vue'
 import { md } from '@/libs/markdown'
 import LoginModal from '@/components/LoginModal/LoginModal.vue'
 import TopBar from '@/components/TopBar.vue'
 import PersonalDrawer from '@/components/PersonalDrawer.vue'
 import ChargeModal from '@/components/ChargeModal/ChargeModal.vue'
+import MainArea from '@/components/MainArea/MainArea.vue'
+import BottomBar from '@/components/BottomBar.vue'
+// import HistoryDrawer from '@/components/HistoryDrawer.vue'
 import Cost from '@/components/ChargeModal/CostTable.vue'
 import { http, sse, httppay } from '@/common/request.js'
 
@@ -1136,7 +899,7 @@ import {
 } from '@ant-design/icons-vue'
 import { DeleteOutlined } from '@ant-design/icons-vue'
 import { Modal } from 'ant-design-vue'
-import type { DrawerProps } from 'ant-design-vue'
+import type { DrawerProps, TourProps } from 'ant-design-vue'
 import { message } from 'ant-design-vue'
 import { reactive, toRaw } from 'vue'
 import type { UnwrapRef } from 'vue'
@@ -1153,7 +916,7 @@ import confetti from 'canvas-confetti'
 import { anyType } from 'ant-design-vue/es/_util/type'
 
 import type { FileInfo, FileItem, PersonalInfoForm, ShopList } from '@/types/interfaces'
-const leadeopen = ref<boolean>(false)
+const leadeOpen = ref<boolean>(false)
 const current = ref(0)
 const ref1 = ref(null)
 const ref2 = ref(null)
@@ -1161,7 +924,7 @@ const ref3 = ref(null)
 const ref4 = ref(null)
 const ref5 = ref(null)
 const ref6 = ref(null)
-const iffirstopen = ref(false)
+const ifFirstopen = ref(false)
 const canvasConfetti = ref<HTMLCanvasElement>()
 const steps: TourProps['steps'] = [
     {
@@ -1214,10 +977,10 @@ const steps: TourProps['steps'] = [
         target: () => ref6.value && ref6.value.$el
     }
 ]
-const handleOpenlade = (val: boolean): void => {
-    leadeopen.value = val
+const handleLead = (val: boolean): void => {
+    leadeOpen.value = val
 }
-const linkback = ref(true)
+const linkBack = ref(true)
 const dialogindex = ref(0)
 const fileListBT = ref([])
 
@@ -1479,12 +1242,12 @@ const closePersonalDrawer = () => {
     personalDrawerVisible.value = false
 }
 
-const placement = ref<DrawerProps['placement']>('left')
-const open = ref<boolean>(false)
+const historyDrawerPlace = ref<DrawerProps['placement']>('left')
+const isHistoryDrawerOpen = ref<boolean>(false)
 
 const confirmLoading = ref<boolean>(false)
 const ifusersend = ref(false)
-const iffirstloud = ref(false)
+const ifFirstLoad = ref(false)
 
 const shopQrcode = ref('')
 // 声明一个apiKey变量，用于存储API密钥
@@ -1509,7 +1272,7 @@ const decoder = new TextDecoder('utf-8')
 // 声明一个roleAlias变量，用于存储角色别名
 const roleAlias = { user: 'ME', assistant: 'LeChat', system: 'System' }
 // 声明一个sending变量，用于存储是否正在发送消息的布尔值
-const sending = ref(false)
+const generating = ref(false)
 // 声明一个dialogId变量，用于存储对话ID
 const dialogId = ref(0)
 // 声明一个showRetry变量，用于存储是否显示重试按钮的布尔值
@@ -1536,7 +1299,7 @@ const upSending = ref(false)
 // 声明一个value变量，用于存储输入框的值
 let value = ref('')
 // 声明一个achat变量，用于存储聊天信息
-const achat = ref<Chat[]>([])
+const aChat = ref<Chat[]>([])
 // 声明一个config变量，用于存储配置信息
 const config = ref()
 // 声明一个buttonText变量，用于存储按钮文本
@@ -1546,11 +1309,11 @@ const fristLoad = ref(true)
 // 声明一个iflogin变量，用于存储是否登录的布尔值
 const ifLogin = ref(false)
 // 声明一个ifuserup变量，用于存储是否用户上传的布尔值
-const ifuserup = ref(false)
+const ifUserup = ref(false)
 // 声明一个isModalOpen变量，用于存储是否打开模态的布尔值
 const isModalOpen = ref(false)
 // 声明一个setIsModalOpen变量，用于存储是否设置模态的布尔值
-const allfinished = ref(false)
+const allFinished = ref(false)
 //选中的商品
 // const selectedGood = ref<ShopList>()
 //充值结果显示
@@ -1782,7 +1545,7 @@ const options: Option[] = ref([
     }
 ])
 
-const couldcontinue = ref(true)
+const couldContinue = ref(true)
 
 const commommodel = ref([null, null])
 interface Chat {
@@ -1905,13 +1668,13 @@ onMounted(async () => {
         formState.desc = localStorage.getItem('prompt') as string
     }
     //第一次打开，需要加载引导框
-    if (!localStorage.getItem('iffirstopen')) {
-        iffirstopen.value = true
-        handleOpenlade(true)
+    if (!localStorage.getItem('ifFirstopen')) {
+        ifFirstopen.value = true
+        handleLead(true)
     }
-    localStorage.setItem('iffirstopen', false)
+    localStorage.setItem('ifFirstopen', false)
     try {
-        linkback.value = true
+        linkBack.value = true
         const data = await http('config', {}, 'GET')
         const res = await data.json()
 
@@ -1920,7 +1683,7 @@ onMounted(async () => {
         notification.error({ duration: 3000, description: '', message: e.message })
         historyChat.value = []
     } finally {
-        linkback.value = false
+        linkBack.value = false
     }
 
     if (localStorage.getItem('token')) {
@@ -1932,7 +1695,7 @@ onMounted(async () => {
         ifLogin.value = false
         // console.log(commonContent.content);
 
-        achat.value = [
+        aChat.value = [
             {
                 chatId: 0,
                 avatar: '',
@@ -1947,7 +1710,7 @@ onMounted(async () => {
         ]
     }
 
-    chatListDom.value?.scrollTo({
+    chatListDom.value.scrollTo({
         top: chatListDom.value.scrollHeight,
         behavior: 'smooth' // 可选，使滚动平滑进行
     })
@@ -1967,7 +1730,7 @@ onMounted(async () => {
                     -chatListDom.value?.scrollTop + chatListDom.value?.clientHeight &&
                 ifLogin.value &&
                 clock === false &&
-                !allfinished.value
+                !allFinished.value
             ) {
                 // 到达顶部
 
@@ -1978,7 +1741,7 @@ onMounted(async () => {
         })
     }
 
-    iffirstloud.value = false
+    ifFirstLoad.value = false
 
     // console.log(iflogin.value)
 })
@@ -2003,17 +1766,17 @@ const handleOk = () => {
     isModalOpen.value = false
 }
 const handlefileOk = () => {
-    ifshowopenfile.value = false
+    isFilePreviewOpen.value = false
 }
 
 const handleCancel = () => {
     isModalOpen.value = false
 }
 const showfilelist = () => {
-    open.value = true
+    isHistoryDrawerOpen.value = true
 }
-const onClose = () => {
-    open.value = false
+const historyDrawerClose = () => {
+    isHistoryDrawerOpen.value = false
 }
 const modelOnChange = (value: string[]) => {
     commommodel.value = value
@@ -2022,15 +1785,15 @@ const modelOnChange = (value: string[]) => {
 var clock = false
 
 const refreshData = async () => {
-    if (achat.value.length == 0) return (upSending.value = false)
+    if (aChat.value.length == 0) return (upSending.value = false)
 
-    ifuserup.value = true
-    const nowList = achat.value[0]
+    ifUserup.value = true
+    const nowList = aChat.value[0]
 
     if (clock == false) {
         clock = true
         let data = await getListChat(nowList.chatId, 10, dialogId.value)
-        if (data.length == 0) allfinished.value = true
+        if (data.length == 0) allFinished.value = true
 
         // console.log(data);
         for (const i in data) {
@@ -2039,7 +1802,7 @@ const refreshData = async () => {
             //  theme: data[i].type ? 'dark' : 'light'
             // })
         }
-        for (const item of data.reverse()) achat.value.unshift(item)
+        for (const item of data.reverse()) aChat.value.unshift(item)
 
         setTimeout(() => {
             upSending.value = false
@@ -2124,7 +1887,7 @@ const sendDelmsg = async () => {
         }
         // console.log(res)
         if (res.status == 1) {
-            achat.value = [
+            aChat.value = [
                 {
                     chatId: 0,
                     avatar: '',
@@ -2187,8 +1950,8 @@ function toBottom(inputElement) {
     })
 }
 
-const stopmsg = () => {
-    couldcontinue.value = false
+const stopChating = () => {
+    couldContinue.value = false
     // console.log(couldcontinue.value)
 }
 function convertBytesToBestUnit(sizeInBytes: number): string {
@@ -2214,11 +1977,11 @@ const sendMessage = async () => {
         if (!ifLogin.value) return switchLoginVisible()
 
         // is sending?
-        if (sending.value) return
+        if (generating.value) return
 
-        couldcontinue.value = true
+        couldContinue.value = true
         // check input
-        ifuserup.value = false
+        ifUserup.value = false
 
         if (!value.value.trim() && fileListBT.value.length == 0) return
         if (!userInfo.value.chance.totalChatChance)
@@ -2226,12 +1989,12 @@ const sendMessage = async () => {
 
         const input = value.value
         value.value = ''
-        sending.value = true
+        generating.value = true
         // console.log(fileListBT.value)
 
         if (fileListBT.value.length) {
             // send files
-            const promiselist = []
+            const promiseList = []
 
             for (let index = 0; index < fileListBT.value.length; index++) {
                 const formData = new FormData()
@@ -2253,7 +2016,7 @@ const sendMessage = async () => {
                     reader.readAsDataURL(fileitem.originFileObj) // 读取文件内容，并转换为Base64编码
                 }
 
-                const aindex = achat.value.push({
+                const aindex = aChat.value.push({
                     chatId: 0,
                     avatar: userInfo.value.avatar || config.value.DEFAULT_AVATAR_USER,
                     content: '',
@@ -2266,15 +2029,15 @@ const sendMessage = async () => {
                     file: fileitem as any
                 })
 
-                promiselist.push(
+                promiseList.push(
                     http('upload', formData, 'POST')
                         .then(res => res.json())
                         .then(res => {
                             res.data.file.type = 'done'
-                            achat.value[aindex - 1].file = res.data.file
+                            aChat.value[aindex - 1].file = res.data.file
                         })
                         .catch(e => {
-                            achat.value[aindex - 1].file!.type = 'error'
+                            aChat.value[aindex - 1].file!.type = 'error'
                             console.error(e)
                         })
                 )
@@ -2284,7 +2047,7 @@ const sendMessage = async () => {
             // send user message
             if (input) {
                 // user
-                achat.value.push({
+                aChat.value.push({
                     avatar: userInfo.value.avatar || config.value.DEFAULT_AVATAR_USER,
                     content: input,
                     role: 'user',
@@ -2296,7 +2059,7 @@ const sendMessage = async () => {
                     isEffect: true
                 })
                 // model
-                achat.value.push({
+                aChat.value.push({
                     avatar: userInfo.value.avatar || config.value.DEFAULT_AVATAR_USER,
                     content: '',
                     role: 'assistant',
@@ -2308,7 +2071,7 @@ const sendMessage = async () => {
                     isEffect: true
                 })
             }
-            await Promise.all(promiselist)
+            await Promise.all(promiseList)
             if (input) {
                 await getChatStream(input)
                 await getUserInfo()
@@ -2319,7 +2082,7 @@ const sendMessage = async () => {
             if (qes.length > 0) historyChat.value[dialogindex.value] = qes[0]
         } else {
             // user
-            achat.value.push({
+            aChat.value.push({
                 chatId: 0,
                 avatar: userInfo.value.avatar || config.value.DEFAULT_AVATAR_USER,
                 content: input,
@@ -2331,7 +2094,7 @@ const sendMessage = async () => {
                 subModel: null
             })
             // model
-            achat.value.push({
+            aChat.value.push({
                 chatId: 0,
                 avatar: userInfo.value.avatar || config.value.DEFAULT_AVATAR_USER,
                 content: '',
@@ -2353,7 +2116,7 @@ const sendMessage = async () => {
     } catch (e) {
         notification.error({ message: '错误', description: e.message })
     } finally {
-        sending.value = false
+        generating.value = false
         ifusersend.value = false
     }
 }
@@ -2381,7 +2144,7 @@ const renderEchartsIfNeeded = (content: string) => {
 
 const getChatStream = async (input = '') => {
     //创建sse流式传输
-    const response = await sse('chat-stream', {
+    const response: any = await sse('chat-stream', {
         input,
         sse: true,
         dialogId: dialogId.value,
@@ -2397,8 +2160,8 @@ const getChatStream = async (input = '') => {
         .pipeThrough(new EventSourceParserStream())
         .getReader()
 
-    while (true && couldcontinue.value) {
-        sending.value = true
+    while (true && couldContinue.value) {
+        generating.value = true
         const onceData = await reader.read()
         console.log(onceData.done)
 
@@ -2411,15 +2174,15 @@ const getChatStream = async (input = '') => {
         const data = res.data
         //  console.log(111111111);
         let end
-        if (!couldcontinue.value) {
+        if (!couldContinue.value) {
             notification.info({ message: '回答终止' })
             break
         }
         if (res.status === 1) {
-            if (achat.value.length == 0) {
-                end = achat.value.length
+            if (aChat.value.length == 0) {
+                end = aChat.value.length
             } else {
-                end = achat.value.length - 1
+                end = aChat.value.length - 1
             }
 
             if (!data) {
@@ -2428,18 +2191,18 @@ const getChatStream = async (input = '') => {
             if (data.dialogId !== dialogId.value) break
 
             // achat.value[end] = data
-            if (achat.value[end].chatId === 0) achat.value[end] = data
-            if (achat.value[end].chatId !== data.chatId) achat.value.push(data)
+            if (aChat.value[end].chatId === 0) aChat.value[end] = data
+            if (aChat.value[end].chatId !== data.chatId) aChat.value.push(data)
 
             if (onceData.done || data.chatId) {
                 break
             }
         } else {
-            achat.value.pop()
+            aChat.value.pop()
             throw new Error(res.msg)
         }
     }
-    sending.value = false
+    generating.value = false
 }
 
 const showProfile = () => {
@@ -2483,7 +2246,7 @@ const clearInfo = async () => {
 
     closeProfile()
     ifLogin.value = false
-    achat.value = [
+    aChat.value = [
         {
             avatar: '',
             chatId: 0,
@@ -2546,9 +2309,9 @@ const getDialogList = async (lastId: number = 0, pageSize: number = 10, id: numb
 }
 
 const init = async () => {
-    iffirstloud.value = true
+    ifFirstLoad.value = true
     try {
-        achat.value = []
+        aChat.value = []
         const dialogList = await getDialogList()
         // console.log(dialogList[0])
 
@@ -2560,7 +2323,7 @@ const init = async () => {
 
         // console.log(data)
         if (data.length === 0) {
-            achat.value = [
+            aChat.value = [
                 {
                     avatar: '',
                     chatId: 0,
@@ -2577,12 +2340,12 @@ const init = async () => {
 
         for (const item of data) {
             dialogId.value = item.dialogId
-            achat.value.push(item)
+            aChat.value.push(item)
         }
 
         window.scrollTo(0, document.body.scrollHeight)
     } finally {
-        iffirstloud.value = false
+        ifFirstLoad.value = false
     }
 }
 const showface = async () => {
@@ -2731,7 +2494,7 @@ const handleLeave = (event: DragEvent) => {
     }
 }
 const officeViewerUrl = ref('')
-const ifshowopenfile = ref(false)
+const isFilePreviewOpen = ref(false)
 const officeName = ref('')
 
 const handleDrop = (event: DragEvent) => {
@@ -2746,7 +2509,7 @@ const openFile = (url: string, name: string, ext: string) => {
     if (['doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'csv', 'wps', 'et'].includes(ext))
         officeViewerUrl.value = `https://view.officeapps.live.com/op/embed.aspx?src=${url}`
     else officeViewerUrl.value = url
-    ifshowopenfile.value = true
+    isFilePreviewOpen.value = true
 }
 const renderedHandler = () => {
     console.log('渲染完成')
@@ -2801,7 +2564,7 @@ const deldialog = async (event: DragEvent) => {
             if (event == dialogId.value) {
                 dialogId.value = historyChat.value[0].id
 
-                todialog(dialogId.value, 0)
+                toDialog(dialogId.value, 0)
             }
         } else throw new Error(res.msg)
     } catch (e) {
@@ -2838,7 +2601,7 @@ const newdialog = async () => {
                 const dialogList = await getDialogList()
                 historyChat.value = dialogList
             }
-            await todialog(res.data.id, 0)
+            await toDialog(res.data.id, 0)
 
             // console.log(data)
 
@@ -2850,19 +2613,19 @@ const newdialog = async () => {
 }
 
 //对话跳转
-const todialog = async (event: DragEvent, index) => {
+const toDialog = async (event: DragEvent, index) => {
     // console.log(event, index)
     dialogId.value = event
     dialogindex.value = index
-    iffirstloud.value = true
+    ifFirstLoad.value = true
     try {
-        achat.value = []
+        aChat.value = []
 
         const data = await getListChat(0, 10, event)
 
         // console.log(data)
         if (data.length === 0) {
-            achat.value = [
+            aChat.value = [
                 {
                     chatId: 0,
                     avatar: '',
@@ -2879,9 +2642,9 @@ const todialog = async (event: DragEvent, index) => {
         for (const item of data) {
             // console.log(item)
             dialogId.value = item.dialogId
-            achat.value.push(item)
+            aChat.value.push(item)
         }
-        open.value = false
+        isHistoryDrawerOpen.value = false
         window.scrollTo(0, document.body.scrollHeight)
 
         // loopChat()
@@ -2894,8 +2657,8 @@ const todialog = async (event: DragEvent, index) => {
         // console.log(e)
     } finally {
         // console.log(123, achat.value)
-        iffirstloud.value = false
-        allfinished.value = false
+        ifFirstLoad.value = false
+        allFinished.value = false
     }
 }
 </script>
@@ -3053,7 +2816,7 @@ textarea {
     color: white;
 }
 
-.filebox {
+.file-box {
     display: flex;
     flex-direction: column;
 }

@@ -53,3 +53,54 @@ export interface ShopList {
     rolelist: string[]
     description: string
 }
+
+// ChatList
+export interface Chat {
+    content: string
+    dialogId: number
+    resourceId: number | null
+    chatId: number | null
+    model: string | null
+    subModel: string | string | null
+    role: string
+    avatar: string | null
+    isEffect: boolean
+    file?: { type: string; url: string; name: string; ext: string; size: number }
+}
+
+// File upload icon url
+export interface SrcMap {
+    openai: string
+    iflytek: string
+    baidu: string
+    glm: string
+    google: string
+}
+
+export interface FileSrcMap {
+    pdf: string
+    wps: string
+    doc: string
+    docx: string
+    ppt: string
+    pptx: string
+    xls: string
+    xlsx: string
+    et: string
+    csv: string
+    txt: string
+    md: string
+    json: string
+    jpg: null | string
+    png: null | string
+    jpeg: null | string
+    webp: null | string
+}
+
+// these are copyBtn settings
+export interface BtnTips {
+    copy: string
+    loading: string
+    success: string
+    error: string
+}
