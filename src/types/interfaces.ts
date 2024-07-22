@@ -1,5 +1,15 @@
 /** @format */
 
+// Global form
+export interface FormState {
+    name: string
+    delivery: boolean
+    type: string[]
+    resource: string
+    desc: string
+    startmsg: string
+}
+
 // Form interfaces used in LoginModal
 export interface PhoneForm {
     phone: string
@@ -104,3 +114,12 @@ export interface BtnTips {
     success: string
     error: string
 }
+
+export interface Option {
+    value: string | number //得到的
+    label: string //看到的
+    disabled?: boolean
+    children?: Option[]
+}
+
+export type ModelCascader = [string, string]

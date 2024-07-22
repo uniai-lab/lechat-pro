@@ -86,36 +86,6 @@
                 <ClearOutlined />
             </template>
         </a-float-button> -->
-        <a-float-button
-            v-if="!isComputer"
-            @click="showface"
-            type="default"
-            style="margin-bottom: 70px; margin-right: 0px"
-        >
-            <template #icon>
-                <!-- <RobotOutlined /> -->
-
-                <a-icon :style="{ fontSize: '20px', display: 'flex', flexDection: 'row', justifyContent: 'center' }">
-                    <!-- <svg t="1709610574999" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="6922" width="30" height="30"><path d="M435.387733 610.184533l-55.825066-32.9728v-134.485333h55.825066z" p-id="6923"></path><path d="M511.505067 782.728533l-233.437867-134.485333V379.2896l233.437867-134.485333 233.437866 134.485333v268.9536zM331.349333 617.813333l180.155734 104.106667 180.155733-104.106667V409.736533l-180.155733-104.106666-180.155734 104.106666z" p-id="6924"></path><path d="M486.126933 513.774933h50.756267V752.298667h-50.756267z" p-id="6925"></path><path d="M498.824533 490.922667l208.059734-119.2448 25.378133 45.6704-208.059733 119.261866z" p-id="6926"></path><path d="M290.747733 416.068267l26.589867-46.08L523.946667 489.045333l-26.641067 46.199467zM580.010667 917.213867L554.666667 871.543467l304.469333-175.086934V361.5232h53.282133V711.68a26.624 26.624 0 0 1-12.680533 22.8352z m-137.0112 0l-319.709867-182.613334A26.641067 26.641067 0 0 1 110.592 711.68V361.5232H163.84v334.933333l304.5376 175.086934zM199.406933 300.629333L174.08 254.958933l324.795733-187.733333a23.005867 23.005867 0 0 1 25.378134 0l324.778666 187.733333-25.378133 45.6704-312.149333-180.155733z" p-id="6927"></path><path d="M884.514133 221.969067c-45.6704 0-83.746133 38.058667-83.746133 83.729066s38.075733 83.746133 83.746133 83.746134 83.729067-38.075733 83.729067-83.746134-38.058667-83.729067-83.729067-83.729066z m0 114.176c-17.7664 0-30.446933-12.680533-30.446933-30.446934s12.680533-30.446933 30.446933-30.446933 30.446933 12.680533 30.446934 30.446933S902.263467 336.213333 884.514133 336.213333z m-746.001066-114.176c-45.6704 0-83.746133 38.058667-83.746134 83.729066S92.842667 386.901333 138.513067 386.901333s83.729067-38.058667 83.729066-83.746133-38.058667-81.186133-83.729066-81.186133z m0 114.176c-17.7664 0-30.446933-12.680533-30.446934-30.446934s12.680533-30.446933 30.446934-30.446933S168.96 287.931733 168.96 305.698133 153.736533 336.213333 138.513067 336.213333z m372.992 461.806933c-45.6704 0-83.729067 38.058667-83.729067 83.746133s38.058667 83.729067 83.729067 83.729067 83.729067-38.058667 83.729066-83.729067-38.058667-83.746133-83.729066-83.746133z m0 114.193067c-17.749333 0-30.446933-12.680533-30.446934-30.446934 0-15.223467 12.6976-30.446933 30.446934-30.446933s30.446933 12.680533 30.446933 30.446933c0 15.223467-15.223467 30.446933-30.446933 30.446934z" p-id="6928"></path></svg> -->
-                    <svg
-                        t="1709611594182"
-                        class="icon"
-                        viewBox="0 0 1024 1024"
-                        version="1.1"
-                        xmlns="http://www.w3.org/2000/svg"
-                        p-id="19888"
-                        width="20"
-                        height="20"
-                    >
-                        <path
-                            d="M582.464 228.202667L490.666667 192l91.797333-36.202667L618.666667 64l36.202666 91.797333L746.666667 192l-91.797334 36.202667L618.666667 320l-36.202667-91.797333z m213.333333-64L704 128l91.797333-36.202667L832 0l36.202667 91.797333L960 128l-91.797333 36.202667L832 256l-36.202667-91.797333z m64 213.333333L768 341.333333l91.797333-36.202666L896 213.333333l36.202667 91.797334L1024 341.333333l-91.797333 36.202667L896 469.333333l-36.202667-91.797333zM512 42.666667v85.333333C299.925333 128 128 299.925333 128 512s171.925333 384 384 384 384-171.925333 384-384h85.333333c0 259.2-210.133333 469.333333-469.333333 469.333333S42.666667 771.2 42.666667 512 252.8 42.666667 512 42.666667z m-181.013333 670.165333l60.330666-60.330667a170.666667 170.666667 0 0 0 241.365334 0l60.330666 60.330667c-99.968 99.989333-262.058667 99.989333-362.026666 0zM362.666667 533.333333a64 64 0 1 1 0-128 64 64 0 0 1 0 128z m298.666666 0a64 64 0 1 1 0-128 64 64 0 0 1 0 128z"
-                            fill="#000000"
-                            p-id="19889"
-                        ></path>
-                    </svg>
-                </a-icon>
-            </template>
-        </a-float-button>
 
         <!-- 密码 -->
 
@@ -156,35 +126,16 @@
                 </a-spin>
             </a-modal>
         </div>
-        <!-- </div> -->
-        <!-- <div v-if="ifphone" @click="cleanchat"
-          class="flex justify-center items-center ml-2 px-2 rounded-md flex-row text-gray-100 bg-gray-900  hover:bg-gray-600 hover:text-gray-100 ">
-          <DeleteOutlined :style="{ fontSize: '24px' }" /> -->
-        <a-modal
-            v-model:open="openfase"
-            :footer="null"
-            :confirm-loading="confirmLoading"
-            title="角色扮演"
-            @ok="facehandleOk"
-        >
-            <br />
-            <a-form :model="formState" :label-col="labelCol" :wrapper-col="wrapperCol">
-                <a-form-item label="场景描述">
-                    <a-textarea :rows="7" :placeholder="'请输入您对角色和场景的定义'" v-model:value="formState.desc" />
-                </a-form-item>
-                <a-form-item label="开场白">
-                    <a-textarea
-                        :rows="4"
-                        :placeholder="'设置该角色的开场白（可选）'"
-                        v-model:value="formState.startmsg"
-                    />
-                </a-form-item>
-                <a-form-item :wrapper-col="{ span: 14, offset: 10 }">
-                    <!-- <a-button style="margin-right: 10px">取消</a-button> -->
-                    <a-button style="background-color: black" type="primary" @click="onSubmit">保存</a-button>
-                </a-form-item>
-            </a-form>
-        </a-modal>
+
+        <RoleSetFloatBtn :is-computer="isComputer" @show-role-set="showRoleSet" />
+
+        <RoleSetModal
+            :destroyOnClose="false"
+            @close-role-set="closeRoleSet"
+            @on-submit="onRoleSetSubmit"
+            v-model:form-state="formState"
+            v-model:open-role-set="openRoleSet"
+        ></RoleSetModal>
 
         <!-- 充值弹框 -->
         <ChargeModal
@@ -583,7 +534,26 @@
 
         <!-- 底部 -->
 
-        <div
+        <BottomBar
+            :iflogin="ifLogin"
+            :ifphone="isComputer"
+            :sending="generating"
+            :outmodel="outmodel"
+            :options="options"
+            :userinfo="userInfo"
+            @show-list="showfilelist"
+            @show-face="showRoleSet"
+            @send-message="sendMessage"
+            @custom-upload="customUpload"
+            @before-upload="beforeUploadBT"
+            @key-down="keydownHandle"
+            @handel-menu-click="handleMenuClick"
+            @file-change=""
+            v-model:text="value"
+            v-model:file-list="fileListBT"
+            v-model:common-model="commonModel"
+        />
+        <!-- <div
             class="bottom-0 w-full p-4"
             style="
                 position: fixed;
@@ -848,7 +818,7 @@
                     </a-dropdown-button>
                 </a-config-provider>
             </div>
-        </div>
+        </div> -->
 
         <!-- end of bottom -->
     </div>
@@ -915,7 +885,17 @@ import commonContent from '../common/commoncontent'
 import confetti from 'canvas-confetti'
 import { anyType } from 'ant-design-vue/es/_util/type'
 
-import type { FileInfo, FileItem, PersonalInfoForm, ShopList } from '@/types/interfaces'
+import type {
+    FileInfo,
+    FileItem,
+    FormState,
+    ModelCascader,
+    Option,
+    PersonalInfoForm,
+    ShopList
+} from '@/types/interfaces'
+import RoleSetModal from '@/components/RoleSetModal.vue'
+import RoleSetFloatBtn from '@/components/RoleSetFloatBtn.vue'
 const leadeOpen = ref<boolean>(false)
 const current = ref(0)
 const ref1 = ref(null)
@@ -982,7 +962,7 @@ const handleLead = (val: boolean): void => {
 }
 const linkBack = ref(true)
 const dialogindex = ref(0)
-const fileListBT = ref([])
+const fileListBT = ref<object[]>([])
 
 const isDragging = ref(false)
 const showCost = ref(false)
@@ -1321,14 +1301,7 @@ const isPayResultShow = ref(false)
 
 const ifscoreUp = ref(false)
 const setIsModalOpen = ref(false)
-interface FormState {
-    name: string
-    delivery: boolean
-    type: string[]
-    resource: string
-    desc: string
-    startmsg: string
-}
+
 const formState: UnwrapRef<FormState> = reactive({
     name: '',
     delivery: false,
@@ -1337,7 +1310,7 @@ const formState: UnwrapRef<FormState> = reactive({
     desc: '',
     startmsg: ''
 })
-const onSubmit = () => {
+const onRoleSetSubmit = () => {
     // console.log('submit!', toRaw(formState));
     // console.log(toRaw(formState).desc);
     // 设置缓存
@@ -1346,18 +1319,12 @@ const onSubmit = () => {
 
     localStorage.setItem('prompt', toRaw(formState).desc)
 
-    openfase.value = false
-    notification.success({ duration: 3000, description: '', message: '已保存' })
+    openRoleSet.value = false
+    message.success('已保存')
 }
 const labelCol = { style: { width: '70px' } }
 const wrapperCol = { span: 19 }
-const openfase = ref(false)
-interface Option {
-    value: string //得到的
-    label: string //看到的
-    disabled?: boolean
-    children?: Option[]
-}
+const openRoleSet = ref<boolean>(false)
 
 const shopList = ref<ShopList[]>([
     {
@@ -1368,14 +1335,14 @@ const shopList = ref<ShopList[]>([
         description: ''
     }
 ])
-const options: Option[] = ref([
+const options = ref<Option[]>([
     {
-        value: null,
+        value: '选择模型',
         label: '选择模型',
         disabled: false,
         children: [
             {
-                value: null,
+                value: '智能选择模型',
                 label: '智能选择模型',
                 disabled: false
             }
@@ -1547,7 +1514,8 @@ const options: Option[] = ref([
 
 const couldContinue = ref(true)
 
-const commommodel = ref([null, null])
+const commonModel = ref<ModelCascader>(['选择模型', '智能选择模型'])
+
 interface Chat {
     content: string
     dialogId: number
@@ -1702,10 +1670,10 @@ onMounted(async () => {
                 content: commonContent.content,
                 dialogId: 0,
                 isEffect: true,
-                model: commommodel.value[0],
+                model: commonModel.value[0],
                 resourceId: null,
                 role: 'assistant',
-                subModel: commommodel.value[1]
+                subModel: commonModel.value[1]
             }
         ]
     }
@@ -1778,8 +1746,8 @@ const showfilelist = () => {
 const historyDrawerClose = () => {
     isHistoryDrawerOpen.value = false
 }
-const modelOnChange = (value: string[]) => {
-    commommodel.value = value
+const modelOnChange = (value: [string, string]) => {
+    commonModel.value = value
     // console.log(value)
 }
 var clock = false
@@ -1894,10 +1862,10 @@ const sendDelmsg = async () => {
                     content: commonContent.content,
                     dialogId: 0,
                     isEffect: true,
-                    model: commommodel.value[0],
+                    model: commonModel.value[0],
                     resourceId: null,
                     role: 'assistant',
-                    subModel: commommodel.value[1]
+                    subModel: commonModel.value[1]
                 }
             ]
             notification.success({ duration: 3000, description: '', message: res.msg })
@@ -2053,9 +2021,9 @@ const sendMessage = async () => {
                     role: 'user',
                     dialogId: dialogId.value,
                     chatId: 0,
-                    model: commommodel.value[0],
+                    model: commonModel.value[0],
                     resourceId: null,
-                    subModel: commommodel.value[1],
+                    subModel: commonModel.value[1],
                     isEffect: true
                 })
                 // model
@@ -2065,9 +2033,9 @@ const sendMessage = async () => {
                     role: 'assistant',
                     dialogId: dialogId.value,
                     chatId: 0,
-                    model: commommodel.value[0],
+                    model: commonModel.value[0],
                     resourceId: null,
-                    subModel: commommodel.value[1],
+                    subModel: commonModel.value[1],
                     isEffect: true
                 })
             }
@@ -2100,9 +2068,9 @@ const sendMessage = async () => {
                 content: '',
                 role: 'assistant',
                 dialogId: dialogId.value,
-                model: commommodel.value[0],
+                model: commonModel.value[0],
                 resourceId: null,
-                subModel: commommodel.value[1],
+                subModel: commonModel.value[1],
                 isEffect: true
             })
 
@@ -2148,8 +2116,8 @@ const getChatStream = async (input = '') => {
         input,
         sse: true,
         dialogId: dialogId.value,
-        provider: commommodel.value[0],
-        model: commommodel.value[1],
+        provider: commonModel.value[0],
+        model: commonModel.value[1],
         assistant: formState.startmsg,
         system: formState.desc,
         mode: outmodel.value * 1
@@ -2253,10 +2221,10 @@ const clearInfo = async () => {
             content: commonContent.content,
             dialogId: 0,
             isEffect: true,
-            model: commommodel.value[0],
+            model: commonModel.value[0],
             resourceId: null,
             role: 'assistant',
-            subModel: commommodel.value[1]
+            subModel: commonModel.value[1]
         }
     ]
     dialogId.value = 0
@@ -2330,10 +2298,10 @@ const init = async () => {
                     content: commonContent.content,
                     dialogId: 0,
                     isEffect: true,
-                    model: commommodel.value[0],
+                    model: commonModel.value[0],
                     resourceId: null,
                     role: 'assistant',
-                    subModel: commommodel.value[1]
+                    subModel: commonModel.value[1]
                 }
             ]
         }
@@ -2348,15 +2316,19 @@ const init = async () => {
         ifFirstLoad.value = false
     }
 }
-const showface = async () => {
-    openfase.value = true
+const showRoleSet = async () => {
+    openRoleSet.value = true
 }
+const closeRoleSet = async () => {
+    openRoleSet.value = false
+}
+
 const facehandleOk = async (e: MouseEvent) => {
     // console.log(e);
 
     confirmLoading.value = true
     setTimeout(() => {
-        openfase.value = false
+        openRoleSet.value = false
         confirmLoading.value = false
     }, 2000)
 }
@@ -2632,10 +2604,10 @@ const toDialog = async (event: DragEvent, index) => {
                     content: commonContent.content,
                     dialogId: 0,
                     isEffect: true,
-                    model: commommodel.value[0],
+                    model: commonModel.value[0],
                     resourceId: null,
                     role: 'assistant',
-                    subModel: commommodel.value[1]
+                    subModel: commonModel.value[1]
                 }
             ]
         }
