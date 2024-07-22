@@ -152,6 +152,21 @@ defineExpose({
                 </a-config-provider>
             </div>
 
+            <!-- 移动端 -->
+            <div v-if="!ifphone" style="margin-left: 1px" class="base-style mobile">
+                <a-config-provider :theme="{ token: { colorPrimary: ' rgb(64, 70, 79)' } }">
+                    <a-cascader
+                        placeholder="Please select"
+                        :v-model="props.commommodel"
+                        :defaultValue="props.commommodel"
+                        :options="props.options"
+                        @change="modelChange"
+                    >
+                        <CodeSandboxOutlined :style="{ fontSize: '20px', padding: '6px 0px' }" />
+                    </a-cascader>
+                </a-config-provider>
+            </div>
+
             <a-button ref="ref3" @click="showFace" class="base-style face" v-if="ifphone">
                 <a-icon
                     :style="{
@@ -337,6 +352,17 @@ defineExpose({
             padding: 0 2px;
             width: 152px;
             color: #333333;
+        }
+
+        .mobile {
+            width: 36px;
+            margin-left: -1px;
+            justify-content: center;
+
+            &:hover {
+                border-color: #00000000;
+                background-color: #ddd;
+            }
         }
 
         .face {
