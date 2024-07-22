@@ -324,7 +324,7 @@ defineExpose({
     position: fixed;
     max-width: 1000px;
     width: 100%;
-    height: 72px;
+    min-height: 72px;
     margin: 0 auto;
     left: 0;
     right: 0;
@@ -336,13 +336,14 @@ defineExpose({
     .toolBox {
         display: flex;
         padding: 4px 0;
-        height: 40px;
+        min-height: 40px;
         flex-direction: row;
 
         .abtn {
             justify-content: center;
             margin-left: 0;
             width: 95.6px;
+            min-height: 33.6px;
             padding: 0 2px;
             color: #333333;
         }
