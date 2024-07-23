@@ -136,7 +136,18 @@
             @get-user-info="getUserInfo"
         ></ChargeModal>
 
-        <a-drawer
+        <HistoryDialogueDrawer
+            :open="isHistoryDrawerOpen"
+            :if-login="ifLogin"
+            :history-chat="historyChat"
+            @dialog-more="ondialogLoadMore"
+            @new-dialog="newdialog"
+            @on-close="historyDrawerClose"
+            @to-dialog="toDialog"
+            @del-dialog="deldialog"
+        ></HistoryDialogueDrawer>
+
+        <!-- <a-drawer
             title="历史对话"
             :closable="true"
             :placement="historyDrawerPlace"
@@ -181,7 +192,7 @@
                     </div>
                 </div>
             </template>
-        </a-drawer>
+        </a-drawer> -->
 
         <!-- 中心区域 -->
         <MainArea
@@ -286,6 +297,7 @@ import type {
 } from '@/types/interfaces'
 import RoleSetModal from '@/components/RoleSetModal.vue'
 import RoleSetFloatBtn from '@/components/RoleSetFloatBtn.vue'
+import HistoryDialogueDrawer from '@/components/Drawers/HistoryDialogueDrawer.vue'
 const leadeOpen = ref<boolean>(false)
 const current = ref(0)
 const ref1 = ref(null)
@@ -1975,7 +1987,7 @@ const newdialog = async () => {
 }
 
 //对话跳转
-const toDialog = async (event: DragEvent, index) => {
+const toDialog = async (event: DragEvent, index: number) => {
     // console.log(event, index)
     dialogId.value = event
     dialogindex.value = index

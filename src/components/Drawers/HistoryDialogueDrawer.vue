@@ -1,10 +1,9 @@
 <!-- @format -->
 <template>
-    <!-- 历史对话抽屉 -->
     <a-drawer
         title="历史对话"
         :closable="true"
-        :placement="props.placement"
+        :placement="historyDrawerPlace"
         :open="props.open"
         @close="onClose"
         :get-container="false"
@@ -12,11 +11,11 @@
     >
         <a-list item-layout="horizontal" :data-source="historyChat">
             <template #renderItem="{ item, index }">
-                <a-list-item class="dailogitem" @click="todailog(item.id, index)">
+                <a-list-item class="dailogitem" @click="toDialog(item.id, index)">
                     <template #actions>
                         <div
                             style="color: black; font-size: 16px"
-                            @click.stop="deldailog(item.id)"
+                            @click.stop="delDialog(item.id)"
                             key="list-loadmore-more"
                         >
                             <DeleteOutlined />
@@ -31,7 +30,7 @@
             </template>
             <template #loadMore>
                 <div
-                    v-if="iflogin"
+                    v-if="ifLogin"
                     :style="{ textAlign: 'center', marginTop: '12px', height: '32px', lineHeight: '32px' }"
                 >
                     <a-button style="color: black" @click="dialogMore">查看更多</a-button>
@@ -52,11 +51,13 @@
 
 <script lang="ts" setup>
 import { DeleteOutlined } from '@ant-design/icons-vue'
+import type { DrawerProps } from 'ant-design-vue'
 import { anyType } from 'ant-design-vue/es/_util/type'
+import { ref } from 'vue'
 
 const props = defineProps({
     open: Boolean,
-    iflogin: Boolean,
+    ifLogin: Boolean,
 
     historyChat: anyType,
 
@@ -65,6 +66,7 @@ const props = defineProps({
 
 const emit = defineEmits(['dialog-more', 'new-dialog', 'on-Close', 'convert-time', 'to-dialog', 'del-dialog'])
 
+const historyDrawerPlace = ref<DrawerProps['placement']>('left')
 const onClose = () => {
     emit('on-Close')
 }
@@ -77,17 +79,29 @@ const newDailog = () => {
     emit('new-dialog')
 }
 
-const todailog = (event: DragEvent, index: any) => {
+const toDialog = (event: DragEvent, index: number) => {
     console.log(index)
-    emit('to-dialog', DragEvent, index)
+    emit('to-dialog', event, index)
 }
 
-const deldailog = (DragEvent: any) => {
+const delDialog = (DragEvent: any) => {
     emit('del-dialog', DragEvent)
 }
 
-const convertTimestamp = (isoString: any) => {
-    emit('convert-time', isoString)
+function convertTimestamp(isoString: number | string | Date) {
+    // 创建一个新的Date对象
+    const date = new Date(isoString)
+
+    // 获取日期和时间的各个部分
+    const yyyy = date.getFullYear()
+    const MM = (date.getMonth() + 1).toString().padStart(2, '0') // 月份从0开始，所以需要加1
+    const dd = date.getDate().toString().padStart(2, '0')
+    const HH = date.getHours().toString().padStart(2, '0')
+    const mm = date.getMinutes().toString().padStart(2, '0')
+    const ss = date.getSeconds().toString().padStart(2, '0')
+
+    // 构建并返回格式化的字符串
+    return `${yyyy}-${MM}-${dd} ${HH}:${mm}:${ss}`
 }
 </script>
 
