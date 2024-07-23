@@ -12,11 +12,7 @@
 
         <div v-if="isDragging" class="upload-mask">
             <a-upload-dragger
-                :accept="
-                    Object.keys(fileSrcMap)
-                        .map(key => `.${key}`)
-                        .join(',')
-                "
+                :accept="upLoadItems"
                 ref="ref6"
                 v-model:file-list="fileListBT"
                 name="file"
@@ -536,13 +532,13 @@
 
         <BottomBar
             :iflogin="ifLogin"
-            :ifphone="isComputer"
-            :sending="generating"
-            :outmodel="outmodel"
+            :ifComputer="isComputer"
+            :generating="generating"
+            :outputType="outputType"
             :options="options"
-            :userinfo="userInfo"
-            @show-list="showfilelist"
-            @show-face="showRoleSet"
+            :userInfo="userInfo"
+            @show-history-drawer="showHistroyDrawer"
+            @show-role-set="showRoleSet"
             @send-message="sendMessage"
             @custom-upload="customUpload"
             @before-upload="beforeUploadBT"
@@ -609,38 +605,39 @@
                         ></path>
                     </svg>
                     <div v-if="isComputer" style="margin-left: 4px">历史对话</div>
-                </a-button>
-                <a-config-provider :theme="{ token: { colorPrimary: ' rgb(64, 70, 79)' } }">
-                    <Cascader
-                        ref="ref2"
-                        v-if="isComputer"
-                        style="min-width: 160px"
-                        :allowClear="false"
-                        :defaultValue="commommodel"
-                        class="mr-0 p-1"
-                        expandTrigger="hover"
-                        @change="modelOnChange"
-                        :options="options"
-                    />
-                </a-config-provider>
-                <div
-                    v-if="!isComputer"
-                    style="margin-left: 1px"
-                    class="flex justify-center items-center ml-0 px-2 mr-2 rounded-md flex-row text-gray-900 bg-gray-100 hover:bg-gray-300 hover:text-gray-900"
+                </a-button>-->
+        <a-config-provider :theme="{ token: { colorPrimary: ' rgb(64, 70, 79)' } }">
+            <Cascader
+                ref="ref2"
+                v-if="isComputer"
+                style="min-width: 160px"
+                :allowClear="false"
+                :defaultValue="commommodel"
+                class="mr-0 p-1"
+                expandTrigger="hover"
+                @change="modelOnChange"
+                :options="options"
+            />
+        </a-config-provider>
+        <div
+            v-if="!isComputer"
+            style="margin-left: 1px"
+            class="flex justify-center items-center ml-0 px-2 mr-2 rounded-md flex-row text-gray-900 bg-gray-100 hover:bg-gray-300 hover:text-gray-900"
+        >
+            <a-config-provider :theme="{ token: { colorPrimary: ' rgb(64, 70, 79)' } }">
+                <a-cascader
+                    placeholder="Please select"
+                    :v-model="commommodel"
+                    :defaultValue="commommodel"
+                    :options="options"
+                    @change="modelOnChange"
                 >
-                    <a-config-provider :theme="{ token: { colorPrimary: ' rgb(64, 70, 79)' } }">
-                        <a-cascader
-                            placeholder="Please select"
-                            :v-model="commommodel"
-                            :defaultValue="commommodel"
-                            :options="options"
-                            @change="modelOnChange"
-                        >
-                            <CodeSandboxOutlined :style="{ fontSize: '20px', padding: '6px 0px' }" />
-                        </a-cascader>
-                    </a-config-provider>
-                </div>
-                <a-button
+                    <CodeSandboxOutlined :style="{ fontSize: '20px', padding: '6px 0px' }" />
+                </a-cascader>
+            </a-config-provider>
+        </div>
+
+        <!-- <a-button
                     ref="ref3"
                     @click="showface"
                     v-if="isComputer"
@@ -832,11 +829,12 @@ import Loading from '@/components/LoadingAnimation.vue'
 import Copy from '@/components/MainArea/ChatTopBar/CopyBtn.vue'
 import { md } from '@/libs/markdown'
 import LoginModal from '@/components/LoginModal/LoginModal.vue'
-import TopBar from '@/components/TopBar.vue'
-import PersonalDrawer from '@/components/PersonalDrawer.vue'
+import TopBar from '@/components/TopBar/TopBar.vue'
+import PersonalDrawer from '@/components/Drawers/PersonalDrawer.vue'
 import ChargeModal from '@/components/ChargeModal/ChargeModal.vue'
 import MainArea from '@/components/MainArea/MainArea.vue'
-import BottomBar from '@/components/BottomBar.vue'
+import BottomBar from '@/components/BottomBar/BottomBar.vue'
+import { upLoadItems } from '@/common/iconSrcUrl'
 // import HistoryDrawer from '@/components/HistoryDrawer.vue'
 import Cost from '@/components/ChargeModal/CostTable.vue'
 import { http, sse, httppay } from '@/common/request.js'
@@ -869,7 +867,7 @@ import {
 } from '@ant-design/icons-vue'
 import { DeleteOutlined } from '@ant-design/icons-vue'
 import { Modal } from 'ant-design-vue'
-import type { DrawerProps, TourProps } from 'ant-design-vue'
+import type { DrawerProps, MenuProps, TourProps } from 'ant-design-vue'
 import { message } from 'ant-design-vue'
 import { reactive, toRaw } from 'vue'
 import type { UnwrapRef } from 'vue'
@@ -968,11 +966,11 @@ const isDragging = ref(false)
 const showCost = ref(false)
 
 const text = ref('# Hello Editor')
-const outmodel = ref('1')
+const outputType = ref('1')
 const historyChat = ref<any>([])
 const handleMenuClick: MenuProps['onClick'] = e => {
     // console.log('click', e)
-    outmodel.value = e.key
+    outputType.value = e.key
 }
 //map筛选
 var srcMap = {
@@ -1740,7 +1738,7 @@ const handlefileOk = () => {
 const handleCancel = () => {
     isModalOpen.value = false
 }
-const showfilelist = () => {
+const showHistroyDrawer = () => {
     isHistoryDrawerOpen.value = true
 }
 const historyDrawerClose = () => {
@@ -2120,7 +2118,7 @@ const getChatStream = async (input = '') => {
         model: commonModel.value[1],
         assistant: formState.startmsg,
         system: formState.desc,
-        mode: outmodel.value * 1
+        mode: outputType.value * 1
     })
 
     const reader = response.body

@@ -1,121 +1,23 @@
 <!-- @format -->
-
-<script setup>
-import { CloudSyncOutlined, LinkOutlined, FileImageOutlined, FileTextOutlined } from '@ant-design/icons-vue'
-import { Flex } from 'ant-design-vue'
-import { watch, ref, onMounted } from 'vue'
-
-let text = ref('')
-
-const props = defineProps({
-    iflogin: Boolean,
-    ifphone: Boolean,
-    sending: Boolean,
-
-    outmodel: String,
-
-    commommodel: Array,
-    options: Array,
-    fileListBT: Array,
-
-    fileSrcMap: Object,
-    userinfo: Object
-})
-
-const fileList = ref([])
-
-const emit = defineEmits([
-    'show-list',
-    'model-change',
-    'update:currentmodel',
-    'show-face',
-    'send-message',
-    'custom-upload',
-    'before-upload',
-    'key-down',
-    'update-value',
-    'handle-menu',
-    'file-change'
-])
-
-watch(fileList, newValue => {
-    //console.log(props.fileListBT)
-    emit('file-change', newValue)
-})
-
-const showlist = () => {
-    emit('show-list')
-}
-
-const modelChange = value => {
-    props.commommodel.value = value
-    emit('update:currentmodel', props.commommodel.value)
-}
-const updateValue = () => {
-    emit('update-value', text)
-}
-
-const showFace = () => { 
-    emit('show-face')
-}
-
-const sendmessage = () => {
-    emit('send-message')
-}
-
-const customUpload = options => {
-    emit('custom-upload', options)
-}
-
-const beforeUpload = file => {
-    console.log(fileList)
-    console.log(fileList.value)
-    fileList.value.push(file)
-    console.log(fileList)
-    console.log(fileList.value)
-    //emit('before-upload', file)
-}
-
-const keydownHandle = event => {
-    emit('key-down', event)
-}
-
-const handleMenuClick = key => {
-    emit('handle-menu', key)
-}
-
-onMounted(() => {})
-
-defineExpose({
-    clearText() {
-        text.value = ''
-    }
-})
-</script>
-
 <template>
-    <div class="bottomBar">
-        <div class="toolBox">
-            <!-- 图片预览 -->
-            <div class="upload-list" style="position: absolute; right: 28px; width: 300px; bottom: 80px">
-                <a-upload
-                    :accept="
-                        Object.keys(props.fileSrcMap)
-                            .map(key => `.${key}`)
-                            .join(',')
-                    "
-                    v-model:file-list="fileList"
-                    :beforeUpload="false"
-                    list-type="picture"
-                    @change="fileChange"
-                >
-                    <template v-slot:iconRender="prop">
-                        <img :src="props.fileSrcMap[prop.file.name.split('.').pop()] || fileError" />
-                    </template>
-                </a-upload>
-            </div>
+    <div class="bottom-bar">
+        <!-- upload file preview list  -->
+        <div class="upload-list">
+            <a-upload
+                :accept="upLoadItems"
+                v-model:file-list="fileList"
+                :beforeUpload="false"
+                list-type="picture"
+                @change="fileChange"
+            >
+                <template v-slot:iconRender="props">
+                    <img :src="fileSrcMap[props.file.name.split('.').pop() as keyof typeof fileSrcMap] || fileError" />
+                </template>
+            </a-upload>
+        </div>
 
-            <a-botton ref="ref1" @click="showlist" class="base-style abtn">
+        <div class="tool-box">
+            <a-button ref="ref1" @click="emitShowHistoryDrawer" class="base-style history-btn">
                 <svg
                     t="1709609597661"
                     class="icon"
@@ -135,39 +37,32 @@ defineExpose({
                     ></path>
                 </svg>
 
-                <div v-if="ifphone" style="pointer-events: none; margin-left: 4px">历史对话</div>
-            </a-botton>
+                <div v-if="ifComputer" class="history-text">历史对话</div>
+            </a-button>
 
-            <!-- pc端 -->
-            <div class="chooseMod" v-if="ifphone">
+            <!-- pc  -->
+            <div class="choose-mod" v-if="ifComputer">
                 <a-config-provider :theme="{ token: { colorPrimary: ' rgb(64, 70, 79)' } }">
                     <a-cascader
-                        style="width: 152px; height: 30.4px; margin-right: 3px"
-                        :v-model="props.commommodel"
+                        class="pc-choose-mod"
+                        :value="commonModel"
                         :allowClear="false"
-                        :options="options"
-                        :default-value="['选择模型', '智能选择模型']"
+                        :options="props.options"
                         @change="modelChange"
                     />
                 </a-config-provider>
             </div>
 
-            <!-- 移动端 -->
-            <div v-if="!ifphone" style="margin-left: 1px" class="base-style mobile">
+            <!-- mobile -->
+            <div v-if="!ifComputer" style="margin-left: 1px" class="base-style mobile">
                 <a-config-provider :theme="{ token: { colorPrimary: ' rgb(64, 70, 79)' } }">
-                    <a-cascader
-                        placeholder="Please select"
-                        :v-model="props.commommodel"
-                        :defaultValue="props.commommodel"
-                        :options="props.options"
-                        @change="modelChange"
-                    >
-                        <CodeSandboxOutlined :style="{ fontSize: '20px', padding: '6px 0px' }" />
+                    <a-cascader :value="commonModel" :options="props.options" @change="modelChange">
+                        <CodeSandboxOutlined :style="{ fontSize: '18px', padding: '6px 0px' }" />
                     </a-cascader>
                 </a-config-provider>
             </div>
 
-            <a-button ref="ref3" @click="showFace" class="base-style face" v-if="ifphone">
+            <a-button ref="ref3" @click="emitShowRoleSet" class="base-style role-set-icon" v-if="ifComputer">
                 <a-icon
                     :style="{
                         width: '20px',
@@ -197,10 +92,10 @@ defineExpose({
                 </a-icon>
             </a-button>
 
-            <div class="textBox">
+            <div class="text-box">
                 <a-upload
                     :accept="
-                        Object.keys(props.fileSrcMap)
+                        Object.keys(fileSrcMap)
                             .map(key => `.${key}`)
                             .join(',')
                     "
@@ -212,21 +107,20 @@ defineExpose({
                     :beforeUpload="beforeUpload"
                     style="z-index: 999; margin-right: -25px; display: flex; align-items: center"
                 >
-                    
-                        <LinkOutlined
-                            :style="{
-                                fontSize: '18px',
-                                color: 'gray',
-                                display: 'flex',
-                                flexDirection: 'row',
-                                justifyContent: 'center',
-                                alignItems: 'center'
-                            }"
-                        />
-                    
+                    <LinkOutlined
+                        :style="{
+                            fontSize: '18px',
+                            color: 'gray',
+                            display: 'flex',
+                            flexDirection: 'row',
+                            justifyContent: 'center',
+                            alignItems: 'center'
+                        }"
+                    />
+
                     <template #itemRender="{ file, actions }">
-                            <a-space></a-space>
-                        </template>
+                        <a-space></a-space>
+                    </template>
                 </a-upload>
 
                 <a-textarea
@@ -239,7 +133,7 @@ defineExpose({
                     autoSize
                     :type="'text'"
                     @keydown="keydownHandle"
-                    :placeholder="!iflogin ? '请先登录' : '剩余对话次数' + props.userinfo.chance.totalChatChance"
+                    :placeholder="!iflogin ? '请先登录' : '剩余对话次数' + props.userInfo.chance.totalChatChance"
                     v-model:value="text"
                     @change="updateValue"
                 ></a-textarea>
@@ -248,9 +142,9 @@ defineExpose({
             <a-config-provider :theme="{ token: { colorPrimary: ' rgb(17,20,24)' } }">
                 <a-dropdown-button
                     ref="ref5"
-                    @click="sendmessage"
+                    @click="emitSendMessage"
                     type="primary"
-                    :loading="sending"
+                    :loading="generating"
                     :style="{
                         display: 'flex',
                         flexDirection: 'row',
@@ -264,28 +158,28 @@ defineExpose({
                         <a-menu @click="handleMenuClick">
                             <a-menu-item key="0">
                                 <CloudSyncOutlined />
-                                智能融合
+                                智能生成
                             </a-menu-item>
                             <a-menu-item key="1">
                                 <FileTextOutlined />
-                                文字模式
+                                生成文本
                             </a-menu-item>
                             <a-menu-item key="3">
                                 <FileImageOutlined />
-                                图片模式
+                                生成图片
                             </a-menu-item>
                         </a-menu>
                     </template>
                     <template #icon>
-                        <div class="dropdown" v-if="props.outmodel == '0'">
+                        <div class="dropdown" v-if="props.outputType == '0'">
                             <CloudSyncOutlined />
                         </div>
 
-                        <div class="dropdown" v-if="props.outmodel == '1'">
+                        <div class="dropdown" v-if="props.outputType == '1'">
                             <FileTextOutlined />
                         </div>
 
-                        <div class="dropdown" v-if="props.outmodel == '3'">
+                        <div class="dropdown" v-if="props.outputType == '3'">
                             <FileImageOutlined />
                         </div>
                     </template>
@@ -294,6 +188,102 @@ defineExpose({
         </div>
     </div>
 </template>
+<script setup lang="ts">
+import {
+    CloudSyncOutlined,
+    LinkOutlined,
+    FileImageOutlined,
+    FileTextOutlined,
+    CodeSandboxOutlined
+} from '@ant-design/icons-vue'
+import { watch, ref, onMounted } from 'vue'
+import { fileSrcMap, fileError } from '@/common/iconSrcUrl'
+import type { ModelCascader, Option, UserInfo } from '@/types/interfaces'
+import { upLoadItems } from '@/common/iconSrcUrl'
+
+const props = defineProps<{
+    iflogin: boolean
+    ifComputer: boolean
+    generating: boolean
+
+    outputType: string
+
+    options: Option[]
+
+    userInfo: UserInfo
+}>()
+
+const emit = defineEmits([
+    'show-history-drawer',
+    'show-role-set',
+    'send-message',
+    'custom-upload',
+    'before-upload',
+    'key-down',
+    'update-value',
+    'handle-menu'
+    // 'file-change'
+])
+
+const text = defineModel<string>('text', { required: true })
+const fileList = defineModel<object[]>('fileList', { required: true })
+const commonModel = defineModel<ModelCascader>('commonModel', { required: true, default: ['选择模型', '智能选择模型'] })
+
+// watch(fileList, newValue => {
+//     //console.log(props.fileListBT)
+//     emit('file-change', newValue)
+// })
+
+const emitShowHistoryDrawer = () => {
+    emit('show-history-drawer')
+}
+
+function modelChange(currentModel: ModelCascader) {
+    commonModel.value = currentModel
+}
+
+function fileChange(files: object[]) {
+    fileList.value = files
+}
+const updateValue = () => {
+    emit('update-value', text)
+}
+
+const emitShowRoleSet = () => {
+    emit('show-role-set')
+}
+
+const emitSendMessage = () => {
+    emit('send-message')
+}
+
+const customUpload = options => {
+    emit('custom-upload', options)
+}
+
+const beforeUpload = file => {
+    console.log(fileList)
+    console.log(fileList.value)
+    fileList.value.push(file)
+    console.log(fileList)
+    console.log(fileList.value)
+    //emit('before-upload', file)
+}
+
+const keydownHandle = event => {
+    emit('key-down', event)
+}
+
+const handleMenuClick = key => {
+    emit('handle-menu', key)
+}
+
+defineExpose({
+    clearText() {
+        text.value = ''
+    }
+})
+</script>
 
 <style lang="scss" scoped>
 .base-style {
@@ -301,17 +291,12 @@ defineExpose({
     border-radius: 6px;
     display: flex;
     align-items: center;
-    border: 1px solid transparent;
     flex-direction: row;
-    background-color: #fff;
+    background-color: #f9fafb;
     margin-right: 3px;
-
-    &:hover {
-        border-color: #000;
-    }
 }
 
-.dropdown {
+.output-choose-btn {
     margin-top: -1.6px;
     font-size: 18px;
     display: 'flex';
@@ -320,7 +305,7 @@ defineExpose({
     align-items: center;
 }
 
-.bottomBar {
+.bottom-bar {
     position: fixed;
     max-width: 1000px;
     width: 100%;
@@ -329,35 +314,59 @@ defineExpose({
     left: 0;
     right: 0;
     bottom: 8px;
-    padding: 16px;
-    background: rgba(0, 0, 0, 0.2);
-    border-radius: 10px;
+    padding: 1rem;
+    background: rgba(0, 0, 0, 0.15);
+    border-radius: 8px;
 
-    .toolBox {
+    .upload-list .ant-upload-list-item-container .ant-upload-list-item {
+        position: absolute;
+        right: 28px;
+        width: 300px;
+        bottom: 80px;
+        background: rgba(255, 255, 255, 0.3);
+        backdrop-filter: blur(10px);
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2) !important;
+        border: none !important;
+    }
+
+    .tool-box {
         display: flex;
         padding: 4px 0;
         min-height: 40px;
         flex-direction: row;
+        justify-content: center;
+        align-items: center;
 
-        .abtn {
+        .history-btn {
             justify-content: center;
             margin-left: 0;
-            width: 95.6px;
-            min-height: 33.6px;
-            padding: 0 2px;
-            color: #333333;
+            min-height: 32px;
+            padding: 0 0.5rem;
+            color: #374151;
+
+            .history-text {
+                pointer-events: none;
+                margin-left: 4px;
+            }
         }
 
-        .chooseMod {
+        .choose-mod {
             justify-content: center;
+            min-height: 32px;
             padding: 0 2px;
             width: 152px;
-            color: #333333;
+            color: #374151;
+
+            .pc-choose-mod {
+                width: 152px;
+                height: 30.4px;
+                margin-right: 3px;
+            }
         }
 
         .mobile {
             width: 36px;
-            margin-left: -1px;
+            margin-left: 1px;
             justify-content: center;
 
             &:hover {
@@ -366,14 +375,14 @@ defineExpose({
             }
         }
 
-        .face {
+        .role-set-icon {
             justify-content: center;
             padding: 0 2px;
             width: 38px;
             margin-left: 6px;
         }
 
-        .textBox {
+        .text-box {
             display: flex;
             justify-content: center;
             align-items: center;

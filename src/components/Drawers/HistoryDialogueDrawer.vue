@@ -1,53 +1,4 @@
 <!-- @format -->
-
-<script lang="ts" setup>
-import { DeleteOutlined } from '@ant-design/icons-vue'
-import { anyType } from 'ant-design-vue/es/_util/type'
-import type { DrawerProps } from 'ant-design-vue'
-
-const props = defineProps({
-    open: Boolean,
-    iflogin: Boolean,
-
-    historyChat: anyType,
-
-    placement: Object,
-})
-
-const emit = defineEmits([
-                'dialog-more', 
-                'new-dialog', 
-                'on-Close',
-                'convert-time',
-                'to-dialog',
-                'del-dialog',])
-
-const onClose = () => {
-    emit('on-Close')
-}
-
-const dailogMore = () => {
-    emit('dialog-more')
-}
-
-const newDailog = () => {
-    emit('new-dialog')
-}
-
-const todailog = (event: DragEvent, index: any) => {
-    console.log(index)
-    emit('to-dialog', DragEvent, index)
-}
-
-const deldailog = (DragEvent: any) => {
-    emit('del-dialog', DragEvent) 
-}
-
-const convertTimestamp = (isoString: any) => {
-    emit('convert-time', isoString)
-}
-</script>
-
 <template>
     <!-- 历史对话抽屉 -->
     <a-drawer
@@ -83,7 +34,7 @@ const convertTimestamp = (isoString: any) => {
                     v-if="iflogin"
                     :style="{ textAlign: 'center', marginTop: '12px', height: '32px', lineHeight: '32px' }"
                 >
-                    <a-button style="color: black" @click="dailogMore">查看更多</a-button>
+                    <a-button style="color: black" @click="dialogMore">查看更多</a-button>
                 </div>
             </template>
         </a-list>
@@ -98,6 +49,47 @@ const convertTimestamp = (isoString: any) => {
         </template>
     </a-drawer>
 </template>
+
+<script lang="ts" setup>
+import { DeleteOutlined } from '@ant-design/icons-vue'
+import { anyType } from 'ant-design-vue/es/_util/type'
+
+const props = defineProps({
+    open: Boolean,
+    iflogin: Boolean,
+
+    historyChat: anyType,
+
+    placement: Object
+})
+
+const emit = defineEmits(['dialog-more', 'new-dialog', 'on-Close', 'convert-time', 'to-dialog', 'del-dialog'])
+
+const onClose = () => {
+    emit('on-Close')
+}
+
+const dialogMore = () => {
+    emit('dialog-more')
+}
+
+const newDailog = () => {
+    emit('new-dialog')
+}
+
+const todailog = (event: DragEvent, index: any) => {
+    console.log(index)
+    emit('to-dialog', DragEvent, index)
+}
+
+const deldailog = (DragEvent: any) => {
+    emit('del-dialog', DragEvent)
+}
+
+const convertTimestamp = (isoString: any) => {
+    emit('convert-time', isoString)
+}
+</script>
 
 <style lang="scss" scoped>
 .dailogitem {
