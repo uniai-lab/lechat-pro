@@ -12,7 +12,11 @@
 
         <div v-if="isDragging" class="upload-mask">
             <a-upload-dragger
-                :accept="upLoadItems"
+                :accept="
+                    Object.keys(fileSrcMap)
+                        .map(key => `.${key}`)
+                        .join(',')
+                "
                 ref="ref6"
                 v-model:file-list="fileListBT"
                 name="file"
@@ -72,17 +76,6 @@
             @hideModal="switchLoginVisible"
         ></LoginModal>
 
-        <!-- <a-float-button
-            v-if="!ifphone"
-            @click="cleanchat"
-            type="default"
-            style="margin-bottom: 60px; margin-right: 0px"
-        >
-            <template #icon>
-                <ClearOutlined />
-            </template>
-        </a-float-button> -->
-
         <!-- 密码 -->
 
         <div>
@@ -130,7 +123,7 @@
             @close-role-set="closeRoleSet"
             @on-submit="onRoleSetSubmit"
             v-model:form-state="formState"
-            v-model:open-role-set="openRoleSet"
+            v-model:open-role-set="isRoleSetOpen"
         ></RoleSetModal>
 
         <!-- 充值弹框 -->
@@ -143,7 +136,6 @@
             @get-user-info="getUserInfo"
         ></ChargeModal>
 
-        <!-- 中心区域 -->
         <a-drawer
             title="历史对话"
             :closable="true"
@@ -191,6 +183,7 @@
             </template>
         </a-drawer>
 
+        <!-- 中心区域 -->
         <MainArea
             :link-back="linkBack"
             v-model:up-sending="upSending"
@@ -199,334 +192,6 @@
             v-model:could-continue="couldContinue"
             ref="chatListDom"
         ></MainArea>
-        <!-- <div
-            class="mx-2 pb-2"
-            style="
-                display: flex;
-                flex-direction: column-reverse;
-                align-items: center;
-                overflow-y: scroll;
-                position: fixed;
-                top: 0;
-                left: 0;
-                right: 0;
-                margin: 0;
-                height: fit-content;
-                max-height: 100%;
-                padding-top: 64px;
-                padding-bottom: 90px;
-            "
-            ref="chatListDom"
-        >
-            <a-config-provider :locale="zhCN">
-                <a-tour
-                    v-if="isComputer"
-                    v-model:current="current"
-                    :open="leadeOpen"
-                    :steps="steps"
-                    @close="handleLead(false)"
-                    :arrow="false"
-                />
-            </a-config-provider>
-
-            <a-modal
-                :footer="null"
-                style="width: 900px"
-                v-model:open="isFilePreviewOpen"
-                :title="officeName"
-                @ok="handlefileOk"
-            >
-                <iframe
-                    v-if="isFilePreviewOpen"
-                    :src="officeViewerUrl"
-                    style="
-                        width: 100%;
-                        height: 70vh;
-                        overflow: hidden;
-                        display: flex;
-                        flex-direction: column;
-                        justify-content: center;
-                        white-space: nowrap;
-                    "
-                ></iframe>
-            </a-modal>
-
-            <a-spin v-if="linkback" style="margin-top: 120px" tip="正在连接服务器..."></a-spin>
-
-            <div
-                class="group flex mt-2 px-4 py-3 text-gray-900 rounded-lg"
-                v-for="(item, index) in aChat.slice().reverse()"
-                :key="index"
-                style="flex-direction: column; justify-content: flex-end"
-            >
-                <div class="flex flex-row justify-between items-center" style="">
-                    <div v-if="item.role != 'assistant'" class="flex flex-row justify-between items-center">
-                        <div
-                            style="
-                                height: 44px;
-                                width: 44px;
-                                border-radius: 50%;
-                                font-size: 18px;
-                                margin: 10px 0;
-                                margin-left: 10px;
-                            "
-                            :class="
-                                index == 1
-                                    ? 'flex flex-row justify-center items-center   bg-gray-900 text-gray-100  '
-                                    : 'flex flex-row justify-center items-center   bg-gray-600 text-gray-100'
-                            "
-                        >
-                            Me
-                        </div>
-                    </div>
-                    <div
-                        v-if="item.role == 'assistant' && !generating"
-                        class="flex flex-row justify-between items-center"
-                    >
-                        <img
-                            :style="
-                                index == 0
-                                    ? 'height: 64px;   filter: grayscale(0.9) brightness(0.6) contrast(900%)  '
-                                    : 'height: 64px;   filter: grayscale(0.9) brightness(0.8) contrast(300%) '
-                            "
-                            :src="
-                                index == 0
-                                    ? 'https://openai-1259183477.cos.ap-shanghai.myqcloud.com/after.png'
-                                    : 'https://openai-1259183477.cos.ap-shanghai.myqcloud.com/old.png'
-                            "
-                        />
-                        <div class="font-bold mr-3">LeChat</div>
-                        <img :src="srcMap[item.model]" style="height: 22px" />
-
-                        <div class="ml-1">{{ item.subModel || '' }}</div>
-                    </div>
-
-                    <div
-                        v-if="item.role == 'assistant' && generating"
-                        class="flex flex-row justify-between items-center"
-                    >
-                        <img
-                            :style="
-                                index == 0
-                                    ? 'height: 64px;   filter: grayscale(0.9) brightness(0.9) contrast(900%)  '
-                                    : 'height: 64px;   filter: grayscale(0.9) brightness(0.9) contrast(300%) '
-                            "
-                            :src="
-                                index == 0
-                                    ? 'https://openai-1259183477.cos.ap-shanghai.myqcloud.com/loading.png'
-                                    : 'https://openai-1259183477.cos.ap-shanghai.myqcloud.com/old.png'
-                            "
-                        />
-
-                        <div class="font-bold mr-3">LeChat</div>
-                        <img :src="srcMap[item.model]" style="height: 22px" />
-
-                        <div class="ml-1">{{ item.subModel || '' }}</div>
-                    </div>
-
-                    <Copy class="invisible group-hover:visible" :content="item.content" />
-                </div>
-
-                <div>
-                    <Loading style="margin-left: 20px" v-if="!item.content && !item.file" />
-                    <template v-else-if="item.content && item.role !== 'user'">
-                        <MdPreview
-                            :no-img-zoom-in="true"
-                            v-model="renderEchartsIfNeeded(item.content).content"
-                            style="padding: 0; background: none"
-                        />
-                        <div class="chart-wrap" v-if="renderEchartsIfNeeded(item.content).chartData">
-                            <v-chart :option="renderEchartsIfNeeded(item.content).chartData" />
-                        </div>
-                    </template>
-
-                    <div
-                        style="padding: 20px; background: none"
-                        v-else-if="item.content && item.role === 'user'"
-                        v-html="md.render(item.content)"
-                    ></div>
-
-                    <div
-                        v-if="item.file && !item.file.ext.match('image.*')"
-                        style="cursor: pointer"
-                        class="filebox mb-2 mt-3"
-                        @click="openFile(item.file.url, item.file.name, item.file.ext)"
-                    >
-                        <div class="fileitem py-2 max-w-60 px-3">
-                            <a-spin :spinning="item.file.type == 'sending'" tip="解析中...">
-                                <div class="fileitembox">
-                                    <div class="flileimg">
-                                        <img style="width: 40px" :src="fileSrcMap[item.file.ext] || fileError" alt="" />
-                                    </div>
-                                    <div class="fileinfo ml-2">
-                                        <div class="filename text-gray-900">
-                                            {{ item.file.name }}
-                                        </div>
-
-                                        <div
-                                            style="margin-top: 7px; color: rgb(170, 116, 106); font-weight: 500"
-                                            v-if="item.file.type == 'error'"
-                                        >
-                                            内容解析失败
-                                        </div>
-                                        <div v-else>
-                                            <div class="filemsg text-gray-500">
-                                                {{ item.file.ext }}
-                                            </div>
-                                            <div class="filesize text-gray-500">
-                                                {{ convertBytesToBestUnit(item.file.size) }}
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </a-spin>
-                        </div>
-                    </div>
-
-                    <div
-                        v-if="item.file && item.file.ext.match('image.*')"
-                        class="filebox mb-2 mt-3"
-                        style="padding: 15px; max-width: 450px"
-                    >
-                        <a-config-provider :locale="zhCN">
-                            <a-spin :spinning="item.file.type === 'sending'" tip="上传中...">
-                                <a-image :src="item.file.url" />
-                            </a-spin>
-                        </a-config-provider>
-                    </div>
-                </div>
-            </div>
-            <div class="loader-container" v-show="upSending">
-                <svg
-                    version="1.1"
-                    id="Layer_1"
-                    xmlns="http://www.w3.org/2000/svg"
-                    xmlns:xlink="http://www.w3.org/1999/xlink"
-                    x="0px"
-                    y="0px"
-                    width="24px"
-                    height="30px"
-                    viewBox="0 0 24 30"
-                    style="enable-background: new 0 0 50 50"
-                    xml:space="preserve"
-                >
-                    <rect x="0" y="10" width="4" height="10" fill="#333" opacity="0.2">
-                        <animate
-                            attributeName="opacity"
-                            attributeType="XML"
-                            values="0.2; 1; .2"
-                            begin="0s"
-                            dur="0.6s"
-                            repeatCount="indefinite"
-                        />
-                        <animate
-                            attributeName="height"
-                            attributeType="XML"
-                            values="10; 20; 10"
-                            begin="0s"
-                            dur="0.6s"
-                            repeatCount="indefinite"
-                        />
-                        <animate
-                            attributeName="y"
-                            attributeType="XML"
-                            values="10; 5; 10"
-                            begin="0s"
-                            dur="0.6s"
-                            repeatCount="indefinite"
-                        />
-                    </rect>
-                    <rect x="8" y="10" width="4" height="10" fill="#333" opacity="0.2">
-                        <animate
-                            attributeName="opacity"
-                            attributeType="XML"
-                            values="0.2; 1; .2"
-                            begin="0.15s"
-                            dur="0.6s"
-                            repeatCount="indefinite"
-                        />
-                        <animate
-                            attributeName="height"
-                            attributeType="XML"
-                            values="10; 20; 10"
-                            begin="0.15s"
-                            dur="0.6s"
-                            repeatCount="indefinite"
-                        />
-                        <animate
-                            attributeName="y"
-                            attributeType="XML"
-                            values="10; 5; 10"
-                            begin="0.15s"
-                            dur="0.6s"
-                            repeatCount="indefinite"
-                        />
-                    </rect>
-                    <rect x="16" y="10" width="4" height="10" fill="#333" opacity="0.2">
-                        <animate
-                            attributeName="opacity"
-                            attributeType="XML"
-                            values="0.2; 1; .2"
-                            begin="0.3s"
-                            dur="0.6s"
-                            repeatCount="indefinite"
-                        />
-                        <animate
-                            attributeName="height"
-                            attributeType="XML"
-                            values="10; 20; 10"
-                            begin="0.3s"
-                            dur="0.6s"
-                            repeatCount="indefinite"
-                        />
-                        <animate
-                            attributeName="y"
-                            attributeType="XML"
-                            values="10; 5; 10"
-                            begin="0.3s"
-                            dur="0.6s"
-                            repeatCount="indefinite"
-                        />
-                    </rect>
-                </svg>
-            </div>
-        </div>
-        <div
-            v-if="generating"
-            style="
-                z-index: 999;
-                background-color: (0, 0, 0, 0);
-                left: 0px;
-                right: 0px;
-                position: fixed;
-                bottom: 70px;
-                cursor: pointer;
-            "
-            @click="stopChating"
-            class="flex-1 flex-row mb-2 my-4 text-gray-100 text-slate-600 leading-relaxed flex justify-center items-center"
-        >
-            <div class="stop py-1 px-9 flex justify-center items-center flex-row">
-                <div style="display: flex; flex-direction: column; justify-content: center">
-                    <svg
-                        t="1708590117036"
-                        class="icon"
-                        viewBox="0 0 1024 1024"
-                        version="1.1"
-                        xmlns="http://www.w3.org/2000/svg"
-                        p-id="4223"
-                        width="26"
-                        height="26"
-                    >
-                        <path
-                            d="M512 170.7008a341.3504 341.3504 0 1 0 0 682.6496 341.3504 341.3504 0 0 0 0-682.6496zM85.3504 512a426.6496 426.6496 0 1 1 853.3504 0 426.6496 426.6496 0 0 1-853.3504 0z m341.3504-149.2992c-35.328 0-64 28.672-64 64v170.6496c0 35.328 28.672 64 64 64h170.6496c35.328 0 64-28.672 64-64V426.7008c0-35.328-28.672-64-64-64H426.7008z"
-                            p-id="4224"
-                            fill="#ffffff"
-                        ></path>
-                    </svg>
-                </div>
-                <div class="ml-2">停止响应</div>
-            </div>
-        </div> -->
 
         <!-- 底部 -->
 
@@ -534,290 +199,17 @@
             :iflogin="ifLogin"
             :ifComputer="isComputer"
             :generating="generating"
-            :outputType="outputType"
             :options="options"
             :userInfo="userInfo"
             @show-history-drawer="showHistroyDrawer"
             @show-role-set="showRoleSet"
             @send-message="sendMessage"
-            @custom-upload="customUpload"
-            @before-upload="beforeUploadBT"
-            @key-down="keydownHandle"
-            @handel-menu-click="handleMenuClick"
-            @file-change=""
             v-model:text="value"
             v-model:file-list="fileListBT"
             v-model:common-model="commonModel"
+            v-model:is-dragging="isDragging"
+            v-model:outputType="outputType"
         />
-        <!-- <div
-            class="bottom-0 w-full p-4"
-            style="
-                position: fixed;
-                max-width: 1000px;
-                width: 100%;
-                margin: 0 auto;
-                left: 0;
-                right: 0;
-                bottom: 8px;
-                background: rgba(0, 0, 0, 0.1);
-                border-radius: 8px;
-            "
-        >
-            <div class="upload-list" style="position: absolute; right: 28px; width: 300px; bottom: 80px">
-                <a-upload
-                    :accept="
-                        Object.keys(fileSrcMap)
-                            .map(key => `.${key}`)
-                            .join(',')
-                    "
-                    v-model:file-list="fileListBT"
-                    :beforeUpload="false"
-                    list-type="picture"
-                >
-                    <template v-slot:iconRender="props">
-                        <img :src="fileSrcMap[props.file.name.split('.').pop()] || fileError" />
-                    </template>
-                </a-upload>
-            </div>
-
-            <div class="flex flex-row" style="align-items: center">
-                <a-button
-                    ref="ref1"
-                    @click="showfilelist"
-                    class="flex justify-center items-center ml-0 px-2 rounded-md flex-row text-gray-900 bg-gray-100"
-                >
-                    <svg
-                        t="1709609597661"
-                        class="icon"
-                        viewBox="0 0 1024 1024"
-                        version="1.1"
-                        xmlns="http://www.w3.org/2000/svg"
-                        p-id="4448"
-                        width="18"
-                        height="18"
-                    >
-                        <path
-                            d="M279.04 617.472c0.896-26.496 4.16-52.864 9.728-78.848H39.424a39.424 39.424 0 1 0 0 78.848H279.04zM39.424 774.656a39.424 39.424 0 0 0 0 78.848h304.128c-15.808-24.768-28.8-51.2-38.912-78.848H39.424z m0-629.76H880.64a39.424 39.424 0 1 0 0-78.848H39.424a39.424 39.424 0 0 0 0 78.848z m397.824 157.696H39.424a39.424 39.424 0 0 0 0 78.848H360.96c21.76-29.568 47.488-56.064 76.288-78.848z m258.56-1.024a328.192 328.192 0 1 0 0 656.384 328.192 328.192 0 0 0 0-656.384z m115.712 368.64h-115.712a39.424 39.424 0 0 1-39.424-39.424V486.4a39.424 39.424 0 0 1 78.848 0v104.96h76.288a39.424 39.424 0 1 1 0 78.848z"
-                            p-id="4449"
-                            fill="#515151"
-                            data-spm-anchor-id="a313x.search_index.0.i0.71083a81622esI"
-                            class="selected"
-                        ></path>
-                    </svg>
-                    <div v-if="isComputer" style="margin-left: 4px">历史对话</div>
-                </a-button>-->
-        <a-config-provider :theme="{ token: { colorPrimary: ' rgb(64, 70, 79)' } }">
-            <Cascader
-                ref="ref2"
-                v-if="isComputer"
-                style="min-width: 160px"
-                :allowClear="false"
-                :defaultValue="commommodel"
-                class="mr-0 p-1"
-                expandTrigger="hover"
-                @change="modelOnChange"
-                :options="options"
-            />
-        </a-config-provider>
-        <div
-            v-if="!isComputer"
-            style="margin-left: 1px"
-            class="flex justify-center items-center ml-0 px-2 mr-2 rounded-md flex-row text-gray-900 bg-gray-100 hover:bg-gray-300 hover:text-gray-900"
-        >
-            <a-config-provider :theme="{ token: { colorPrimary: ' rgb(64, 70, 79)' } }">
-                <a-cascader
-                    placeholder="Please select"
-                    :v-model="commommodel"
-                    :defaultValue="commommodel"
-                    :options="options"
-                    @change="modelOnChange"
-                >
-                    <CodeSandboxOutlined :style="{ fontSize: '20px', padding: '6px 0px' }" />
-                </a-cascader>
-            </a-config-provider>
-        </div>
-
-        <!-- <a-button
-                    ref="ref3"
-                    @click="showface"
-                    v-if="isComputer"
-                    class="flex justify-center items-center ml-0 mr-3 px-2 mr-1 rounded-md flex-row text-gray-900 bg-gray-100"
-                >
-                    <a-icon
-                        :style="{
-                            width: '20px',
-                            fontSize: '20px',
-                            display: 'flex',
-                            flexDection: 'row',
-                            justifyContent: 'center'
-                        }"
-                    >
-                        <svg
-                            t="1709611594182"
-                            class="icon"
-                            viewBox="0 0 1024 1024"
-                            version="1.1"
-                            xmlns="http://www.w3.org/2000/svg"
-                            p-id="19888"
-                            width="30"
-                            height="30"
-                        >
-                            <path
-                                d="M582.464 228.202667L490.666667 192l91.797333-36.202667L618.666667 64l36.202666 91.797333L746.666667 192l-91.797334 36.202667L618.666667 320l-36.202667-91.797333z m213.333333-64L704 128l91.797333-36.202667L832 0l36.202667 91.797333L960 128l-91.797333 36.202667L832 256l-36.202667-91.797333z m64 213.333333L768 341.333333l91.797333-36.202666L896 213.333333l36.202667 91.797334L1024 341.333333l-91.797333 36.202667L896 469.333333l-36.202667-91.797333zM512 42.666667v85.333333C299.925333 128 128 299.925333 128 512s171.925333 384 384 384 384-171.925333 384-384h85.333333c0 259.2-210.133333 469.333333-469.333333 469.333333S42.666667 771.2 42.666667 512 252.8 42.666667 512 42.666667z m-181.013333 670.165333l60.330666-60.330667a170.666667 170.666667 0 0 0 241.365334 0l60.330666 60.330667c-99.968 99.989333-262.058667 99.989333-362.026666 0zM362.666667 533.333333a64 64 0 1 1 0-128 64 64 0 0 1 0 128z m298.666666 0a64 64 0 1 1 0-128 64 64 0 0 1 0 128z"
-                                fill="#000000"
-                                p-id="19889"
-                            ></path>
-                        </svg>
-                    </a-icon>
-                </a-button>
-                <div
-                    style="
-                        z-index: 999;
-                        display: flex;
-                        flex-direction: column;
-                        justify-content: center;
-                        align-items: center;
-                        margin-right: -25px;
-                    "
-                >
-                    <a-upload
-                        :accept="
-                            Object.keys(fileSrcMap)
-                                .map(key => `.${key}`)
-                                .join(',')
-                        "
-                        ref="ref4"
-                        v-model:file-list="fileListBT"
-                        name="file"
-                        list-type="picture"
-                        :customRequest="customUpload"
-                        :beforeUpload="beforeUploadBT"
-                        :style="{
-                            fontSize: '18px',
-                            color: 'gray',
-                            display: 'flex',
-                            flexDirection: 'row',
-                            justifyContent: 'center',
-                            alignItems: 'center'
-                        }"
-                    >
-                        <div
-                            style="
-                                display: flex;
-                                flex-direction: column;
-                                justify-content: center;
-                                align-items: center;
-                                width: 100%;
-                                text-align: center;
-                            "
-                        >
-                            <LinkOutlined
-                                :style="{
-                                    cursor: 'pointer',
-                                    fontSize: '18px',
-                                    color: 'gray',
-                                    display: 'flex',
-                                    flexDirection: 'row',
-                                    justifyContent: 'center',
-                                    alignItems: 'center'
-                                }"
-                            />
-                        </div>
-
-                        <template #itemRender="{ file, actions }">
-                            <a-space></a-space>
-                        </template>
-                    </a-upload>
-                </div>
-                <a-textarea
-                    :style="{
-                        padding: '5px 5px 5px 28px',
-                        display: 'flex',
-                        flexDection: 'row',
-                        justifyContent: 'center'
-                    }"
-                    autosize
-                    :type="'text'"
-                    @keydown="keydownHandle"
-                    :placeholder="!ifLogin ? '请先登录' : '剩余对话次数' + userInfo.chance.totalChatChance"
-                    v-model:value="value"
-                ></a-textarea>
-
-                <a-config-provider :theme="{ token: { colorPrimary: ' rgb(17,20,24)' } }">
-                    <a-dropdown-button
-                        ref="ref5"
-                        @click="sendMessage"
-                        type="primary"
-                        :loading="generating"
-                        :style="{
-                            display: 'flex',
-                            flexDirection: 'row',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            marginLeft: '6px'
-                        }"
-                    >
-                        发送
-                        <template #overlay>
-                            <a-menu @click="handleMenuClick">
-                                <a-menu-item key="1">
-                                    <FileTextOutlined />
-                                    生成文本
-                                </a-menu-item>
-                                <a-menu-item key="3">
-                                    <FileImageOutlined />
-                                    生成图片
-                                </a-menu-item>
-                                <a-menu-item key="0">
-                                    <CloudSyncOutlined />
-                                    智能生成
-                                </a-menu-item>
-                            </a-menu>
-                        </template>
-                        <template #icon>
-                            <div
-                                v-if="outmodel == '0'"
-                                :style="{
-                                    fontSize: '18px',
-                                    display: 'flex',
-                                    flexDirection: 'row',
-                                    justifyContent: 'center',
-                                    alignItems: 'center'
-                                }"
-                            >
-                                <CloudSyncOutlined />
-                            </div>
-                            <div
-                                v-if="outmodel == '1'"
-                                :style="{
-                                    fontSize: '18px',
-                                    display: 'flex',
-                                    flexDirection: 'row',
-                                    justifyContent: 'center',
-                                    alignItems: 'center'
-                                }"
-                            >
-                                <FileTextOutlined />
-                            </div>
-                            <div
-                                v-if="outmodel == '3'"
-                                :style="{
-                                    fontSize: '18px',
-                                    display: 'flex',
-                                    flexDirection: 'row',
-                                    justifyContent: 'center',
-                                    alignItems: 'center'
-                                }"
-                            >
-                                <FileImageOutlined />
-                            </div>
-                        </template>
-                    </a-dropdown-button>
-                </a-config-provider>
-            </div>
-        </div> -->
-
-        <!-- end of bottom -->
     </div>
 </template>
 
@@ -960,9 +352,9 @@ const handleLead = (val: boolean): void => {
 }
 const linkBack = ref(true)
 const dialogindex = ref(0)
-const fileListBT = ref<object[]>([])
+const fileListBT = ref<any[]>([])
 
-const isDragging = ref(false)
+const isDragging = ref<boolean>(false)
 const showCost = ref(false)
 
 const text = ref('# Hello Editor')
@@ -1003,7 +395,7 @@ var fileSrcMap = {
 }
 var fileError = 'https://openai-1259183477.cos.ap-shanghai.myqcloud.com/file-unknown-fill(1).png'
 
-const customUpload = options => {
+function customUpload(options: any) {
     // 阻止默认的上传行为
     options.onSuccess()
     isDragging.value = false
@@ -1317,12 +709,12 @@ const onRoleSetSubmit = () => {
 
     localStorage.setItem('prompt', toRaw(formState).desc)
 
-    openRoleSet.value = false
+    isRoleSetOpen.value = false
     message.success('已保存')
 }
 const labelCol = { style: { width: '70px' } }
 const wrapperCol = { span: 19 }
-const openRoleSet = ref<boolean>(false)
+const isRoleSetOpen = ref<boolean>(false)
 
 const shopList = ref<ShopList[]>([
     {
@@ -1898,9 +1290,9 @@ function keydownHandle(event: {
 }
 
 // 换行
-function insertNewLine(event: { ctrlKey: any; metaKey: any; keyCode: number }) {
+function insertNewLine(event: { shiftKey: any; metaKey: any; keyCode: number }) {
     // 检查是否按下了Ctrl键和Enter键
-    if ((event.ctrlKey || event.metaKey) && event.keyCode === 13) {
+    if ((event.shiftKey || event.metaKey) && event.keyCode === 13) {
         // 在输入框中插入换行字符
         value.value += '\n'
         // console.log(event.target.scrollHeight)
@@ -2315,10 +1707,10 @@ const init = async () => {
     }
 }
 const showRoleSet = async () => {
-    openRoleSet.value = true
+    isRoleSetOpen.value = true
 }
 const closeRoleSet = async () => {
-    openRoleSet.value = false
+    isRoleSetOpen.value = false
 }
 
 const facehandleOk = async (e: MouseEvent) => {
@@ -2326,7 +1718,7 @@ const facehandleOk = async (e: MouseEvent) => {
 
     confirmLoading.value = true
     setTimeout(() => {
-        openRoleSet.value = false
+        isRoleSetOpen.value = false
         confirmLoading.value = false
     }, 2000)
 }

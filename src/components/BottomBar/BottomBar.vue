@@ -2,15 +2,18 @@
 <template>
     <div class="bottom-bar">
         <!-- upload file preview list  -->
-        <div class="upload-list">
+        <div class="upload-list" style="position: absolute; right: 28px; width: 300px; bottom: 80px">
             <a-upload
-                :accept="upLoadItems"
+                :accept="
+                    Object.keys(fileSrcMap)
+                        .map(key => `.${key}`)
+                        .join(',')
+                "
                 v-model:file-list="fileList"
                 :beforeUpload="false"
                 list-type="picture"
-                @change="fileChange"
             >
-                <template v-slot:iconRender="props">
+                <template v-slot:iconRender="props: any">
                     <img :src="fileSrcMap[props.file.name.split('.').pop() as keyof typeof fileSrcMap] || fileError" />
                 </template>
             </a-upload>
@@ -100,11 +103,12 @@
                             .join(',')
                     "
                     ref="ref4"
-                    :file-list="fileList"
+                    v-model:file-list="fileList"
                     name="file"
                     list-type="picture"
                     :customRequest="customUpload"
                     :beforeUpload="beforeUpload"
+                    :showUploadList="false"
                     style="z-index: 999; margin-right: -25px; display: flex; align-items: center"
                 >
                     <LinkOutlined
@@ -114,13 +118,10 @@
                             display: 'flex',
                             flexDirection: 'row',
                             justifyContent: 'center',
-                            alignItems: 'center'
+                            alignItems: 'center',
+                            cursor: 'pointer'
                         }"
                     />
-
-                    <template #itemRender="{ file, actions }">
-                        <a-space></a-space>
-                    </template>
                 </a-upload>
 
                 <a-textarea
@@ -135,7 +136,6 @@
                     @keydown="keydownHandle"
                     :placeholder="!iflogin ? '请先登录' : '剩余对话次数' + props.userInfo.chance.totalChatChance"
                     v-model:value="text"
-                    @change="updateValue"
                 ></a-textarea>
             </div>
 
@@ -155,7 +155,7 @@
                 >
                     发送
                     <template #overlay>
-                        <a-menu @click="handleMenuClick">
+                        <a-menu @click="handleOutputTypeClick">
                             <a-menu-item key="0">
                                 <CloudSyncOutlined />
                                 智能生成
@@ -171,15 +171,15 @@
                         </a-menu>
                     </template>
                     <template #icon>
-                        <div class="dropdown" v-if="props.outputType == '0'">
+                        <div class="dropdown" v-if="outputType == '0'">
                             <CloudSyncOutlined />
                         </div>
 
-                        <div class="dropdown" v-if="props.outputType == '1'">
+                        <div class="dropdown" v-if="outputType == '1'">
                             <FileTextOutlined />
                         </div>
 
-                        <div class="dropdown" v-if="props.outputType == '3'">
+                        <div class="dropdown" v-if="outputType == '3'">
                             <FileImageOutlined />
                         </div>
                     </template>
@@ -196,46 +196,75 @@ import {
     FileTextOutlined,
     CodeSandboxOutlined
 } from '@ant-design/icons-vue'
-import { watch, ref, onMounted } from 'vue'
 import { fileSrcMap, fileError } from '@/common/iconSrcUrl'
 import type { ModelCascader, Option, UserInfo } from '@/types/interfaces'
-import { upLoadItems } from '@/common/iconSrcUrl'
+import type { MenuProps } from 'ant-design-vue'
+import type { MenuInfo } from 'ant-design-vue/es/menu/src/interface'
 
 const props = defineProps<{
     iflogin: boolean
     ifComputer: boolean
     generating: boolean
 
-    outputType: string
-
     options: Option[]
 
     userInfo: UserInfo
 }>()
 
-const emit = defineEmits([
-    'show-history-drawer',
-    'show-role-set',
-    'send-message',
-    'custom-upload',
-    'before-upload',
-    'key-down',
-    'update-value',
-    'handle-menu'
-    // 'file-change'
-])
+const emit = defineEmits(['show-history-drawer', 'show-role-set', 'send-message'])
 
 const text = defineModel<string>('text', { required: true })
-const fileList = defineModel<object[]>('fileList', { required: true })
+const fileList = defineModel<any[]>('fileList', { required: true })
 const commonModel = defineModel<ModelCascader>('commonModel', { required: true, default: ['选择模型', '智能选择模型'] })
+const isDragging = defineModel<boolean>('isDragging', { required: true })
+const outputType = defineModel<string>('outputType', { required: true })
 
-// watch(fileList, newValue => {
-//     //console.log(props.fileListBT)
-//     emit('file-change', newValue)
-// })
-
-const emitShowHistoryDrawer = () => {
+function emitShowHistoryDrawer() {
     emit('show-history-drawer')
+}
+
+function emitShowRoleSet() {
+    emit('show-role-set')
+}
+
+function emitSendMessage() {
+    emit('send-message')
+}
+
+//
+
+function keydownHandle(event: KeyboardEvent) {
+    if (event.key === 'Enter') {
+        if (!event.ctrlKey && !event.metaKey) {
+            // 如果只按下了Enter键，则执行事件a的逻辑
+            event.stopPropagation()
+            event.preventDefault()
+            emitSendMessage()
+        } else {
+            // 如果同时按下了Shift键和Enter键，则执行换行逻辑
+            event.preventDefault() // 阻止默认的换行行为
+            text.value += '\n'
+            toBottom(event.target as HTMLElement) // 立即滚动到底部
+        }
+    }
+}
+
+function toBottom(inputElement: HTMLElement) {
+    requestAnimationFrame(() => {
+        inputElement.scrollTop = inputElement.scrollHeight
+    })
+}
+
+function customUpload(options: any) {
+    options.onSuccess()
+    isDragging.value = false
+}
+
+function beforeUpload(file: any) {
+    fileList.value.push(file)
+    isDragging.value = false
+
+    return false // 返回false以阻止自动上传
 }
 
 function modelChange(currentModel: ModelCascader) {
@@ -245,44 +274,9 @@ function modelChange(currentModel: ModelCascader) {
 function fileChange(files: object[]) {
     fileList.value = files
 }
-const updateValue = () => {
-    emit('update-value', text)
+const handleOutputTypeClick: MenuProps['onClick'] = (e: MenuInfo) => {
+    outputType.value = e.key.toString()
 }
-
-const emitShowRoleSet = () => {
-    emit('show-role-set')
-}
-
-const emitSendMessage = () => {
-    emit('send-message')
-}
-
-const customUpload = options => {
-    emit('custom-upload', options)
-}
-
-const beforeUpload = file => {
-    console.log(fileList)
-    console.log(fileList.value)
-    fileList.value.push(file)
-    console.log(fileList)
-    console.log(fileList.value)
-    //emit('before-upload', file)
-}
-
-const keydownHandle = event => {
-    emit('key-down', event)
-}
-
-const handleMenuClick = key => {
-    emit('handle-menu', key)
-}
-
-defineExpose({
-    clearText() {
-        text.value = ''
-    }
-})
 </script>
 
 <style lang="scss" scoped>
@@ -319,10 +313,6 @@ defineExpose({
     border-radius: 8px;
 
     .upload-list .ant-upload-list-item-container .ant-upload-list-item {
-        position: absolute;
-        right: 28px;
-        width: 300px;
-        bottom: 80px;
         background: rgba(255, 255, 255, 0.3);
         backdrop-filter: blur(10px);
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2) !important;
