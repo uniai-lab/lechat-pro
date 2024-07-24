@@ -136,28 +136,8 @@ import { http, sse, httppay } from '@/common/request.js'
 import { Cascader, notification } from 'ant-design-vue'
 
 import {
-    PlusCircleOutlined,
-    LoadingOutlined,
-    LinkOutlined,
-    InboxOutlined,
-    CloudSyncOutlined,
-    FileTextOutlined,
-    FileImageOutlined,
-    SendOutlined,
-    WalletOutlined,
-    KeyOutlined,
-    GlobalOutlined,
-    CodeSandboxOutlined,
-    SettingOutlined,
-    UserOutlined,
-    EditOutlined,
-    EllipsisOutlined,
-    LogoutOutlined,
-    RobotOutlined,
-    ClearOutlined,
-    MenuUnfoldOutlined,
-    SmileOutlined,
-    HistoryOutlined
+    PlusCircleOutlined, //留
+    CodeSandboxOutlined, //
 } from '@ant-design/icons-vue'
 import { DeleteOutlined } from '@ant-design/icons-vue'
 import { Modal } from 'ant-design-vue'
