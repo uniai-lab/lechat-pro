@@ -8,58 +8,15 @@
         @drop="handleDrop"
         class="flex flex-col h-screen bg-gray-000 dark bg"
     >
-        <!-- 展示上传框的逻辑 -->
+        <!-- 上传遮罩 -->
+        <UploadMask
+            v-if="isDragging"
+            class="upload-mask"
+            v-model:file-list="fileList"
+            v-model:is-dragging="isDragging"
+        ></UploadMask>
 
-        <div v-if="isDragging" class="upload-mask">
-            <a-upload-dragger
-                :accept="
-                    Object.keys(fileSrcMap)
-                        .map(key => `.${key}`)
-                        .join(',')
-                "
-                ref="ref6"
-                v-model:file-list="fileListBT"
-                name="file"
-                list-type="picture"
-                :customRequest="customUpload"
-                :beforeUpload="beforeUploadBT"
-                :showUploadList="false"
-                :multiple="true"
-            >
-                <div class="upload-container">
-                    <div
-                        :style="{
-                            fontSize: '160px',
-                            color: '#080603',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            justifyContent: 'center',
-                            alignItems: 'center'
-                        }"
-                    >
-                        <!-- <inbox-outlined></inbox-outlined> -->
-                        <img
-                            style="height: 200px; border-radius: 30px; margin-bottom: 30px"
-                            src="../assets/filebg.webp"
-                        />
-                    </div>
-                    <div class="uptitle">文件拖动到此处即可上传</div>
-                    <div class="upmsg">
-                        支持的文件格式：PDF、Word文档（DOC、DOCX）、Excel表格（XLSX）、PPT（PPT、PPTX）、TXT、CSV、MD、图片等
-                    </div>
-                </div>
-            </a-upload-dragger>
-        </div>
-
-        <PersonalDrawer
-            :personalDrawerVisible="personalDrawerVisible"
-            :savePersonalInfoClock="savePersonalInfoClock"
-            @close-personal-drawer="closePersonalDrawer"
-            @save-personal-info="savePersonalInfo"
-            v-model:personal-info-form="personalInfoForm"
-            v-model:image-url="imageUrl"
-        ></PersonalDrawer>
-
+        <!-- 顶栏 -->
         <TopBar
             :userInfo="userInfo"
             :ifLogin="ifLogin"
@@ -70,52 +27,22 @@
             @log-out="logOut"
         ></TopBar>
 
+        <!-- 登录模态框 -->
         <LoginModal
             v-if="loginVisible"
             @custom-event="handleLoginCustomEvent"
             @hideModal="switchLoginVisible"
         ></LoginModal>
 
-        <!-- 密码 -->
+        <!-- 密码修改模态框（未使用） -->
+        <UnusePassWordEditModal
+            :is-password-edit-modal-open="isPasswordEditModalOpen"
+            @clear-info="clearInfo"
+            @close="closePasswordEditModal"
+            @get-user-info="getUserInfo"
+        ></UnusePassWordEditModal>
 
-        <div>
-            <a-modal v-model:open="pwvisible" :footer="null" destroyOnClose="true" title="修改密码" @ok="handlepwOk">
-                <a-spin :spinning="sevepwclock">
-                    <a-form
-                        :validat="'cheekpasswordres'"
-                        style="margin-top: 32px"
-                        name="custom-validation"
-                        ref="formRef"
-                        :model="formStatepw"
-                        :rules="pwrules"
-                        v-bind="layout"
-                        @finish="handleFinish"
-                        @finishFailed="handleFinishFailed"
-                    >
-                        <a-form-item has-feedback label="新的密码" name="pass">
-                            <a-input-password v-model:value="formStatepw.pass" type="password" autocomplete="off" />
-                        </a-form-item>
-                        <a-form-item has-feedback label="重复密码" name="checkPass">
-                            <a-input-password
-                                v-model:value="formStatepw.checkPass"
-                                type="password"
-                                autocomplete="off"
-                            />
-                        </a-form-item>
-                    </a-form>
-                    <div style="width: 100%" class="flex justify-center mt-7 mb-9">
-                        <div
-                            @click="sevepw()"
-                            class="flex justify-center py-2 text-gray-100 bg-gray-900 hover:bg-gray-700 hover:text-gray-100 rounded-md"
-                            style="width: 120px; cursor: pointer"
-                        >
-                            确定
-                        </div>
-                    </div>
-                </a-spin>
-            </a-modal>
-        </div>
-
+        <!-- 角色扮演 -->
         <RoleSetFloatBtn :is-computer="isComputer" @show-role-set="showRoleSet" />
 
         <RoleSetModal
@@ -126,7 +53,7 @@
             v-model:open-role-set="isRoleSetOpen"
         ></RoleSetModal>
 
-        <!-- 充值弹框 -->
+        <!-- 充值模态框 -->
         <ChargeModal
             :isComputer="isComputer"
             v-model="isChargeOpen"
@@ -136,6 +63,17 @@
             @get-user-info="getUserInfo"
         ></ChargeModal>
 
+        <!-- 个人信息抽屉 -->
+        <PersonalDrawer
+            :personalDrawerVisible="personalDrawerVisible"
+            :savePersonalInfoClock="savePersonalInfoClock"
+            @close-personal-drawer="closePersonalDrawer"
+            @save-personal-info="savePersonalInfo"
+            v-model:personal-info-form="personalInfoForm"
+            v-model:image-url="imageUrl"
+        ></PersonalDrawer>
+
+        <!-- 历史对话抽屉 -->
         <HistoryDialogueDrawer
             :open="isHistoryDrawerOpen"
             :if-login="ifLogin"
@@ -147,53 +85,6 @@
             @del-dialog="deldialog"
         ></HistoryDialogueDrawer>
 
-        <!-- <a-drawer
-            title="历史对话"
-            :closable="true"
-            :placement="historyDrawerPlace"
-            :open="isHistoryDrawerOpen"
-            @close="historyDrawerClose"
-            :get-container="false"
-            :style="{ position: 'absolute' }"
-        >
-            <a-list item-layout="horizontal" :data-source="historyChat">
-                <template #renderItem="{ item, index }">
-                    <a-list-item class="dialogitem" @click="toDialog(item.id, index)">
-                        <template #actions>
-                            <div
-                                style="color: black; font-size: 16px"
-                                @click.stop="deldialog(item.id)"
-                                key="list-loadmore-more"
-                            >
-                                <DeleteOutlined />
-                            </div>
-                        </template>
-                        <a-list-item-meta :description="convertTimestamp(item.updatedAt)">
-                            <template #title>
-                                <div class="listitemname">{{ item.title ? item.title : '未命名' }}</div>
-                            </template>
-                        </a-list-item-meta>
-                    </a-list-item>
-                </template>
-                <template #loadMore>
-                    <div
-                        v-if="ifLogin"
-                        :style="{ textAlign: 'center', marginTop: '12px', height: '32px', lineHeight: '32px' }"
-                    >
-                        <a-button style="color: black" @click="ondialogLoadMore">查看更多</a-button>
-                    </div>
-                </template>
-            </a-list>
-            <template #footer>
-                <div class="newdialogbox">
-                    <div @click="newdialog" class="newdialogbtn">
-                        <PlusCircleOutlined />
-                        <div style="margin-left: 6px">新建对话</div>
-                    </div>
-                </div>
-            </template>
-        </a-drawer> -->
-
         <!-- 中心区域 -->
         <MainArea
             :link-back="linkBack"
@@ -204,8 +95,7 @@
             ref="chatListDom"
         ></MainArea>
 
-        <!-- 底部 -->
-
+        <!-- 底栏 -->
         <BottomBar
             :iflogin="ifLogin"
             :ifComputer="isComputer"
@@ -216,11 +106,11 @@
             @show-role-set="showRoleSet"
             @send-message="sendMessage"
             v-model:text="value"
-            v-model:file-list="fileListBT"
+            v-model:file-list="fileList"
             v-model:common-model="commonModel"
             v-model:is-dragging="isDragging"
             v-model:outputType="outputType"
-        />
+        ></BottomBar>
     </div>
 </template>
 
@@ -237,6 +127,7 @@ import PersonalDrawer from '@/components/Drawers/PersonalDrawer.vue'
 import ChargeModal from '@/components/ChargeModal/ChargeModal.vue'
 import MainArea from '@/components/MainArea/MainArea.vue'
 import BottomBar from '@/components/BottomBar/BottomBar.vue'
+import UnusePassWordEditModal from '@/components/UnusePassWordEditModal.vue'
 import { upLoadItems } from '@/common/iconSrcUrl'
 // import HistoryDrawer from '@/components/HistoryDrawer.vue'
 import Cost from '@/components/ChargeModal/CostTable.vue'
@@ -292,12 +183,15 @@ import type {
     FormState,
     ModelCascader,
     Option,
+    PasswordFormState,
     PersonalInfoForm,
     ShopList
 } from '@/types/interfaces'
 import RoleSetModal from '@/components/RoleSetModal.vue'
 import RoleSetFloatBtn from '@/components/RoleSetFloatBtn.vue'
 import HistoryDialogueDrawer from '@/components/Drawers/HistoryDialogueDrawer.vue'
+import PassWordEditModalUnuse from '@/components/UnusePassWordEditModal.vue'
+import UploadMask from '@/components/UploadMask.vue'
 const leadeOpen = ref<boolean>(false)
 const current = ref(0)
 const ref1 = ref(null)
@@ -364,7 +258,7 @@ const handleLead = (val: boolean): void => {
 }
 const linkBack = ref(true)
 const dialogindex = ref(0)
-const fileListBT = ref<any[]>([])
+const fileList = ref<any[]>([])
 
 const isDragging = ref<boolean>(false)
 const showCost = ref(false)
@@ -412,9 +306,9 @@ function customUpload(options: any) {
     options.onSuccess()
     isDragging.value = false
 }
-const beforeUploadBT = file => {
+const beforeUpload = file => {
     // 将文件添加到fileListBT数组
-    fileListBT.value.push(file)
+    fileList.value.push(file)
     isDragging.value = false
     // console.log(isDragging.value)
 
@@ -442,28 +336,28 @@ interface FormStatepw {
 }
 const pwvalidateStatus = ref('false')
 const formRef = ref()
-const formStatepw: UnwrapRef<FormStatepw> = reactive({
+const passwordFormState: UnwrapRef<PasswordFormState> = reactive({
     pass: '',
     checkPass: '',
     age: undefined
 })
 
-let validatePass2 = async (rule: RuleObject, value: string) => {
+let myValidator = async (rule: RuleObject, value: string) => {
     if (value === '') {
         return Promise.reject(new Error('请再次输入密码'))
-    } else if (value !== formStatepw.pass) {
+    } else if (value !== passwordFormState.pass) {
         return Promise.reject(new Error('两次输入的密码不一致'))
     } else {
         return Promise.resolve()
     }
 }
 
-const pwrules = {
+const passwordRules = {
     pass: [
         {
             required: true,
             validator: (rule: any, value: string) => {
-                return new Promise((resolve, reject) => {
+                return new Promise<void>((resolve, reject) => {
                     if (!/^(?=.*[a-zA-Z])(?=.*\d).{8,}$/.test(value)) {
                         reject(new Error('必须包含字母和数字，不少于八位'))
                     } else {
@@ -474,7 +368,7 @@ const pwrules = {
             trigger: 'change'
         }
     ],
-    checkPass: [{ required: true, validator: validatePass2, trigger: 'change' }]
+    checkPass: [{ required: true, validator: myValidator, trigger: 'change' }]
 }
 const layout = {
     labelCol: { span: 6 },
@@ -512,15 +406,15 @@ const personalInfoForm = ref<PersonalInfoForm>({
     phone: ''
 })
 // 修改密码
-const pwvisible = ref<boolean>(false)
+const isPasswordEditModalOpen = ref<boolean>(false)
 
 const showpwModal = () => {
-    pwvisible.value = true
+    isPasswordEditModalOpen.value = true
 }
 
 const handlepwOk = (e: MouseEvent) => {
     // console.log(e);
-    pwvisible.value = false
+    isPasswordEditModalOpen.value = false
 }
 const cheekpasswordres = (e: any) => {
     // console.log(e)
@@ -532,11 +426,11 @@ const upfile = async (file: { fileListBT: any }) => {
     leftFileList.value = await file.fileListBT
     console.log(leftFileList.value)
 }
-const sevepwclock = ref(false)
+const savePasswordLock = ref(false)
 
-const sevepw = async () => {
-    if (!sevepwclock.value) {
-        sevepwclock.value = true
+const savePassword = async () => {
+    if (!savePasswordLock.value) {
+        savePasswordLock.value = true
 
         try {
             const checkPassword = await formRef.value.validate()
@@ -552,16 +446,16 @@ const sevepw = async () => {
 
             if (res.status == 1) {
                 notification.success({ duration: 3000, description: '', message: res.msg })
-                formStatepw.checkPass = ''
-                formStatepw.pass = ''
-                pwvisible.value = false
+                passwordFormState.checkPass = ''
+                passwordFormState.pass = ''
+                isPasswordEditModalOpen.value = false
                 getUserInfo()
             } else notification.error({ duration: 3000, description: '', message: res.msg })
         } catch (e) {
             // console.log(e)
             notification.error({ duration: 3000, description: '', message: e.message })
         }
-        sevepwclock.value = false
+        savePasswordLock.value = false
     }
     // console.log(pwvalidateStatus.value);
 }
@@ -574,7 +468,6 @@ function getBase64(img: Blob, callback: (base64Url: string) => void) {
     reader.readAsDataURL(img)
 }
 
-const fileList = ref([])
 const avatarLoading = ref<boolean>(false)
 const imageUrl = ref<string>('')
 
@@ -1353,7 +1246,7 @@ const sendMessage = async () => {
         // check input
         ifUserup.value = false
 
-        if (!value.value.trim() && fileListBT.value.length == 0) return
+        if (!value.value.trim() && fileList.value.length == 0) return
         if (!userInfo.value.chance.totalChatChance)
             return notification.error({ description: '请点击右上角充值按钮进行充值！', message: '次数用尽' })
 
@@ -1362,13 +1255,13 @@ const sendMessage = async () => {
         generating.value = true
         // console.log(fileListBT.value)
 
-        if (fileListBT.value.length) {
+        if (fileList.value.length) {
             // send files
             const promiseList = []
 
-            for (let index = 0; index < fileListBT.value.length; index++) {
+            for (let index = 0; index < fileList.value.length; index++) {
                 const formData = new FormData()
-                const fileitem = fileListBT.value[index] as any
+                const fileitem = fileList.value[index] as any
 
                 formData.append('dialogId', dialogId.value.toString())
                 formData.append('file', fileitem.originFileObj)
@@ -1412,7 +1305,7 @@ const sendMessage = async () => {
                         })
                 )
             }
-            fileListBT.value = []
+            fileList.value = []
 
             // send user message
             if (input) {
@@ -2035,6 +1928,10 @@ const toDialog = async (event: DragEvent, index: number) => {
         allFinished.value = false
     }
 }
+
+function closePasswordEditModal() {
+    isPasswordEditModalOpen.value = false
+}
 </script>
 <style>
 .upload-list .ant-upload-list-item-container .ant-upload-list-item {
@@ -2259,13 +2156,13 @@ textarea {
     border: 2px solid #e2b460;
 }
 
-.uptitle {
+.upload-title {
     margin-top: 20px;
     font-size: 30px;
     font-weight: 600;
 }
 
-.upmsg {
+.upload-msg {
     color: #505050;
     font-size: 20px;
     margin-top: 17px;

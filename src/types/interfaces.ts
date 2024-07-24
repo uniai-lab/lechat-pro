@@ -123,3 +123,9 @@ export interface Option {
 }
 
 export type ModelCascader = [string, string]
+
+export interface PasswordFormState {
+    pass: string
+    checkPass: string
+    age: number | undefined
+}

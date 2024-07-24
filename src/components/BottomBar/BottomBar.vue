@@ -270,10 +270,6 @@ function beforeUpload(file: any) {
 function modelChange(currentModel: ModelCascader) {
     commonModel.value = currentModel
 }
-
-function fileChange(files: object[]) {
-    fileList.value = files
-}
 const handleOutputTypeClick: MenuProps['onClick'] = (e: MenuInfo) => {
     outputType.value = e.key.toString()
 }
