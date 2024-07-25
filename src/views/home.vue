@@ -12,7 +12,7 @@
         <UploadMask
             v-if="isDragging"
             class="upload-mask"
-            v-model:file-list="fileList"
+            v-model:mamba-out="fileList"
             v-model:is-dragging="isDragging"
         ></UploadMask>
 
