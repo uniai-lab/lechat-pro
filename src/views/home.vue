@@ -909,6 +909,7 @@ onMounted(async () => {
     // }
     if (localStorage.getItem('prompt')) {
         formState.desc = localStorage.getItem('prompt') as string
+        if(localStorage.getItem('startmsg')) formState.startmsg = localStorage.getItem('startmsg') as string
     }
     //第一次打开，需要加载引导框
     if (!localStorage.getItem('ifFirstopen')) {
