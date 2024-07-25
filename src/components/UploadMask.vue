@@ -30,7 +30,7 @@
 <script setup lang="ts">
 import { fileSrcMap } from '@/common/iconSrcUrl'
 
-const fileList = defineModel<any[]>('fileList', { required: true })
+const fileList = defineModel<any[]>('mambaOut', { required: true })
 const isDragging = defineModel<boolean>('isDragging', { required: true })
 
 function customUpload(options: any) {
@@ -38,9 +38,13 @@ function customUpload(options: any) {
     options.onSuccess()
     isDragging.value = false
 }
+
 function beforeUpload(file: any) {
     // 将文件添加到fileListBT数组
+
     fileList.value.push(file)
+    console.log(fileList)
+    console.log(fileList.value)
     isDragging.value = false
 
     return false // 返回false以阻止自动上传
