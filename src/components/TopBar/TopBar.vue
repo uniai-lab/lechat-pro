@@ -44,26 +44,27 @@ const props = defineProps<{
     switchLoginVisible: Function
 }>()
 
-const emit = defineEmits(['show-personal-drawer', 'show-charge-modal', 'log-out'])
+const emit = defineEmits<{ showPersonalDrawer: []; showChargeModal: []; logout: [] }>()
 
 const isTopModalOpen = ref<boolean>(false)
 
 function emitShowPersonalDrawer() {
-    emit('show-personal-drawer')
+    emit('showPersonalDrawer')
 }
 
 function emitShowChargeModal() {
-    emit('show-charge-modal')
+    emit('showChargeModal')
 }
 
 function emitLogOut() {
-    emit('log-out')
+    emit('logout')
 }
 
 function switchChargeModalVisible() {
     isTopModalOpen.value = !isTopModalOpen.value
 }
 
+// this is not used because the time received is wrong
 function timeStampToString(timestamp: string) {
     // Convert millisecond timestamps to seconds
     let seconds = Math.floor(Number(timestamp) / 1000)

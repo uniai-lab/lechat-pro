@@ -20,7 +20,7 @@
         </div>
 
         <div class="tool-box">
-            <a-button ref="ref1" @click="emitShowHistoryDrawer" class="base-style history-btn">
+            <a-button ref="step1" @click="emitShowHistoryDrawer" class="base-style history-btn">
                 <svg
                     t="1709609597661"
                     class="icon"
@@ -52,6 +52,7 @@
                         :allowClear="false"
                         :options="props.options"
                         @change="modelChange"
+                        ref="step2"
                     />
                 </a-config-provider>
             </div>
@@ -65,7 +66,7 @@
                 </a-config-provider>
             </div>
 
-            <a-button ref="ref3" @click="emitShowRoleSet" class="base-style role-set-icon" v-if="ifComputer">
+            <a-button ref="step3" @click="emitShowRoleSet" class="base-style role-set-icon" v-if="ifComputer">
                 <a-icon
                     :style="{
                         width: '20px',
@@ -75,7 +76,6 @@
                         justifyContent: 'center'
                     }"
                 >
-                    <!-- <svg t="1709610574999" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="6922" width="30" height="30"><path d="M435.387733 610.184533l-55.825066-32.9728v-134.485333h55.825066z" p-id="6923"></path><path d="M511.505067 782.728533l-233.437867-134.485333V379.2896l233.437867-134.485333 233.437866 134.485333v268.9536zM331.349333 617.813333l180.155734 104.106667 180.155733-104.106667V409.736533l-180.155733-104.106666-180.155734 104.106666z" p-id="6924"></path><path d="M486.126933 513.774933h50.756267V752.298667h-50.756267z" p-id="6925"></path><path d="M498.824533 490.922667l208.059734-119.2448 25.378133 45.6704-208.059733 119.261866z" p-id="6926"></path><path d="M290.747733 416.068267l26.589867-46.08L523.946667 489.045333l-26.641067 46.199467zM580.010667 917.213867L554.666667 871.543467l304.469333-175.086934V361.5232h53.282133V711.68a26.624 26.624 0 0 1-12.680533 22.8352z m-137.0112 0l-319.709867-182.613334A26.641067 26.641067 0 0 1 110.592 711.68V361.5232H163.84v334.933333l304.5376 175.086934zM199.406933 300.629333L174.08 254.958933l324.795733-187.733333a23.005867 23.005867 0 0 1 25.378134 0l324.778666 187.733333-25.378133 45.6704-312.149333-180.155733z" p-id="6927"></path><path d="M884.514133 221.969067c-45.6704 0-83.746133 38.058667-83.746133 83.729066s38.075733 83.746133 83.746133 83.746134 83.729067-38.075733 83.729067-83.746134-38.058667-83.729067-83.729067-83.729066z m0 114.176c-17.7664 0-30.446933-12.680533-30.446933-30.446934s12.680533-30.446933 30.446933-30.446933 30.446933 12.680533 30.446934 30.446933S902.263467 336.213333 884.514133 336.213333z m-746.001066-114.176c-45.6704 0-83.746133 38.058667-83.746134 83.729066S92.842667 386.901333 138.513067 386.901333s83.729067-38.058667 83.729066-83.746133-38.058667-81.186133-83.729066-81.186133z m0 114.176c-17.7664 0-30.446933-12.680533-30.446934-30.446934s12.680533-30.446933 30.446934-30.446933S168.96 287.931733 168.96 305.698133 153.736533 336.213333 138.513067 336.213333z m372.992 461.806933c-45.6704 0-83.729067 38.058667-83.729067 83.746133s38.058667 83.729067 83.729067 83.729067 83.729067-38.058667 83.729066-83.729067-38.058667-83.746133-83.729066-83.746133z m0 114.193067c-17.749333 0-30.446933-12.680533-30.446934-30.446934 0-15.223467 12.6976-30.446933 30.446934-30.446933s30.446933 12.680533 30.446933 30.446933c0 15.223467-15.223467 30.446933-30.446933 30.446934z" p-id="6928"></path></svg> -->
                     <svg
                         t="1709611594182"
                         class="icon"
@@ -102,10 +102,9 @@
                             .map(key => `.${key}`)
                             .join(',')
                     "
-                    ref="ref4"
+                    ref="step4"
                     v-model:file-list="fileList"
                     name="file"
-                    list-type="picture"
                     :customRequest="customUpload"
                     :beforeUpload="beforeUpload"
                     :showUploadList="false"
@@ -134,14 +133,14 @@
                     autoSize
                     :type="'text'"
                     @keydown="keydownHandle"
-                    :placeholder="!iflogin ? '请先登录' : '剩余对话次数' + props.userInfo.chance.totalChatChance"
+                    :placeholder="!ifLogin ? '请先登录' : '剩余对话次数' + props.userInfo.chance.totalChatChance"
                     v-model:value="text"
                 ></a-textarea>
             </div>
 
             <a-config-provider :theme="{ token: { colorPrimary: ' rgb(17,20,24)' } }">
                 <a-dropdown-button
-                    ref="ref5"
+                    ref="step5"
                     @click="emitSendMessage"
                     type="primary"
                     :loading="generating"
@@ -187,6 +186,17 @@
             </a-config-provider>
         </div>
     </div>
+
+    <a-config-provider :locale="zhCN">
+        <a-tour
+            v-if="props.ifComputer"
+            v-model:current="curStep"
+            :open="leadOpen"
+            :steps="steps"
+            @close="emitCloseLead"
+            :arrow="false"
+        />
+    </a-config-provider>
 </template>
 <script setup lang="ts">
 import {
@@ -198,20 +208,24 @@ import {
 } from '@ant-design/icons-vue'
 import { fileSrcMap, fileError } from '@/common/iconSrcUrl'
 import type { ModelCascader, Option, UserInfo } from '@/types/interfaces'
-import type { MenuProps } from 'ant-design-vue'
+import type { MenuProps, TourProps } from 'ant-design-vue'
 import type { MenuInfo } from 'ant-design-vue/es/menu/src/interface'
+import { ref, type ComponentPublicInstance } from 'vue'
+import zhCN from 'ant-design-vue/es/locale/zh_CN'
 
 const props = defineProps<{
-    iflogin: boolean
+    ifLogin: boolean
     ifComputer: boolean
     generating: boolean
 
     options: Option[]
 
     userInfo: UserInfo
+
+    leadOpen: boolean
 }>()
 
-const emit = defineEmits(['show-history-drawer', 'show-role-set', 'send-message'])
+const emit = defineEmits<{ showHistoryDrawer: []; showRoleSet: []; sendMessage: []; closeLead: [] }>()
 
 const text = defineModel<string>('text', { required: true })
 const fileList = defineModel<any[]>('fileList', { required: true })
@@ -219,19 +233,67 @@ const commonModel = defineModel<ModelCascader>('commonModel', { required: true, 
 const isDragging = defineModel<boolean>('isDragging', { required: true })
 const outputType = defineModel<string>('outputType', { required: true })
 
+const curStep = ref(0)
+const step1 = ref<ComponentPublicInstance | null>(null)
+const step2 = ref<ComponentPublicInstance | null>(null)
+const step3 = ref<ComponentPublicInstance | null>(null)
+const step4 = ref<ComponentPublicInstance | null>(null)
+const step5 = ref<ComponentPublicInstance | null>(null)
+
+const steps: TourProps['steps'] = [
+    {
+        title: '历史对话',
+        placement: 'top',
+        description: '点击此处查看历史对话',
+        target: () => step1.value && step1.value.$el
+    },
+    {
+        title: '模型选择',
+        placement: 'top',
+        description: '点击此处选择您需要的模型',
+        target: () => step2.value && step2.value.$el
+    },
+    {
+        title: '预设开场白',
+        placement: 'top',
+        description: '点击此处可以预设场景与开场白',
+        target: () => step3.value && step3.value.$el
+    },
+    {
+        title: '文件上传',
+        placement: 'top',
+        description: '点击此处上传您要分析的文件',
+        target: () => step4.value && step4.value.$el
+    },
+    {
+        title: '选择对话模式',
+        description: '按钮右侧图标可选择对话模式，默认为智能融合',
+        placement: 'top',
+        target: () => step5.value && step5.value.$el
+    },
+    {
+        title: '文件上传',
+        placement: 'right',
+        description: '您可以直接将文件拖入到页面中',
+        target: () => null
+    }
+]
+
 function emitShowHistoryDrawer() {
-    emit('show-history-drawer')
+    emit('showHistoryDrawer')
 }
 
 function emitShowRoleSet() {
-    emit('show-role-set')
+    emit('showRoleSet')
 }
 
 function emitSendMessage() {
-    emit('send-message')
+    emit('sendMessage')
 }
 
-//
+function emitCloseLead() {
+    emit('closeLead')
+}
 
 function keydownHandle(event: KeyboardEvent) {
     if (event.key === 'Enter') {
@@ -261,6 +323,7 @@ function customUpload(options: any) {
 }
 
 function beforeUpload(file: any) {
+    console.log(fileList.value)
     fileList.value.push(file)
     isDragging.value = false
 

@@ -31,7 +31,3 @@ export const fileSrcMap: FileSrcMap = {
     webp: null
 }
 export const fileError: string = 'https://openai-1259183477.cos.ap-shanghai.myqcloud.com/file-unknown-fill(1).png'
-
-export const upLoadItems: string = Object.keys(fileSrcMap)
-    .map(key => `.${key}`)
-    .join(',')
