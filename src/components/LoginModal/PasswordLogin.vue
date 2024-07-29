@@ -25,18 +25,29 @@
 import { onMounted, ref } from 'vue'
 import { message } from 'ant-design-vue'
 import type { PasswordForm } from '@/types/interfaces'
-//  import { PasswordForm } from '@/types/interfaces'
 
-const captchaObj: any = ref({}) // the captchaObj is like a symbol of the captcha
+const emit = defineEmits(['after-click-password-login'])
 
 const passwordForm = defineModel<PasswordForm>({ required: true })
 
-const emits = defineEmits(['after-click-password-login'])
+const captchaObj = ref<any>({}) // the captchaObj is like a symbol of the captcha
+
+async function emitAfterVertifySuccess() {
+    emit('after-click-password-login')
+}
 
 function isPhoneRight(phoneNumer: string) {
     // this regex can vertify the phoneNumber
     const regex = /^1[3456789]\d{9}$/
     return regex.test(phoneNumer)
+}
+
+function lastCheckPhone() {
+    if (isPhoneRight(passwordForm.value.phone)) {
+        captchaObj.value.showCaptcha()
+    } else {
+        message.error('手机号格式错误')
+    }
 }
 
 // here used some confusing methods
@@ -54,24 +65,12 @@ onMounted(async () => {
                 captcha.appendTo('#captcha') // use  .appendTo to load the captcha to the <div id="captcha"/>
                 captchaObj.value = captcha
                 captcha.onSuccess(async () => {
-                    afterVertifySuccess()
+                    emitAfterVertifySuccess()
                 })
             }
         )
     }
 })
-
-async function afterVertifySuccess() {
-    emits('after-click-password-login')
-}
-
-function lastCheckPhone() {
-    if (isPhoneRight(passwordForm.value.phone)) {
-        captchaObj.value.showCaptcha()
-    } else {
-        message.error('手机号格式错误')
-    }
-}
 </script>
 
 <style lang="scss" scoped>

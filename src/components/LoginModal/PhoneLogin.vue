@@ -34,16 +34,16 @@ import { message } from 'ant-design-vue'
 import { http } from '@/common/request'
 import type { PhoneForm } from '@/types/interfaces'
 
-// this ref will also be used in how many seconds left in sending vertifyCode
-const vertifyBtnText = ref('获取验证码')
-const forbidSend = ref(false)
-const leftSeconds = ref(0)
-// the captchaObj is like a symbol of the captcha
-const captchaObj: any = ref({})
+const emit = defineEmits(['after-click-phone-login'])
 
 const phoneForm = defineModel<PhoneForm>({ required: true })
 
-const emits = defineEmits(['after-click-phone-login'])
+// this ref will also be used in how many seconds left in sending vertifyCode
+const vertifyBtnText = ref<string>('获取验证码')
+const forbidSend = ref<boolean>(false)
+const leftSeconds = ref<number>(0)
+// the captchaObj is like a symbol of the captcha
+const captchaObj = ref<any>({})
 
 function isPhoneRight(phoneNumer: string) {
     // this regex can vertify the phoneNumber
@@ -58,29 +58,6 @@ function getVertifyCode() {
         message.error('手机号格式错误')
     }
 }
-
-// here used some confusing methods
-onMounted(async () => {
-    let script = document.createElement('script')
-    script.src = 'https://static.geetest.com/v4/gt4.js'
-    document.body.appendChild(script)
-    script.onload = () => {
-        ;(window as any).initGeetest4(
-            {
-                captchaId: 'b0a78ab0191bd4361905eba5b2209be5',
-                product: 'bind'
-            },
-            (captcha: any) => {
-                captcha.appendTo('#captcha') // use  .appendTo to load the captcha to the <div id="captcha"/>
-                captchaObj.value = captcha
-                captcha.onSuccess(async () => {
-                    let result = await captcha.getValidate()
-                    afterVertifySuccess(result)
-                })
-            }
-        )
-    }
-})
 
 async function afterVertifySuccess(result: any) {
     const header: { [key: string]: any } = {}
@@ -125,11 +102,34 @@ function countLeftSeconds() {
 
 function lastCheckPhone() {
     if (isPhoneRight(phoneForm.value.phone)) {
-        emits('after-click-phone-login')
+        emit('after-click-phone-login')
     } else {
         message.error('手机号格式错误')
     }
 }
+
+// here used some confusing methods
+onMounted(async () => {
+    let script = document.createElement('script')
+    script.src = 'https://static.geetest.com/v4/gt4.js'
+    document.body.appendChild(script)
+    script.onload = () => {
+        ;(window as any).initGeetest4(
+            {
+                captchaId: 'b0a78ab0191bd4361905eba5b2209be5',
+                product: 'bind'
+            },
+            (captcha: any) => {
+                captcha.appendTo('#captcha') // use  .appendTo to load the captcha to the <div id="captcha"/>
+                captchaObj.value = captcha
+                captcha.onSuccess(async () => {
+                    let result = await captcha.getValidate()
+                    afterVertifySuccess(result)
+                })
+            }
+        )
+    }
+})
 </script>
 
 <style lang="scss" scoped>

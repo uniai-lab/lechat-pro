@@ -16,8 +16,7 @@
                 :user-info="userInfo"
                 :if-login="ifLogin"
                 @show-personal-drawer="emitShowPersonalDrawer"
-                @log-out="emitLogOut"
-                @switch-modal-open="switchChargeModalVisible"
+                @logout="emitLogout"
             ></TopPop>
 
             <a-button v-if="props.ifLogin && props.ifComputer" class="charge-btn" @click.stop="emitShowChargeModal">
@@ -35,7 +34,6 @@
 import type { UserInfo } from '@/types/interfaces'
 import { WalletOutlined } from '@ant-design/icons-vue'
 import TopPop from './TopPop.vue'
-import { ref } from 'vue'
 
 const props = defineProps<{
     userInfo: UserInfo
@@ -45,9 +43,6 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{ showPersonalDrawer: []; showChargeModal: []; logout: [] }>()
-
-const isTopModalOpen = ref<boolean>(false)
-
 function emitShowPersonalDrawer() {
     emit('showPersonalDrawer')
 }
@@ -56,12 +51,8 @@ function emitShowChargeModal() {
     emit('showChargeModal')
 }
 
-function emitLogOut() {
+function emitLogout() {
     emit('logout')
-}
-
-function switchChargeModalVisible() {
-    isTopModalOpen.value = !isTopModalOpen.value
 }
 
 // this is not used because the time received is wrong

@@ -68,7 +68,7 @@ import { PlusOutlined, LoadingOutlined } from '@ant-design/icons-vue'
 import type { FileInfo, FileItem, PersonalInfoForm } from '@/types/interfaces'
 
 const props = defineProps(['personalDrawerVisible', 'savePersonalInfoClock'])
-const emits = defineEmits(['close-personal-drawer', 'save-personal-info'])
+const emit = defineEmits(['close-personal-drawer', 'save-personal-info'])
 
 const personalInfoForm = defineModel<PersonalInfoForm>('personalInfoForm', { required: true })
 const imageUrl = defineModel<string>('imageUrl', { required: true })
@@ -78,11 +78,11 @@ const avatarLoading = ref<boolean>(false)
 const formRule = { name: [{ required: false, message: '请输入用户名' }] }
 
 function emitClosePersonalDrawer() {
-    emits('close-personal-drawer')
+    emit('close-personal-drawer')
 }
 
 function emitSavePersonalInfo() {
-    emits('save-personal-info')
+    emit('save-personal-info')
 }
 
 function forbidDefaultUpload() {}

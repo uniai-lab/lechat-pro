@@ -9,7 +9,7 @@
             @file-close="handlefileClose"
         ></FilePreview>
 
-        <a-spin v-if="props.linkBack" class="link-spin" tip="正在连接服务器..." />
+        <a-spin v-if="props.isLinking" class="link-spin" tip="正在连接服务器..." />
 
         <div class="chat" v-for="(item, index) in aChat.slice().reverse()" :key="index">
             <ChatTopBar :item="item" :index="index" :generating="generating" />
@@ -34,7 +34,7 @@
             </div>
         </div>
 
-        <SendingAnimation :up-sending="upSending"></SendingAnimation>
+        <SendingAnimation :up-sending="upLoading"></SendingAnimation>
     </div>
 
     <StopChatingBtn :generating="generating" @stop-chating="stopChating"></StopChatingBtn>
@@ -54,9 +54,9 @@ import ChatFile from './ChatElements/ChatFile.vue'
 import ChatTopBar from './ChatTopBar/ChatTopBar.vue'
 import LoadingAnimation from '../LoadingAnimation.vue'
 
-const props = defineProps<{ linkBack: boolean }>()
+const props = defineProps<{ isLinking: boolean }>()
 
-const upSending = defineModel<boolean>('upSending', { required: true })
+const upLoading = defineModel<boolean>('upLoading', { required: true })
 const aChat = defineModel<Chat[]>('aChat', { required: true })
 const generating = defineModel<boolean>('generating', { required: true })
 const couldContinue = defineModel<boolean>('couldContinue', { required: true })

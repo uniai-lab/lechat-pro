@@ -18,7 +18,7 @@
                         <label class="pop-btn">修改信息</label>
                         <EditOutlined></EditOutlined>
                     </div>
-                    <div @click.stop="emitLogOut" class="pop-btn-red">
+                    <div @click.stop="emitLogout" class="pop-btn-red">
                         <label class="pop-btn">退出登录</label>
                         <LogoutOutlined></LogoutOutlined>
                     </div>
@@ -54,14 +54,14 @@ const props = defineProps<{
     userInfo: UserInfo
     ifLogin: boolean
 }>()
-const emit = defineEmits(['show-personal-drawer', 'log-out', 'switch-modal-open'])
+const emit = defineEmits<{ showPersonalDrawer: []; logout: [] }>()
 
 function emitShowPersonalDrawer() {
-    emit('show-personal-drawer')
+    emit('showPersonalDrawer')
 }
 
-function emitLogOut() {
-    emit('log-out')
+function emitLogout() {
+    emit('logout')
 }
 </script>
 

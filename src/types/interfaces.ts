@@ -1,7 +1,7 @@
 /** @format */
 
-// Global form
-export interface FormState {
+// roleSet form
+export interface RoleSetForm {
     name: string
     delivery: boolean
     type: string[]
@@ -116,7 +116,7 @@ export interface BtnTips {
 }
 
 export interface Option {
-    value: string | number //得到的
+    value: string | number | null //得到的
     label: string //看到的
     disabled?: boolean
     children?: Option[]

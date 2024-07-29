@@ -22,7 +22,7 @@
                         </a-radio-button>
                     </a-radio-group>
 
-                    <div class="close" @click="hideModal">
+                    <div class="close" @click="emitHideModal">
                         <CloseCircleOutlined />
                     </div>
                 </div>
@@ -80,17 +80,12 @@ const passwordForm = ref<PasswordForm>({
 
 const emit = defineEmits(['hideModal', 'customEvent'])
 
-onBeforeMount(async () => {
-    startGlobalPollingTimer.value = pollingRequestQRcode()
-})
-
-function changeLoginMehod(changedMethod: 'phone' | 'qrcode' | 'password') {
-    curLoginMethod.value = changedMethod
-}
-
-function hideModal() {
+function emitHideModal() {
     startGlobalPollingTimer.value(true)
     emit('hideModal')
+}
+function changeLoginMehod(changedMethod: 'phone' | 'qrcode' | 'password') {
+    curLoginMethod.value = changedMethod
 }
 
 async function phoneSubmit() {
@@ -111,7 +106,7 @@ async function phoneSubmit() {
             localStorage.setItem('token', res.data.token)
             localStorage.setItem('id', res.data.id)
             emit('customEvent', '参数1', '参数2')
-            hideModal()
+            emitHideModal()
         } else {
             message.error(res.msg)
         }
@@ -141,7 +136,7 @@ async function passwordSubmit() {
             localStorage.setItem('token', res.data.token)
             localStorage.setItem('id', res.data.id)
             emit('customEvent', '参数1', '参数2')
-            hideModal()
+            emitHideModal()
         } else if (res.status == 0) {
             message.error('密码错误')
         } else {
@@ -182,7 +177,7 @@ function pollingRequestQRcode() {
 
                             emit('customEvent', undefined, '参数2')
 
-                            hideModal()
+                            emitHideModal()
 
                             clearInterval(timer)
                             timer = 0
@@ -199,6 +194,10 @@ function pollingRequestQRcode() {
         }
     }
 }
+
+onBeforeMount(async () => {
+    startGlobalPollingTimer.value = pollingRequestQRcode()
+})
 </script>
 
 <style scoped lang="scss">

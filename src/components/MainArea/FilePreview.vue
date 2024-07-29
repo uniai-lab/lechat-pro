@@ -16,12 +16,12 @@
 import { onBeforeUnmount, onMounted, ref } from 'vue'
 
 const props = defineProps<{ isFilePreviewOpen: boolean; officeName: string; officeViewerUrl: string }>()
-const emits = defineEmits<{ fileClose: [] }>()
+const emit = defineEmits<{ fileClose: [] }>()
 
 const modalWidth = ref<string>('80%')
 
 const emitHandlefileClose = () => {
-    emits('fileClose')
+    emit('fileClose')
 }
 
 function updateModalWidth() {

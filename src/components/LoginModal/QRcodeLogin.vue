@@ -30,14 +30,10 @@ import { http } from '@/common/request'
 
 const qrcodeToken = defineModel<string>('qrcodeToken', { required: true })
 const startGlobalPollingTimer = defineModel<Function>('startGlobalPollingTimer', { required: true })
+
 const qrcodeStatus = ref<'active' | 'loading' | 'expired'>('active')
 const qrcodeSource = ref<string>('')
-let refreshQRcode: NodeJS.Timeout
-
-onMounted(async () => {
-    await qrcodeRefresh()
-})
-
+const refreshQrcode = ref<NodeJS.Timeout>()
 const forbidSend = ref<boolean>(false)
 
 async function getQrcode() {
@@ -59,8 +55,8 @@ async function getQrcode() {
             console.log(error)
         } finally {
             forbidSend.value = false
-            clearTimeout(refreshQRcode)
-            refreshQRcode = setTimeout(() => {
+            clearTimeout(refreshQrcode.value)
+            refreshQrcode.value = setTimeout(() => {
                 qrcodeStatus.value = 'expired'
                 startGlobalPollingTimer.value(true)
             }, 45000)
@@ -72,6 +68,10 @@ async function qrcodeRefresh() {
     qrcodeStatus.value = 'loading'
     await getQrcode()
 }
+
+onMounted(async () => {
+    await qrcodeRefresh()
+})
 </script>
 
 <style lang="scss" scoped>

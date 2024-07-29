@@ -48,7 +48,7 @@
                 <a-config-provider :theme="{ token: { colorPrimary: ' rgb(64, 70, 79)' } }">
                     <a-cascader
                         class="pc-choose-mod"
-                        :value="commonModel"
+                        :value="choseModel"
                         :allowClear="false"
                         :options="props.options"
                         @change="modelChange"
@@ -60,7 +60,7 @@
             <!-- mobile -->
             <div v-if="!ifComputer" style="margin-left: 1px" class="base-style mobile">
                 <a-config-provider :theme="{ token: { colorPrimary: ' rgb(64, 70, 79)' } }">
-                    <a-cascader :value="commonModel" :options="props.options" @change="modelChange">
+                    <a-cascader :value="choseModel" :options="props.options" @change="modelChange">
                         <CodeSandboxOutlined :style="{ fontSize: '18px', padding: '6px 0px' }" />
                     </a-cascader>
                 </a-config-provider>
@@ -229,11 +229,11 @@ const emit = defineEmits<{ showHistoryDrawer: []; showRoleSet: []; sendMessage: 
 
 const text = defineModel<string>('text', { required: true })
 const fileList = defineModel<any[]>('fileList', { required: true })
-const commonModel = defineModel<ModelCascader>('commonModel', { required: true, default: ['选择模型', '智能选择模型'] })
+const choseModel = defineModel<ModelCascader>('choseModel', { required: true, default: ['选择模型', '智能选择模型'] })
 const isDragging = defineModel<boolean>('isDragging', { required: true })
 const outputType = defineModel<string>('outputType', { required: true })
 
-const curStep = ref(0)
+const curStep = ref<number>(0)
 const step1 = ref<ComponentPublicInstance | null>(null)
 const step2 = ref<ComponentPublicInstance | null>(null)
 const step3 = ref<ComponentPublicInstance | null>(null)
@@ -331,7 +331,7 @@ function beforeUpload(file: any) {
 }
 
 function modelChange(currentModel: ModelCascader) {
-    commonModel.value = currentModel
+    choseModel.value = currentModel
 }
 const handleOutputTypeClick: MenuProps['onClick'] = (e: MenuInfo) => {
     outputType.value = e.key.toString()

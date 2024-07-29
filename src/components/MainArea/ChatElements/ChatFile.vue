@@ -4,21 +4,21 @@
     <div
         v-if="props.item.file && !props.item.file.ext.match('image.*')"
         style="cursor: pointer"
-        class="filebox mb-2 mt-3"
+        class="file-box mb-2 mt-3"
         @click="openFile(props.item.file.url, props.item.file.name, props.item.file.ext)"
     >
-        <div class="fileitem py-2 max-w-60 px-3">
+        <div class="file-item py-2 max-w-60 px-3">
             <a-spin :spinning="props.item.file.type == 'sending'" tip="解析中...">
-                <div class="fileitembox">
-                    <div class="flileimg">
+                <div class="file-item-box">
+                    <div class="flile-img">
                         <img
                             style="width: 40px"
                             :src="fileSrcMap[props.item.file.ext as keyof typeof fileSrcMap] || fileError"
                             alt="fileIcon"
                         />
                     </div>
-                    <div class="fileinfo ml-2">
-                        <div class="filename text-gray-900">
+                    <div class="file-info ml-2">
+                        <div class="file-name text-gray-900">
                             {{ props.item.file.name }}
                         </div>
 
@@ -29,10 +29,10 @@
                             内容解析失败
                         </div>
                         <div v-else>
-                            <div class="filemsg text-gray-500">
+                            <div class="file-msg text-gray-500">
                                 {{ props.item.file.ext }}
                             </div>
-                            <div class="filesize text-gray-500">
+                            <div class="file-size text-gray-500">
                                 {{ convertBytesToBestUnit(props.item.file.size) }}
                             </div>
                         </div>
@@ -47,6 +47,7 @@ import type { Chat } from '@/types/interfaces'
 import { fileSrcMap, fileError } from '@/common/iconSrcUrl'
 
 const props = defineProps<{ item: Chat }>()
+
 const isFilePreviewOpen = defineModel<boolean>('isFilePreviewOpen', { required: true })
 const officeViewerUrl = defineModel<string>('officeViewerUrl', { required: true })
 const officeName = defineModel<string>('officeName', { required: true })
@@ -75,3 +76,54 @@ function convertBytesToBestUnit(sizeInBytes: number): string {
     return `${value.toFixed(2)} ${units[factor]}`
 }
 </script>
+
+<style lang="scss" scoped>
+.file-box {
+    display: flex;
+    flex-direction: column;
+
+    .file-item {
+        border-radius: 8px;
+        display: flex;
+        flex-direction: row;
+        margin-left: 20px;
+        /* background-color: #207fa122; */
+        box-shadow: 0px 0px 16px 0px rgba(0, 0, 0, 0.15);
+
+        .file-item-box {
+            display: flex;
+            flex-direction: row;
+
+            .flile-img {
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+            }
+
+            .file-info {
+                display: flex;
+                flex-direction: column;
+
+                /* margin-left: 20px; */
+
+                .file-name {
+                    width: 170px;
+                    font-size: 12px;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    /* color: ; */
+                }
+
+                .file-msg {
+                    font-size: 11px;
+                }
+
+                .file-size {
+                    font-size: 11px;
+                }
+            }
+        }
+    }
+}
+</style>

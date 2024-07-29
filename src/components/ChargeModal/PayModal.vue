@@ -76,12 +76,13 @@ const props = defineProps<{
     isPayResultOpen: boolean
     lastTransactionId: string
 }>()
-const emits = defineEmits<{ chargeOk: [] }>()
+const emit = defineEmits<{ chargeOk: [] }>()
+
 const shopQRcode = defineModel<string>('shopQrcode', { required: true })
 const isPayModalOpen = defineModel<boolean>('isPayModalOpen', { required: true })
 
 function emitChargeOk() {
-    emits('chargeOk')
+    emit('chargeOk')
 }
 </script>
 
