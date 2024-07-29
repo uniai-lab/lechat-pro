@@ -24,7 +24,7 @@ function renderEchartsIfNeeded(content: string) {
     if (match) {
         const json = match[1]
         const jsonData = eval(`(()=>(${json}))()`)
-        console.log(jsonData)
+
         content = content.replace(match[0], '')
         return {
             content,

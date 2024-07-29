@@ -107,7 +107,6 @@
             v-model:a-chat="aChat"
             v-model:generating="generating"
             v-model:could-continue="couldContinue"
-            ref="chatListDom"
         ></MainArea>
 
         <!-- 底栏 -->
@@ -132,7 +131,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, type ComponentPublicInstance } from 'vue'
 import { EventSourceParserStream } from 'eventsource-parser/stream'
 import { message } from 'ant-design-vue'
 import 'md-editor-v3/lib/preview.css'
@@ -365,7 +364,7 @@ function closePersonalDrawer() {
     personalDrawerVisible.value = false
 }
 async function savePersonalInfo() {
-    let changeImageUrl = null
+    let changeImageUrl: null | string = null
 
     if (!savePersonalInfoClock.value) {
         if (avatarUrl.value.slice(0, 4) == 'http') {
@@ -404,7 +403,7 @@ async function savePersonalInfo() {
 
 // history dialogue
 const isHistoryDrawerOpen = ref<boolean>(false)
-const historyDialogue = ref<any>([])
+const historyDialogue = ref<any[]>([])
 const dialogueId = ref<number>(0)
 const dialogueIndex = ref<number>(0)
 const newDialogueClock = ref<boolean>(false)
@@ -446,7 +445,7 @@ async function getHistoryDialogueList(lastId: number = 0, pageSize: number = 10,
 }
 async function onDialogueLoadMore() {
     let lastdialgid = historyDialogue.value[historyDialogue.value.length - 1].id
-    let data = await getHistoryDialogueList(lastdialgid, 10)
+    let data: any = await getHistoryDialogueList(lastdialgid, 10)
     if (data.length != 0) {
         historyDialogue.value = [...historyDialogue.value, ...data]
     } else {
@@ -482,7 +481,7 @@ async function toLatestDialogue(id: number, index: number) {
     try {
         aChat.value = []
 
-        const data = await getChatList(0, 10, id)
+        const data: any = await getChatList(0, 10, id)
 
         if (data.length === 0) {
             aChat.value = [
@@ -839,7 +838,7 @@ async function sendMessage() {
                 await getChatStream(input)
                 await getUserInfo()
             }
-            const qes = await getHistoryDialogueList(0, 10, dialogueId.value)
+            const qes: any = await getHistoryDialogueList(0, 10, dialogueId.value)
 
             // cover chat
             if (qes.length > 0) historyDialogue.value[dialogueIndex.value] = qes[0]
@@ -872,7 +871,7 @@ async function sendMessage() {
             await getChatStream(input)
             await getUserInfo()
 
-            const qes = await getHistoryDialogueList(0, 10, dialogueId.value)
+            const qes: any = await getHistoryDialogueList(0, 10, dialogueId.value)
 
             if (qes.length > 0) historyDialogue.value[dialogueIndex.value] = qes[0]
         }
@@ -886,7 +885,7 @@ async function sendMessage() {
 
 // chat and main area
 const isLinking = ref<boolean>(true)
-const chatListDom = ref<HTMLElement>()
+const chatListDom = ref<HTMLElement | null>(null)
 const aChat = ref<Chat[]>([])
 const allFinished = ref<boolean>(false)
 const couldContinue = ref<boolean>(true)

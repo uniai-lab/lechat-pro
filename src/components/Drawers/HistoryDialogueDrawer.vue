@@ -18,7 +18,7 @@
                             @click.stop="emitDelDialog(item.id)"
                             key="list-loadmore-more"
                         >
-                            <DeleteOutlined />
+                            <delete-outlined />
                         </div>
                     </template>
                     <a-list-item-meta :description="convertTimestamp(item.updatedAt)">
@@ -48,37 +48,42 @@
 <script lang="ts" setup>
 import { DeleteOutlined, PlusCircleOutlined } from '@ant-design/icons-vue'
 import type { DrawerProps } from 'ant-design-vue'
-import { anyType } from 'ant-design-vue/es/_util/type'
 import { ref, h } from 'vue'
 
-const props = defineProps({
-    open: Boolean,
-    ifLogin: Boolean,
+const props = defineProps<{
+    open: Boolean
+    ifLogin: Boolean
 
-    historyChat: anyType
-})
+    historyChat: any[]
+}>()
 
-const emit = defineEmits(['dialog-more', 'new-dialog', 'on-Close', 'to-dialog', 'del-dialog'])
+const emit = defineEmits<{
+    dialogMore: []
+    newDialog: []
+    onClose: []
+    toDialog: [number, number]
+    deldialog: [number]
+}>()
 
 const historyDrawerPlace = ref<DrawerProps['placement']>('left')
 const emitOnClose = () => {
-    emit('on-Close')
+    emit('onClose')
 }
 
 const emitDialogMore = () => {
-    emit('dialog-more')
+    emit('dialogMore')
 }
 
 const emitNewDailog = () => {
-    emit('new-dialog')
+    emit('newDialog')
 }
 
-const emitToDialog = (event: DragEvent, index: number) => {
-    emit('to-dialog', event, index)
+const emitToDialog = (id: number, index: number) => {
+    emit('toDialog', id, index)
 }
 
-const emitDelDialog = (DragEvent: any) => {
-    emit('del-dialog', DragEvent)
+const emitDelDialog = (id: number) => {
+    emit('deldialog', id)
 }
 
 function convertTimestamp(isoString: number | string | Date) {

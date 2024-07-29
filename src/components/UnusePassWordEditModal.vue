@@ -4,7 +4,7 @@
     <a-modal
         v-model:open="props.isPasswordEditModalOpen"
         :footer="null"
-        destroyOnClose="true"
+        :destroyOnClose="true"
         title="修改密码"
         @ok="emitClose"
     >

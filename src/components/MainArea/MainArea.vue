@@ -1,7 +1,7 @@
 <!-- @format -->
 
 <template>
-    <div class="main-area">
+    <div class="main-area" ref="chatListDom">
         <FilePreview
             v-model:is-file-preview-open="isFilePreviewOpen"
             v-model:office-name="officeName"

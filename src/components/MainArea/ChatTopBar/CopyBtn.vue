@@ -2,13 +2,13 @@
 
 <template>
     <div class="copy-btn" @click="copyToClipboard()">
-        <CopyOutlined class="btn-icon" v-show="btnStatus === 'default'" />
+        <copy-outlined class="btn-icon" v-show="btnStatus === 'default'" />
 
-        <LoadingOutlined class="btn-icon" v-show="btnStatus === 'loading'" spin />
+        <loading-outlined class="btn-icon" v-show="btnStatus === 'loading'" spin />
 
-        <CheckCircleOutlined class="btn-icon" v-show="btnStatus === 'success'" />
+        <check-circle-outlined class="btn-icon" v-show="btnStatus === 'success'" />
 
-        <CloseCircleOutlined class="btn-icon" v-show="btnStatus === 'error'" />
+        <close-circle-outlined class="btn-icon" v-show="btnStatus === 'error'" />
 
         <span>{{ btnTips[btnStatus as keyof typeof btnTips] }}</span>
     </div>

@@ -12,18 +12,18 @@
                         @change="changeLoginMehod(curLoginMethod)"
                     >
                         <a-radio-button value="phone">
-                            <MobileOutlined />
+                            <mobile-outlined />
                         </a-radio-button>
                         <a-radio-button value="qrcode">
-                            <QrcodeOutlined />
+                            <qrcode-outlined />
                         </a-radio-button>
                         <a-radio-button value="password">
-                            <KeyOutlined />
+                            <key-outlined />
                         </a-radio-button>
                     </a-radio-group>
 
                     <div class="close" @click="emitHideModal">
-                        <CloseCircleOutlined />
+                        <close-circle-outlined />
                     </div>
                 </div>
 
@@ -151,7 +151,7 @@ async function passwordSubmit() {
 }
 
 function pollingRequestQRcode() {
-    let timer: number | NodeJS.Timeout = 0
+    let timer: number = 0
 
     return function (close = false) {
         if (close) {

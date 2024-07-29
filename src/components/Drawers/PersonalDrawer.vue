@@ -24,8 +24,8 @@
                             >
                                 <img class="avatar" v-if="imageUrl" :src="imageUrl" alt="avatar" />
                                 <div v-if="!imageUrl">
-                                    <LoadingOutlined v-if="avatarLoading"></LoadingOutlined>
-                                    <PlusOutlined v-if="!avatarLoading"></PlusOutlined>
+                                    <loading-outlined v-if="avatarLoading" />
+                                    <plus-outlined v-if="!avatarLoading" />
                                     <div>上传</div>
                                 </div>
                             </a-upload>

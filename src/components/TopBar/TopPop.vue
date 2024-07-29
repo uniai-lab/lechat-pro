@@ -16,11 +16,11 @@
                 <template #actions>
                     <div @click="emitShowPersonalDrawer">
                         <label class="pop-btn">修改信息</label>
-                        <EditOutlined></EditOutlined>
+                        <edit-outlined></edit-outlined>
                     </div>
                     <div @click.stop="emitLogout" class="pop-btn-red">
                         <label class="pop-btn">退出登录</label>
-                        <LogoutOutlined></LogoutOutlined>
+                        <logout-outlined></logout-outlined>
                     </div>
                 </template>
                 <a-card-meta

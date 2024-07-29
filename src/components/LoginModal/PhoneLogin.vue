@@ -84,7 +84,7 @@ async function afterVertifySuccess(result: any) {
 }
 
 function countLeftSeconds() {
-    let timer: number | NodeJS.Timeout = 0
+    let timer: number = 0
 
     // the original version of this function used closure
     // but later I found that with closure the text in btn will not change anymore

@@ -24,7 +24,7 @@
             </a-button>
 
             <div v-if="props.ifLogin && !props.ifComputer" class="charge-icon" @click.stop="emitShowChargeModal">
-                <WalletOutlined />
+                <wallet-outlined />
             </div>
         </div>
     </div>

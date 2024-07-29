@@ -33,7 +33,7 @@ const startGlobalPollingTimer = defineModel<Function>('startGlobalPollingTimer',
 
 const qrcodeStatus = ref<'active' | 'loading' | 'expired'>('active')
 const qrcodeSource = ref<string>('')
-const refreshQrcode = ref<NodeJS.Timeout>()
+const refreshQrcode = ref<number>()
 const forbidSend = ref<boolean>(false)
 
 async function getQrcode() {
