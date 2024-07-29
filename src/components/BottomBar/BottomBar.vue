@@ -325,6 +325,8 @@ function customUpload(options: any) {
 function beforeUpload(file: any) {
     console.log(fileList.value)
     fileList.value.push(file)
+    console.log(fileList)
+    console.log(fileList.value)
     isDragging.value = false
 
     return false // 返回false以阻止自动上传
