@@ -33,15 +33,13 @@ function renderEchartsIfNeeded(content: string) {
 
             content = content.replace(match[0], '')
 
-            echarts.init(null, null, jsonData)
-
             console.log(jsonData)
             return {
                 content,
                 chartData: jsonData
             }
         } catch (error) {
-            console.error('JSON  解析失败:', error)
+            console.error('JSON解析失败:', error)
 
             // 如果 JSON 解析失败，返回原 content
             return {
