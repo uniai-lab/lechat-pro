@@ -103,6 +103,7 @@
         <!-- 中心区域 -->
         <MainArea
             :isLinking="isLinking"
+            @time-to-refresh="refreshJudge"
             v-model:up-loading="upLoading"
             v-model:a-chat="aChat"
             v-model:generating="generating"
@@ -131,7 +132,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, type ComponentPublicInstance } from 'vue'
+import { ref, onMounted } from 'vue'
 import { EventSourceParserStream } from 'eventsource-parser/stream'
 import { message } from 'ant-design-vue'
 import 'md-editor-v3/lib/preview.css'
@@ -177,6 +178,12 @@ function printLogo() {
         "font-family: '微软雅黑';color: #9C27B0;font-size: 12px;",
         'color: red;font-size: 14px;'
     )
+}
+
+function refreshJudge(isTop: boolean) {
+    if (isTop && ifLogin.value && !refreshClock.value && !allFinished.value) {
+        refreshData()
+    }
 }
 
 // drag and drop
@@ -522,6 +529,7 @@ async function delDialogue(id: number) {
             console.log(res.msg)
 
             clearInfo()
+            refreshData()
         } else if (res.status == 1) {
             message.success('删除对话成功')
 
@@ -532,6 +540,8 @@ async function delDialogue(id: number) {
 
                 toLatestDialogue(dialogueId.value, 0)
             }
+
+            refreshData()
         } else {
             throw new Error(res.msg)
         }
@@ -1122,25 +1132,6 @@ onMounted(async () => {
                 subModel: choseModel.value[1]
             }
         ]
-    }
-
-    chatListDom.value?.scrollTo({
-        top: chatListDom.value.scrollHeight,
-        behavior: 'smooth' // 可选，使滚动平滑进行
-    })
-
-    if (chatListDom.value) {
-        chatListDom.value.addEventListener('scroll', () => {
-            //判断滚轮是否为上滑动
-
-            const ifScrollBottom =
-                (chatListDom.value?.scrollHeight ?? 0) + (chatListDom.value?.scrollTop ?? 0) <=
-                (chatListDom.value?.clientHeight ?? 0) + 2
-            if (ifScrollBottom && ifLogin.value && refreshClock.value === false && !allFinished.value) {
-                // 到达顶部
-                refreshData()
-            }
-        })
     }
 
     ifFirstLoad.value = false

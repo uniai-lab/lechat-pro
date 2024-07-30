@@ -40,10 +40,10 @@ function emitShowRoleSet() {
     margin-right: 0px;
 
     .btn-icon {
-        font-size: '20px';
-        display: 'flex';
-        flex-direction: 'row';
-        justify-content: 'center';
+        font-size: 20px;
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
     }
 }
 </style>

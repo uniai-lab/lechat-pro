@@ -11,8 +11,14 @@
 
         <a-spin v-if="props.isLinking" class="link-spin" tip="正在连接服务器..." />
 
-        <div class="chat" v-for="(item, index) in aChat.slice().reverse()" :key="index">
-            <ChatTopBar :item="item" :index="index" :generating="generating" />
+        <div
+            class="chat"
+            v-for="(item, index) in aChat.slice().reverse()"
+            :key="index"
+            @mouseenter="makeHovered(index)"
+            @mouseleave="cancleHovered"
+        >
+            <ChatTopBar :item="item" :index="index" :generating="generating" :hovered="currentHoverIndex === index" />
 
             <div>
                 <LoadingAnimation class="load-animation" v-if="!item.content && !item.file" />
@@ -42,7 +48,7 @@
 
 <script lang="ts" setup>
 import type { Chat } from '@/types/interfaces'
-import { ref } from 'vue'
+import { onMounted, onUnmounted, ref } from 'vue'
 
 import FilePreview from './FilePreview.vue'
 import SendingAnimation from './SendingAnimation.vue'
@@ -56,6 +62,8 @@ import LoadingAnimation from '../LoadingAnimation.vue'
 
 const props = defineProps<{ isLinking: boolean }>()
 
+const emit = defineEmits<{ timeToRefresh: [boolean] }>()
+
 const upLoading = defineModel<boolean>('upLoading', { required: true })
 const aChat = defineModel<Chat[]>('aChat', { required: true })
 const generating = defineModel<boolean>('generating', { required: true })
@@ -65,6 +73,22 @@ const isFilePreviewOpen = ref<boolean>(false)
 const officeName = ref<string>('')
 const officeViewerUrl = ref<string>('')
 
+const currentHoverIndex = ref<number>(-1)
+
+const chatListDom = ref<HTMLElement | null>(null)
+
+function emitTimeToRefresh(isTop: boolean) {
+    emit('timeToRefresh', isTop)
+}
+
+function makeHovered(index: number) {
+    currentHoverIndex.value = index
+}
+
+function cancleHovered() {
+    currentHoverIndex.value = -1
+}
+
 function handlefileClose() {
     isFilePreviewOpen.value = false
 }
@@ -72,6 +96,29 @@ function handlefileClose() {
 function stopChating() {
     couldContinue.value = false
 }
+
+function handelScroll() {
+    if (chatListDom.value) {
+        const isTop =
+            chatListDom.value?.scrollHeight - 2 <= -chatListDom.value?.scrollTop + chatListDom.value?.clientHeight
+        emitTimeToRefresh(isTop)
+    }
+}
+
+onMounted(() => {
+    chatListDom.value?.scrollTo({
+        top: chatListDom.value.scrollHeight,
+        behavior: 'smooth' // 可选，使滚动平滑进行
+    })
+
+    chatListDom.value?.addEventListener('scroll', handelScroll)
+})
+
+onUnmounted(() => {
+    if (chatListDom.value) {
+        chatListDom.value.removeEventListener('scroll', handelScroll)
+    }
+})
 </script>
 
 <style lang="scss" scoped>

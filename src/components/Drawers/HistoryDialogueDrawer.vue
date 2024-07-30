@@ -13,12 +13,8 @@
             <template #renderItem="{ item, index }">
                 <a-list-item class="dialogue-item" @click="emitToDialog(item.id, index)">
                     <template #actions>
-                        <div
-                            style="color: black; font-size: 16px"
-                            @click.stop="emitDelDialog(item.id)"
-                            key="list-loadmore-more"
-                        >
-                            <delete-outlined />
+                        <div style="color: black; font-size: 16px" key="list-loadmore-more">
+                            <delete-outlined @click.stop="emitDelDialog(item.id)" />
                         </div>
                     </template>
                     <a-list-item-meta :description="convertTimestamp(item.updatedAt)">
@@ -62,7 +58,7 @@ const emit = defineEmits<{
     newDialog: []
     onClose: []
     toDialog: [number, number]
-    deldialog: [number]
+    delDialog: [number]
 }>()
 
 const historyDrawerPlace = ref<DrawerProps['placement']>('left')
@@ -83,7 +79,7 @@ const emitToDialog = (id: number, index: number) => {
 }
 
 const emitDelDialog = (id: number) => {
-    emit('deldialog', id)
+    emit('delDialog', id)
 }
 
 function convertTimestamp(isoString: number | string | Date) {

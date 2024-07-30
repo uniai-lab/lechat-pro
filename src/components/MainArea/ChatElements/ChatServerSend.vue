@@ -13,6 +13,7 @@
 <script setup lang="ts">
 import { MdPreview } from 'md-editor-v3'
 import 'md-editor-v3/lib/preview.css'
+import * as echarts from 'echarts'
 
 const content = defineModel<string>({ required: true })
 
@@ -20,15 +21,32 @@ const content = defineModel<string>({ required: true })
 
 function renderEchartsIfNeeded(content: string) {
     const regex = /```echarts([\s\S]*?)```/
+
     let match = content.match(regex)
     if (match) {
         const json = match[1]
-        const jsonData = eval(`(()=>(${json}))()`)
 
-        content = content.replace(match[0], '')
-        return {
-            content,
-            chartData: jsonData
+        // const jsonData = eval(`(()=>(${json}))()`)
+
+        try {
+            const jsonData: echarts.EChartsInitOpts = JSON.parse(json)
+
+            content = content.replace(match[0], '')
+
+            echarts.init(null, null, jsonData)
+
+            console.log(jsonData)
+            return {
+                content,
+                chartData: jsonData
+            }
+        } catch (error) {
+            console.error('JSON  解析失败:', error)
+
+            // 如果 JSON 解析失败，返回原 content
+            return {
+                content
+            }
         }
     } else {
         return {
