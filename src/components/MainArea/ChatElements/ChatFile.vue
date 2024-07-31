@@ -4,10 +4,10 @@
     <div
         v-if="props.item.file && !props.item.file.ext.match('image.*')"
         style="cursor: pointer"
-        class="file-box mb-2 mt-3"
+        class="file-box"
         @click="openFile(props.item.file.url, props.item.file.name, props.item.file.ext)"
     >
-        <div class="file-item py-2 max-w-60 px-3">
+        <div class="file-item">
             <a-spin :spinning="props.item.file.type == 'sending'" tip="解析中...">
                 <div class="file-item-box">
                     <div class="flile-img">
@@ -17,8 +17,8 @@
                             alt="fileIcon"
                         />
                     </div>
-                    <div class="file-info ml-2">
-                        <div class="file-name text-gray-900">
+                    <div class="file-info">
+                        <div class="file-name">
                             {{ props.item.file.name }}
                         </div>
 
@@ -81,12 +81,16 @@ function convertBytesToBestUnit(sizeInBytes: number): string {
 .file-box {
     display: flex;
     flex-direction: column;
+    margin-bottom: 0.5rem;
+    margin-top: 0.75rem;
 
     .file-item {
         border-radius: 8px;
         display: flex;
         flex-direction: row;
         margin-left: 20px;
+        padding: 0.5rem 0.75rem;
+        max-width: 15rem;
         /* background-color: #207fa122; */
         box-shadow: 0px 0px 16px 0px rgba(0, 0, 0, 0.15);
 
@@ -103,6 +107,7 @@ function convertBytesToBestUnit(sizeInBytes: number): string {
             .file-info {
                 display: flex;
                 flex-direction: column;
+                margin-left: 0.5rem;
 
                 /* margin-left: 20px; */
 
@@ -112,14 +117,17 @@ function convertBytesToBestUnit(sizeInBytes: number): string {
                     white-space: nowrap;
                     overflow: hidden;
                     text-overflow: ellipsis;
+                    color: #1f2937;
                     /* color: ; */
                 }
 
                 .file-msg {
+                    color: #6b7280;
                     font-size: 11px;
                 }
 
                 .file-size {
+                    color: #6b7280;
                     font-size: 11px;
                 }
             }

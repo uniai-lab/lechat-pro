@@ -60,7 +60,6 @@
         :is-pay-result-open="isPayResultOpen"
         :last-transaction-id="lastTransactionId"
         @charge-ok="handchargecodeleOk"
-        @test="afterPaySucces"
         v-model:shop-qrcode="shopQRcode"
         v-model:is-pay-modal-open="isPayModalOpen"
     >
@@ -140,6 +139,11 @@ function monitorPayment(paymentId: string) {
                 // paid and stop timer
                 clearInterval(intervalId)
                 await afterPaySucces()
+
+                isPayModalOpen.value = false
+                isPayResultOpen.value = false
+                isChargeOpen.value = false
+                isCostTableOpen.value = false
 
                 // here should be a async function but emits is not
                 emitGetUserInfo()
