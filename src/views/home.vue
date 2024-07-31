@@ -554,7 +554,7 @@ async function delDialogue(id: number) {
 // bottom
 const textInput = ref<string>('')
 const uploadFileList = ref<any[]>([])
-const choseModel = ref<ModelCascader>(['选择模型', '智能选择模型'])
+const choseModel = ref<ModelCascader>([null, null])
 const outputType = ref<string>('1')
 const options = ref<Option[]>([
     {

@@ -219,7 +219,7 @@ const emit = defineEmits<{ showHistoryDrawer: []; showRoleSet: []; sendMessage: 
 
 const text = defineModel<string>('text', { required: true })
 const fileList = defineModel<any[]>('fileList', { required: true })
-const choseModel = defineModel<ModelCascader>('choseModel', { required: true, default: ['选择模型', '智能选择模型'] })
+const choseModel = defineModel<ModelCascader>('choseModel', { required: true, default: [null, null] })
 const isDragging = defineModel<boolean>('isDragging', { required: true })
 const outputType = defineModel<string>('outputType', { required: true })
 

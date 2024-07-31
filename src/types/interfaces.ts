@@ -122,7 +122,7 @@ export interface Option {
     children?: Option[]
 }
 
-export type ModelCascader = [string, string]
+export type ModelCascader = [string | null, string | null]
 
 export interface PasswordFormState {
     pass: string
