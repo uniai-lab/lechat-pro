@@ -34,9 +34,9 @@
 
         <!-- 顶栏 -->
         <TopBar
-            :user-info="userInfo"
+            :user-info="user.info"
             :if-login="ifLogin"
-            :if-computer="isComputer"
+            :if-computer="isComputer.val"
             :switch-login-visible="switchLoginVisible"
             @show-personal-drawer="showPersonalDrawer"
             @show-charge-modal="showChargeModal"
@@ -59,7 +59,7 @@
         ></UnusePassWordEditModal>
 
         <!-- 角色扮演 -->
-        <RoleSetFloatBtn :is-computer="isComputer" @show-role-set="showRoleSet" />
+        <RoleSetFloatBtn :is-computer="isComputer.val" @show-role-set="showRoleSet" />
 
         <RoleSetModal
             :destroyOnClose="false"
@@ -71,7 +71,7 @@
 
         <!-- 充值模态框 -->
         <ChargeModal
-            :isComputer="isComputer"
+            :isComputer="isComputer.val"
             v-model="isChargeOpen"
             :shopList="shopList"
             @close-charge="closeChargeModal"
@@ -113,10 +113,10 @@
         <!-- 底栏 -->
         <BottomBar
             :if-login="ifLogin"
-            :if-computer="isComputer"
+            :if-computer="isComputer.val"
             :generating="generating"
             :options="options"
-            :user-info="userInfo"
+            :user-info="user.info"
             :lead-open="leadOpen"
             @show-history-drawer="showHistroyDrawer"
             @show-role-set="showRoleSet"
@@ -153,13 +153,18 @@ import commonContent from '@/common/commoncontent'
 import { http, sse, httppay } from '@/common/request.js'
 import { fileSrcMap } from '@/common/iconSrcUrl'
 
-import type { Chat, ModelCascader, Option, PersonalInfoForm, RoleSetForm, ShopList, UserInfo } from '@/types/interfaces'
+import type { Chat, ModelCascader, Option, PersonalInfoForm, RoleSetForm, ShopList } from '@/types/interfaces'
+
+import { useUserStore } from '@/stores/user'
+import { useComputerStore } from '@/stores/isComputer'
 
 //  settings
 const ifLogin = ref<boolean>(false)
-const isComputer = ref<boolean>(false)
 const ifFirstOpen = ref<boolean>(false)
 const ifFirstLoad = ref<boolean>(false)
+
+const isComputer = useComputerStore()
+
 const defaultConfig = ref()
 
 function printLogo() {
@@ -220,12 +225,7 @@ function beforeUpload(file: any) {
 }
 
 // userInfo
-const userInfo = ref<UserInfo>({
-    chance: { totalChatChance: 0, level: 0, levelExpiredAt: '' },
-    name: '',
-    phone: '',
-    avatar: ''
-})
+const user = useUserStore()
 
 async function clearInfo() {
     localStorage.clear()
@@ -254,7 +254,7 @@ async function getUserInfo() {
             return
         }
         if (res.status == 1) {
-            userInfo.value = res.data
+            user.info = res.data
             localStorage.setItem('userinfo', JSON.stringify(res.data))
             options.value = res.data.models
 
@@ -732,7 +732,6 @@ const options = ref<Option[]>([
         ]
     }
 ])
-
 async function sendMessage() {
     try {
         // check login
@@ -750,7 +749,7 @@ async function sendMessage() {
         if (!textInput.value.trim() && uploadFileList.value.length == 0) {
             return
         }
-        if (!userInfo.value.chance.totalChatChance) {
+        if (!user.info.chance.totalChatChance) {
             return () => {
                 message.error('您的次数已用尽')
                 message.info('请点击右上角充值按钮进行充值')
@@ -788,7 +787,7 @@ async function sendMessage() {
 
                 const aindex = aChat.value.push({
                     chatId: 0,
-                    avatar: userInfo.value.avatar || defaultConfig.value.DEFAULT_AVATAR_USER,
+                    avatar: user.info.avatar || defaultConfig.value.DEFAULT_AVATAR_USER,
                     content: '',
                     role: 'user',
                     dialogId: dialogueId.value,
@@ -820,7 +819,7 @@ async function sendMessage() {
             if (input) {
                 // user
                 aChat.value.push({
-                    avatar: userInfo.value.avatar || defaultConfig.value.DEFAULT_AVATAR_USER,
+                    avatar: user.info.avatar || defaultConfig.value.DEFAULT_AVATAR_USER,
                     content: input,
                     role: 'user',
                     dialogId: dialogueId.value,
@@ -832,7 +831,7 @@ async function sendMessage() {
                 })
                 // model
                 aChat.value.push({
-                    avatar: userInfo.value.avatar || defaultConfig.value.DEFAULT_AVATAR_USER,
+                    avatar: user.info.avatar || defaultConfig.value.DEFAULT_AVATAR_USER,
                     content: '',
                     role: 'assistant',
                     dialogId: dialogueId.value,
@@ -856,7 +855,7 @@ async function sendMessage() {
             // user
             aChat.value.push({
                 chatId: 0,
-                avatar: userInfo.value.avatar || defaultConfig.value.DEFAULT_AVATAR_USER,
+                avatar: user.info.avatar || defaultConfig.value.DEFAULT_AVATAR_USER,
                 content: input,
                 role: 'user',
                 dialogId: dialogueId.value,
@@ -868,7 +867,7 @@ async function sendMessage() {
             // model
             aChat.value.push({
                 chatId: 0,
-                avatar: userInfo.value.avatar || defaultConfig.value.DEFAULT_AVATAR_USER,
+                avatar: user.info.avatar || defaultConfig.value.DEFAULT_AVATAR_USER,
                 content: '',
                 role: 'assistant',
                 dialogId: dialogueId.value,
@@ -1081,7 +1080,7 @@ onMounted(async () => {
     const screenHeight = document.body.clientHeight
 
     if (screenHeight <= screenWidth) {
-        isComputer.value = true
+        isComputer.val = true
     }
 
     if (localStorage.getItem('prompt')) {

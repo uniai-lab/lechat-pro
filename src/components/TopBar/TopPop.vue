@@ -14,6 +14,9 @@
                     <img alt="example" src="https://openai-1259183477.cos.ap-shanghai.myqcloud.com/WechatIMG925.jpg" />
                 </template>
                 <template #actions>
+                    <div @click="goChatKG">
+                        <label class="pop-btn">chat-KG✨</label>
+                    </div>
                     <div @click="emitShowPersonalDrawer">
                         <label class="pop-btn">修改信息</label>
                         <edit-outlined></edit-outlined>
@@ -47,6 +50,7 @@
     </a-popover>
 </template>
 <script setup lang="ts">
+import router from '@/router'
 import type { UserInfo } from '@/types/interfaces'
 import { EditOutlined, LogoutOutlined } from '@ant-design/icons-vue'
 
@@ -62,6 +66,10 @@ function emitShowPersonalDrawer() {
 
 function emitLogout() {
     emit('logout')
+}
+
+function goChatKG() {
+    router.push('/chatKG')
 }
 </script>
 
