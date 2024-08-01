@@ -3,7 +3,12 @@
 <template>
     <!-- the second template shows this will be loaded asynchronously -->
     <div>
-        <MdPreview class="preview" :no-img-zoom-in="true" v-model="renderEchartsIfNeeded(content).content" />
+        <MdPreview
+            class="preview"
+            :no-img-zoom-in="true"
+            :code-foldable="false"
+            v-model="renderEchartsIfNeeded(content).content"
+        />
         <div class="chart-wrap" v-if="renderEchartsIfNeeded(content).chartData">
             <v-chart :option="renderEchartsIfNeeded(content).chartData" />
         </div>

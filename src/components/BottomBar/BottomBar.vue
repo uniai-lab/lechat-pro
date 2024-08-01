@@ -286,15 +286,17 @@ function emitCloseLead() {
 }
 
 function keydownHandle(event: KeyboardEvent) {
-    if (event.key === 'Enter') {
+    if (event.keyCode === 13) {
         if (!event.ctrlKey && !event.metaKey) {
             // 如果只按下了Enter键，则执行事件a的逻辑
             event.stopPropagation()
             event.preventDefault()
+
             emitSendMessage()
-        } else {
+        } else if (event.ctrlKey || event.metaKey) {
             // 如果同时按下了Shift键和Enter键，则执行换行逻辑
             event.preventDefault() // 阻止默认的换行行为
+
             text.value += '\n'
             toBottom(event.target as HTMLElement) // 立即滚动到底部
         }
