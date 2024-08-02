@@ -1,30 +1,30 @@
 <!-- @format -->
 
 <template>
-    <a-upload-dragger
-        :accept="
-            Object.keys(fileSrcMap)
-                .map(key => `.${key}`)
-                .join(',')
-        "
-        v-model:file-list="fileList"
-        name="file"
-        list-type="picture"
-        :customRequest="customUpload"
-        :beforeUpload="beforeUpload"
-        :showUploadList="false"
-        :multiple="true"
-    >
-        <div class="upload-container">
-            <div class="img-container">
-                <img class="file-logo" src="../assets/filebg.webp" />
+    <div>
+        <a-upload-dragger
+            :accept="
+                Object.keys(fileSrcMap)
+                    .map(key => `.${key}`)
+                    .join(',')
+            "
+            v-model:file-list="fileList"
+            name="file"
+            :customRequest="customUpload"
+            :beforeUpload="beforeUpload"
+            :showUploadList="false"
+        >
+            <div class="upload-container">
+                <div class="img-container">
+                    <img class="file-logo" src="../assets/filebg.webp" />
+                </div>
+                <div class="upload-title">文件拖动到此处即可上传</div>
+                <div class="upload-msg">
+                    支持的文件格式：PDF、Word文档（DOC、DOCX）、Excel表格（XLSX）、PPT（PPT、PPTX）、TXT、CSV、MD、图片等
+                </div>
             </div>
-            <div class="upload-title">文件拖动到此处即可上传</div>
-            <div class="upload-msg">
-                支持的文件格式：PDF、Word文档（DOC、DOCX）、Excel表格（XLSX）、PPT（PPT、PPTX）、TXT、CSV、MD、图片等
-            </div>
-        </div>
-    </a-upload-dragger>
+        </a-upload-dragger>
+    </div>
 </template>
 
 <script setup lang="ts">
@@ -40,11 +40,9 @@ function customUpload(options: any) {
 }
 
 function beforeUpload(file: any) {
-    // 将文件添加到fileListBT数组
-
+    // 将文件添加到fileList数组
     fileList.value.push(file)
-    console.log(fileList)
-    console.log(fileList.value)
+
     isDragging.value = false
 
     return false // 返回false以阻止自动上传

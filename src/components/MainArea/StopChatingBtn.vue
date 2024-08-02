@@ -28,10 +28,10 @@
 
 <script setup lang="ts">
 const props = defineProps<{ generating: boolean }>()
-const emits = defineEmits<{ stopChating: [] }>()
+const emit = defineEmits<{ stopChating: [] }>()
 
 function emitStop() {
-    emits('stopChating')
+    emit('stopChating')
 }
 </script>
 

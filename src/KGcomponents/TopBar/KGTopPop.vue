@@ -14,16 +14,9 @@
                     <img alt="example" src="https://openai-1259183477.cos.ap-shanghai.myqcloud.com/WechatIMG925.jpg" />
                 </template>
                 <template #actions>
-                    <div @click="goChatKG">
-                        <label class="pop-btn">chat-KG✨</label>
-                    </div>
-                    <div @click="emitShowPersonalDrawer">
-                        <label class="pop-btn">修改信息</label>
-                        <edit-outlined></edit-outlined>
-                    </div>
-                    <div @click.stop="emitLogout" class="pop-btn-red">
-                        <label class="pop-btn">退出登录</label>
-                        <logout-outlined></logout-outlined>
+                    <div @click="goLeChatPro">
+                        <label class="pop-btn">返回LeChatPro</label>
+                        <img class="logo" src="../../public/favicon.ico" alt="LeChatPro" />
                     </div>
                 </template>
                 <a-card-meta
@@ -34,17 +27,12 @@
                         <div class="avatar-container">
                             <a-avatar class="avatar" :src="props.userInfo.avatar" />
                             <div class="name-plate">VIP {{ props.userInfo.chance.level }}</div>
-                            <!-- here should be the vip expired time, but the backend's levelExpiredAt do not show the timeStamp -->
-
-                            <!-- <div class="vip-left-time" v-show="props.userInfo.chance.level != 0">
-                                        到期时间：{{ timeStampToString(props.userInfo.chance.levelExpiredAt) }}
-                                    </div> -->
                         </div>
                     </template>
                 </a-card-meta>
             </a-card>
         </template>
-        <a-button v-if="props.ifLogin" class="user-btn">
+        <a-button class="user-btn">
             {{ props.userInfo.name }}
         </a-button>
     </a-popover>
@@ -52,24 +40,13 @@
 <script setup lang="ts">
 import router from '@/router'
 import type { UserInfo } from '@/types/interfaces'
-import { EditOutlined, LogoutOutlined } from '@ant-design/icons-vue'
 
 const props = defineProps<{
     userInfo: UserInfo
-    ifLogin: boolean
 }>()
-const emit = defineEmits<{ showPersonalDrawer: []; logout: [] }>()
 
-function emitShowPersonalDrawer() {
-    emit('showPersonalDrawer')
-}
-
-function emitLogout() {
-    emit('logout')
-}
-
-function goChatKG() {
-    router.push('/chatKG')
+function goLeChatPro() {
+    router.push('/')
 }
 </script>
 
@@ -82,6 +59,11 @@ function goChatKG() {
     width: 340px;
     .pop-card {
         width: 340px;
+
+        .logo {
+            width: 18px;
+            height: 18px;
+        }
 
         .pop-btn-red:hover {
             color: rgb(255, 77, 79);

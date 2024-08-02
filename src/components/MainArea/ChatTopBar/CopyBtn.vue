@@ -2,33 +2,14 @@
 
 <template>
     <div class="copy-btn" @click="copyToClipboard()">
-        <CopyOutlined class="btn-icon" v-show="btnStatus === 'default'" />
-        <!-- <copy v-show="btnStatus === 'default'" :theme="btnConfig.theme" :size="btnConfig.size" :fill="btnConfig.fill" /> -->
+        <copy-outlined class="btn-icon" v-show="btnStatus === 'default'" />
 
-        <LoadingOutlined class="btn-icon" v-show="btnStatus === 'loading'" spin />
-        <!-- <loading
-            class="rotate"
-            v-show="btnStatus === 'loading'"
-            :theme="btnConfig.theme"
-            :size="btnConfig.size"
-            :fill="btnConfig.fill"
-        /> -->
+        <loading-outlined class="btn-icon" v-show="btnStatus === 'loading'" spin />
 
-        <CheckCircleOutlined class="btn-icon" v-show="btnStatus === 'success'" />
-        <!-- <check-one
-            v-show="btnStatus === 'success'"
-            :theme="btnConfig.theme"
-            :size="btnConfig.size"
-            :fill="btnConfig.fill"
-        /> -->
+        <check-circle-outlined class="btn-icon" v-show="btnStatus === 'success'" />
 
-        <CloseCircleOutlined class="btn-icon" v-show="btnStatus === 'error'" />
-        <!-- <close-one
-            v-show="btnStatus === 'error'"
-            :theme="btnConfig.theme"
-            :size="btnConfig.size"
-            :fill="btnConfig.fill"
-        /> -->
+        <close-circle-outlined class="btn-icon" v-show="btnStatus === 'error'" />
+
         <span>{{ btnTips[btnStatus as keyof typeof btnTips] }}</span>
     </div>
 </template>
@@ -36,20 +17,10 @@
 <script setup lang="ts">
 import type { BtnTips } from '@/types/interfaces'
 import { CopyOutlined, LoadingOutlined, CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons-vue'
-// import { Copy, Loading, CheckOne } from '@icon-park/vue-next'
-// import type { Theme } from '@icon-park/vue-next/lib/runtime'
 import { ref } from 'vue'
 
 const porps = defineProps<{ content: string }>()
-// const btnConfig: {
-//     size: number
-//     fill: string
-//     theme: Theme
-// } = {
-//     size: 14,
-//     fill: '#999',
-//     theme: 'outline'
-// }
+
 const btnTips: BtnTips = {
     copy: '复制全文',
     loading: '',
@@ -58,7 +29,7 @@ const btnTips: BtnTips = {
 }
 const btnStatus = ref<'default' | 'loading' | 'success' | 'error'>('default')
 
-const copyToClipboard = (content: string = porps.content) => {
+function copyToClipboard(content: string = porps.content) {
     btnStatus.value = 'loading'
     var textArea = document.createElement('textarea')
     textArea.value = content

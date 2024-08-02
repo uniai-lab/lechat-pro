@@ -5,44 +5,36 @@
         :closable="true"
         :placement="historyDrawerPlace"
         :open="props.open"
-        @close="onClose"
+        @close="emitOnClose"
         :get-container="false"
         :style="{ position: 'absolute' }"
     >
         <a-list item-layout="horizontal" :data-source="historyChat">
             <template #renderItem="{ item, index }">
-                <a-list-item class="dailogitem" @click="toDialog(item.id, index)">
+                <a-list-item class="dialogue-item" @click="emitToDialog(item.id, index)">
                     <template #actions>
-                        <div
-                            style="color: black; font-size: 16px"
-                            @click.stop="delDialog(item.id)"
-                            key="list-loadmore-more"
-                        >
-                            <DeleteOutlined />
+                        <div style="color: black; font-size: 16px" key="list-loadmore-more">
+                            <delete-outlined @click.stop="emitDelDialog(item.id)" />
                         </div>
                     </template>
                     <a-list-item-meta :description="convertTimestamp(item.updatedAt)">
                         <template #title>
-                            <div class="listitemname">{{ item.title ? item.title : '未命名' }}</div>
+                            <div class="list-item-name">{{ item.title ? item.title : '未命名' }}</div>
                         </template>
                     </a-list-item-meta>
                 </a-list-item>
             </template>
             <template #loadMore>
-                <div
-                    v-if="ifLogin"
-                    :style="{ textAlign: 'center', marginTop: '12px', height: '32px', lineHeight: '32px' }"
-                >
-                    <a-button style="color: black" @click="dialogMore">查看更多</a-button>
+                <div v-if="ifLogin" class="load-more-container">
+                    <a-button @click="emitDialogMore">查看更多</a-button>
                 </div>
             </template>
         </a-list>
 
         <template #footer>
-            <div class="newdailogbox">
-                <div @click="newDailog" class="newdailogbtn">
-                    <PlusCircleOutlined />
-                    <div style="margin-left: 6px">新建对话</div>
+            <div class="new-dialogue-box">
+                <div class="new-dialogue-btn">
+                    <a-button @click="emitNewDailog" type="primary" :icon="h(PlusCircleOutlined)">新建对话</a-button>
                 </div>
             </div>
         </template>
@@ -50,42 +42,44 @@
 </template>
 
 <script lang="ts" setup>
-import { DeleteOutlined } from '@ant-design/icons-vue'
+import { DeleteOutlined, PlusCircleOutlined } from '@ant-design/icons-vue'
 import type { DrawerProps } from 'ant-design-vue'
-import { anyType } from 'ant-design-vue/es/_util/type'
-import { ref } from 'vue'
+import { ref, h } from 'vue'
 
-const props = defineProps({
-    open: Boolean,
-    ifLogin: Boolean,
+const props = defineProps<{
+    open: Boolean
+    ifLogin: Boolean
 
-    historyChat: anyType,
+    historyChat: any[]
+}>()
 
-    placement: Object
-})
-
-const emit = defineEmits(['dialog-more', 'new-dialog', 'on-Close', 'convert-time', 'to-dialog', 'del-dialog'])
+const emit = defineEmits<{
+    dialogMore: []
+    newDialog: []
+    onClose: []
+    toDialog: [number, number]
+    delDialog: [number]
+}>()
 
 const historyDrawerPlace = ref<DrawerProps['placement']>('left')
-const onClose = () => {
-    emit('on-Close')
+const emitOnClose = () => {
+    emit('onClose')
 }
 
-const dialogMore = () => {
-    emit('dialog-more')
+const emitDialogMore = () => {
+    emit('dialogMore')
 }
 
-const newDailog = () => {
-    emit('new-dialog')
+const emitNewDailog = () => {
+    emit('newDialog')
 }
 
-const toDialog = (event: DragEvent, index: number) => {
-    console.log(index)
-    emit('to-dialog', event, index)
+const emitToDialog = (id: number, index: number) => {
+    emit('toDialog', id, index)
 }
 
-const delDialog = (DragEvent: any) => {
-    emit('del-dialog', DragEvent)
+const emitDelDialog = (id: number) => {
+    emit('delDialog', id)
 }
 
 function convertTimestamp(isoString: number | string | Date) {
@@ -106,7 +100,13 @@ function convertTimestamp(isoString: number | string | Date) {
 </script>
 
 <style lang="scss" scoped>
-.dailogitem {
+.load-more-container {
+    text-align: center;
+    margin-top: 12px;
+    height: 32px;
+    line-height: 32px;
+}
+.dialogue-item {
     margin-bottom: 10px;
     padding: 9px 24px;
     /* box-shadow: 0px 0px 1px 1px rgba(0, 0, 0, 0.1); */
@@ -122,30 +122,25 @@ function convertTimestamp(isoString: number | string | Date) {
         backdrop-filter: blur(10px);
     }
 
-    .listitemname {
+    .list-item-name {
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
     }
 }
 
-.newdailogbox {
+.new-dialogue-box {
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
 
-    .newdailogbtn {
+    .new-dialogue-btn {
         display: flex;
         flex-direction: row;
         padding: 10px 30px;
-
-        background-color: black;
-        border-radius: 8px;
-        color: white;
         margin-top: 10px;
         margin-bottom: 10px;
-        cursor: pointer;
     }
 }
 </style>

@@ -47,14 +47,18 @@ async function load() {
                 models.value[item.provider] = []
                 for (const item2 of item.model) if (item2.chance > 1) models.value[item.provider].push(item2)
             }
-        } else throw new Error(data.message)
+        } else {
+            throw new Error(data.message)
+        }
     } catch (e: any) {
         message.error('请求查询价格失败')
         console.log(e.message)
     }
 }
 
-onMounted(load)
+onMounted(() => {
+    load()
+})
 </script>
 <style lang="scss" scoped>
 .cost {

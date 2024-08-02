@@ -3,72 +3,26 @@
 <template>
     <div class="top-bar">
         <div class="logo">
-            LeChat
-            <div>pro</div>
+            chat
+            <div>KG</div>
         </div>
-        <div v-if="props.ifComputer" class="title">乐聊多模型文档解析工具</div>
-
-        <a-button v-if="!props.ifLogin" class="login-btn" @click.stop="props.switchLoginVisible">登录</a-button>
+        <div v-if="props.ifComputer" class="title">chat-KG简历问答机器人</div>
 
         <!-- this div makes the user btn and charge btn in the same line -->
         <div class="right-group">
-            <TopPop
-                :user-info="userInfo"
-                :if-login="ifLogin"
-                @show-personal-drawer="emitShowPersonalDrawer"
-                @logout="emitLogout"
-            ></TopPop>
-
-            <a-button v-if="props.ifLogin && props.ifComputer" class="charge-btn" @click.stop="emitShowChargeModal">
-                充值
-            </a-button>
-
-            <div v-if="props.ifLogin && !props.ifComputer" class="charge-icon" @click.stop="emitShowChargeModal">
-                <wallet-outlined />
-            </div>
+            <KGTopPop :user-info="userInfo"></KGTopPop>
         </div>
     </div>
 </template>
 
 <script lang="ts" setup>
+import KGTopPop from './KGTopPop.vue'
 import type { UserInfo } from '@/types/interfaces'
-import { WalletOutlined } from '@ant-design/icons-vue'
-import TopPop from './TopPop.vue'
 
 const props = defineProps<{
     userInfo: UserInfo
-    ifLogin: boolean
     ifComputer: boolean
-    switchLoginVisible: Function
 }>()
-
-const emit = defineEmits<{ showPersonalDrawer: []; showChargeModal: []; logout: [] }>()
-function emitShowPersonalDrawer() {
-    emit('showPersonalDrawer')
-}
-
-function emitShowChargeModal() {
-    emit('showChargeModal')
-}
-
-function emitLogout() {
-    emit('logout')
-}
-
-// this is not used because the time received is wrong
-function timeStampToString(timestamp: string) {
-    // Convert millisecond timestamps to seconds
-    let seconds = Math.floor(Number(timestamp) / 1000)
-    // Create a Date Object
-    let date = new Date(seconds * 1000)
-
-    let year = date.getFullYear()
-    let month = (date.getMonth() + 1).toString().padStart(2, '0')
-    let day = date.getDate().toString().padStart(2, '0')
-
-    // Returns a formatted date string
-    return `${year}-${month}-${day}`
-}
 </script>
 
 <style scoped lang="scss">

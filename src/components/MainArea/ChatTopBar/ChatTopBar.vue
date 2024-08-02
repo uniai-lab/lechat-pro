@@ -36,7 +36,7 @@
             <div class="le-submodel">{{ props.item.subModel || '' }}</div>
         </div>
 
-        <CopyBtn class="invisible group-hover:visible" :content="props.item.content" />
+        <CopyBtn v-if="props.hovered" :content="props.item.content" />
     </div>
 </template>
 
@@ -49,6 +49,7 @@ const props = defineProps<{
     item: Chat
     index: number
     generating: boolean
+    hovered: boolean
 }>()
 </script>
 

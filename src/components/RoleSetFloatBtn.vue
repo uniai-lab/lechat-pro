@@ -3,7 +3,7 @@
 <template>
     <a-float-button v-if="!props.isComputer" @click="emitShowRoleSet" type="default" class="role-set-float-btn">
         <template #icon>
-            <a-icon class="btn-icon">
+            <div class="btn-icon">
                 <svg
                     t="1709611594182"
                     class="icon"
@@ -20,7 +20,7 @@
                         p-id="19889"
                     ></path>
                 </svg>
-            </a-icon>
+            </div>
         </template>
     </a-float-button>
 </template>
@@ -40,10 +40,10 @@ function emitShowRoleSet() {
     margin-right: 0px;
 
     .btn-icon {
-        font-size: '20px';
-        display: 'flex';
-        flex-direction: 'row';
-        justify-content: 'center';
+        font-size: 20px;
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
     }
 }
 </style>

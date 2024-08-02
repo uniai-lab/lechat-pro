@@ -60,7 +60,6 @@
         :is-pay-result-open="isPayResultOpen"
         :last-transaction-id="lastTransactionId"
         @charge-ok="handchargecodeleOk"
-        @test="afterPaySucces"
         v-model:shop-qrcode="shopQRcode"
         v-model:is-pay-modal-open="isPayModalOpen"
     >
@@ -74,10 +73,11 @@ import { httppay } from '@/common/request'
 import CostTable from './CostTable.vue'
 import PayModal from './PayModal.vue'
 import type { ShopList } from '@/types/interfaces'
-import { ref } from 'vue'
+import { onBeforeUnmount, ref } from 'vue'
+import { message } from 'ant-design-vue'
 
 const props = defineProps<{ isComputer: boolean; shopList: ShopList[] }>()
-const emits = defineEmits<{ choseItem: [item: ShopList]; closeCharge: []; getUserInfo: [] }>()
+const emit = defineEmits<{ closeCharge: []; getUserInfo: [] }>()
 
 const isChargeOpen = defineModel<boolean>({ required: true })
 
@@ -91,16 +91,17 @@ const shopQRcode = ref<string>('')
 
 const isCostTableOpen = ref<boolean>(false)
 
+const stopMonitoringFunction = ref<Function>()
+
 function emitGetUserInfo() {
-    emits('getUserInfo')
+    emit('getUserInfo')
 }
 
 function emitCloseChargeOpenCost() {
-    emits('closeCharge')
+    emit('closeCharge')
     isCostTableOpen.value = true
 }
 
-let stopMonitoringFunction: Function
 async function choseItem(e: ShopList) {
     isPayModalOpen.value = true
     isChargeOpen.value = false
@@ -119,10 +120,11 @@ async function choseItem(e: ShopList) {
             lastTransactionId.value = getShopQRcodeIMGRes.data.transactionId
 
             // Open a listening thread to see if the payment is complete
-            stopMonitoringFunction = monitorPayment(getShopQRcodeIMGRes.data.id)
+            stopMonitoringFunction.value = monitorPayment(getShopQRcodeIMGRes.data.id)
         }
-    } catch (error) {
-        console.error('Error creating QR code:', error)
+    } catch (e: any) {
+        message.error('获取二维码失败')
+        console.error(e)
     }
 }
 
@@ -137,6 +139,11 @@ function monitorPayment(paymentId: string) {
                 // paid and stop timer
                 clearInterval(intervalId)
                 await afterPaySucces()
+
+                isPayModalOpen.value = false
+                isPayResultOpen.value = false
+                isChargeOpen.value = false
+                isCostTableOpen.value = false
 
                 // here should be a async function but emits is not
                 emitGetUserInfo()
@@ -198,8 +205,8 @@ async function handchargecodeleOk() {
     isPayResultOpen.value = false
     shopQRcode.value = ''
 
-    if (stopMonitoringFunction) {
-        stopMonitoringFunction()
+    if (stopMonitoringFunction.value) {
+        stopMonitoringFunction.value()
     }
 }
 
@@ -209,6 +216,12 @@ function handleCloseCost() {
 }
 
 function handleChargeOk() {}
+
+onBeforeUnmount(() => {
+    if (stopMonitoringFunction.value) {
+        stopMonitoringFunction.value()
+    }
+})
 </script>
 
 <style lang="scss" scoped>
