@@ -12,17 +12,53 @@
         <div class="right-group">
             <KGTopPop :user-info="userInfo"></KGTopPop>
         </div>
+
+        <a-upload
+            :accept="
+                Object.keys(fileSrcMap)
+                    .map(key => `.${key}`)
+                    .join(',')
+            "
+            v-model:file-list="fileList"
+            name="file"
+            :customRequest="customUpload"
+            :beforeUpload="beforeUpload"
+            :showUploadList="false"
+        >
+            <a-button v-if="props.ifComputer" class="charge-btn">上传</a-button>
+            <div v-if="!props.ifComputer" class="charge-icon">
+                <cloud-upload-outlined />
+            </div>
+        </a-upload>
     </div>
 </template>
 
 <script lang="ts" setup>
 import KGTopPop from './KGTopPop.vue'
 import type { UserInfo } from '@/types/interfaces'
+import { CloudUploadOutlined } from '@ant-design/icons-vue'
+import { fileSrcMap } from '@/common/iconSrcUrl'
 
 const props = defineProps<{
     userInfo: UserInfo
     ifComputer: boolean
 }>()
+
+const fileList = defineModel<any[]>('fileList', { required: true })
+const isDragging = defineModel<boolean>('isDragging', { required: true })
+
+function customUpload(options: any) {
+    options.onSuccess()
+    isDragging.value = false
+}
+
+function beforeUpload(file: any) {
+    fileList.value.push(file)
+
+    isDragging.value = false
+
+    return false // 返回false以阻止自动上传
+}
 </script>
 
 <style scoped lang="scss">

@@ -35,7 +35,7 @@
         <!-- 顶栏 -->
         <TopBar
             :user-info="user.info"
-            :if-login="ifLogin"
+            :if-login="ifLogin.val"
             :if-computer="isComputer.val"
             :switch-login-visible="switchLoginVisible"
             @show-personal-drawer="showPersonalDrawer"
@@ -91,7 +91,7 @@
         <!-- 历史对话抽屉 -->
         <HistoryDialogueDrawer
             :open="isHistoryDrawerOpen"
-            :if-login="ifLogin"
+            :if-login="ifLogin.val"
             :history-chat="historyDialogue"
             @dialog-more="onDialogueLoadMore"
             @new-dialog="newDialogue"
@@ -112,7 +112,7 @@
 
         <!-- 底栏 -->
         <BottomBar
-            :if-login="ifLogin"
+            :if-login="ifLogin.val"
             :if-computer="isComputer.val"
             :generating="generating"
             :options="options"
@@ -156,10 +156,12 @@ import { fileSrcMap } from '@/common/iconSrcUrl'
 import type { Chat, ModelCascader, Option, PersonalInfoForm, RoleSetForm, ShopList } from '@/types/interfaces'
 
 import { useUserStore } from '@/stores/user'
-import { useComputerStore } from '@/stores/isComputer'
+import { useComputerStore } from '@/stores/computer'
+import { useLoginStore } from '@/stores/login'
 
 //  settings
-const ifLogin = ref<boolean>(false)
+
+const ifLogin = useLoginStore()
 const ifFirstOpen = ref<boolean>(false)
 const ifFirstLoad = ref<boolean>(false)
 
@@ -186,7 +188,7 @@ function printLogo() {
 }
 
 function refreshJudge(isTop: boolean) {
-    if (isTop && ifLogin.value && !refreshClock.value && !allFinished.value) {
+    if (isTop && ifLogin.val && !refreshClock.value && !allFinished.value) {
         refreshData()
     }
 }
@@ -229,7 +231,7 @@ const user = useUserStore()
 
 async function clearInfo() {
     localStorage.clear()
-    ifLogin.value = false
+    ifLogin.val = false
     aChat.value = [
         {
             avatar: '',
@@ -280,7 +282,7 @@ async function handleLoginCustomEvent() {
     await getUserInfo()
     await initChat()
 
-    ifLogin.value = true
+    ifLogin.val = true
 
     chatListDom.value?.scrollTo({
         top: chatListDom.value.scrollHeight,
@@ -735,7 +737,7 @@ const options = ref<Option[]>([
 async function sendMessage() {
     try {
         // check login
-        if (!ifLogin.value) {
+        if (!ifLogin.val) {
             return switchLoginVisible()
         }
 
@@ -1111,12 +1113,12 @@ onMounted(async () => {
     }
 
     if (localStorage.getItem('token')) {
-        ifLogin.value = true
+        ifLogin.val = true
 
         await getUserInfo()
         await initChat()
     } else {
-        ifLogin.value = false
+        ifLogin.val = false
 
         aChat.value = [
             {

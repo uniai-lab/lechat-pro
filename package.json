@@ -24,6 +24,7 @@
         "ant-design-vue": "^4.2.3",
         "canvas-confetti": "^1.9.3",
         "crypto-js": "^4.2.0",
+        "dayjs": "^1.11.12",
         "echarts": "^5.5.1",
         "eventsource-parser": "^1.1.2",
         "highlight.js": "^11.10.0",

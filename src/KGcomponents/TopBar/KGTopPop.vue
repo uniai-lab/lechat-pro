@@ -15,8 +15,7 @@
                 </template>
                 <template #actions>
                     <div @click="goLeChatPro">
-                        <label class="pop-btn">返回LeChatPro</label>
-                        <img class="logo" src="../../public/favicon.ico" alt="LeChatPro" />
+                        <label class="pop-btn">返回LeChatPro🤖</label>
                     </div>
                 </template>
                 <a-card-meta
@@ -59,11 +58,6 @@ function goLeChatPro() {
     width: 340px;
     .pop-card {
         width: 340px;
-
-        .logo {
-            width: 18px;
-            height: 18px;
-        }
 
         .pop-btn-red:hover {
             color: rgb(255, 77, 79);

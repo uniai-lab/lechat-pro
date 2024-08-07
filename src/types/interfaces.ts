@@ -129,3 +129,60 @@ export interface PasswordFormState {
     checkPass: string
     age: number | undefined
 }
+
+// Resume
+import type { Dayjs } from 'dayjs'
+export type Gender = '女' | '男' | null
+export type GPAfull = '5.0' | '4.0'
+
+export interface BasicInfo {
+    name: string
+    gender: Gender
+    age: number
+    phone: string
+    email: string
+    address: string
+    wechat: string
+    site: string
+    github: string
+}
+
+export interface EducationExperience {
+    major: string
+    degree: string
+    school: string
+    range: Dayjs[]
+    gpa: string
+    full: GPAfull
+    honor: string
+}
+
+export interface ProjectExperience {
+    name: string
+    description: string
+    tech: string
+    work: string
+    range: Dayjs[]
+    url: string
+}
+
+export interface WorkExperience {
+    company: string
+    position: string
+    range: Dayjs[]
+    mission: string
+    output: string
+}
+
+export interface AdditionalInfo {
+    skill: string
+    other: string
+}
+
+export interface ResumeInfo {
+    basic: BasicInfo
+    education: EducationExperience[]
+    work: WorkExperience[]
+    project: ProjectExperience[]
+    addition: AdditionalInfo
+}
