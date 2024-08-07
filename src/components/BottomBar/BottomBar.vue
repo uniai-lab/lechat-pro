@@ -125,6 +125,7 @@
                     @keydown="keydownHandle"
                     :placeholder="!ifLogin ? '请先登录' : '剩余对话次数' + props.userInfo.chance.totalChatChance"
                     v-model:value="text"
+                    @keyup="handleCompositionUpdate"
                 ></a-textarea>
             </div>
 
@@ -328,6 +329,16 @@ function modelChange(currentModel: ModelCascader) {
 const handleOutputTypeClick: MenuProps['onClick'] = (e: MenuInfo) => {
     outputType.value = e.key.toString()
 }
+
+const handleCompositionUpdate = (event) => {
+
+    const text = event.target.value.slice(0, event.target.selectionStart);
+    const previousChar = text[text.length - 1];
+
+    //if(previousChar === '@') 
+}
+
+
 </script>
 
 <style lang="scss" scoped>
