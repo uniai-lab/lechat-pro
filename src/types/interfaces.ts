@@ -186,3 +186,28 @@ export interface ResumeInfo {
     project: ProjectExperience[]
     addition: AdditionalInfo
 }
+
+// echarts tree node
+export interface TreeNode {
+    name: string
+    value?: number
+    children?: TreeNode[]
+}
+
+export interface GraphNode {
+    id: string
+    name: string
+    label?: string | object
+    symbol?: string
+    symbolSize: number
+    x: number
+    y: number
+    value?: number
+    category: number
+}
+
+export interface GraphLink {
+    id: string
+    source: string
+    target: string
+}

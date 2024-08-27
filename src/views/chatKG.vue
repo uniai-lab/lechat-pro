@@ -1,118 +1,108 @@
 <!-- @format -->
 
 <template>
-    <div @dragenter.prevent="handleOver" @dragleave.prevent="handleLeave" @drop="handleDrop" class="page">
-        <div v-if="isDragging" class="upload-mask">
-            <a-upload-dragger
-                :accept="
-                    Object.keys(fileSrcMap)
-                        .map(key => `.${key}`)
-                        .join(',')
-                "
-                v-model:file-list="uploadFileList"
-                name="file"
-                :customRequest="customUpload"
-                :beforeUpload="beforeUpload"
-                :showUploadList="false"
-            >
-                <div class="upload-container">
-                    <div class="img-container">
-                        <img class="file-logo" src="../assets/filebg.webp" />
-                    </div>
-                    <div class="upload-title">简历拖动到此处即可上传</div>
-                    <div class="upload-msg">
-                        支持的简历格式：PDF、Word文档（DOC、DOCX）、Excel表格（XLSX）、PPT（PPT、PPTX）、TXT、CSV、MD、图片等
-                    </div>
-                </div>
-            </a-upload-dragger>
-        </div>
-
+    <div class="page">
         <KGTopBar
             :user-info="user.info"
             :if-computer="isComputer.val"
+            v-model:now-module="nowModule"
             v-model:file-list="uploadFileList"
-            v-model:is-dragging="isDragging"
         ></KGTopBar>
 
-        <HistoryResume
-            :open="isHistoryDrawerOpen"
-            :history-resume="historyDialogue"
-            @dialog-more="onDialogueLoadMore"
-            @new-dialog="newDialogue"
-            @on-close="closeHistoryDrawer"
-            @to-dialog="toLatestDialogue"
-            @del-dialog="delDialogue"
-        ></HistoryResume>
+        <Upload
+            v-if="nowModule !== 'CT'"
+            @clear-resume="clearResume"
+            @send-multiple="sendMultiple"
+            v-model:upload-file-list="uploadFileList"
+        ></Upload>
+
+        <KnowledgeGraph
+            v-if="nowModule === 'KG'"
+            @clear-resume="clearResume"
+            @send-multiple="sendMultiple"
+            v-model:data="kgData"
+            v-model:resume-info="resumeInfo"
+            v-model:refresh-clock="kgRefreshClock"
+            v-model:graph-data="kgGraphData"
+            v-model:graph-link="kgGraphLink"
+            v-model:upload-file-list="uploadFileList"
+        ></KnowledgeGraph>
 
         <Resume
+            v-if="nowModule === 'RS'"
             :generating="generating"
+            @analyse="sendMultiple"
+            @refresh-kg="refreshKG"
+            @RSToKG="switchModule('KG')"
             v-model:resume-info="resumeInfo"
             v-model:upload-file-list="uploadFileList"
-            @analyse="sendMessage"
         ></Resume>
 
-        <!--          <KGMain
-            :is-linking="isLinking"
+        <!-- chatKG的数字人聊天界面导入的是老的主界面，实质上需要更改的aChat里面的一些类型定义以匹配新的接口所需要的类型 -->
+        <MainArea
+            v-if="nowModule === 'CT'"
+            :isLinking="isLinking"
             @time-to-refresh="refreshJudge"
             v-model:up-loading="upLoading"
             v-model:a-chat="aChat"
             v-model:generating="generating"
             v-model:could-continue="couldContinue"
-        ></KGMain>
+        ></MainArea>
 
         <KGBottomBar
+            v-if="nowModule === 'CT'"
             :if-login="ifLogin.val"
             :if-computer="isComputer.val"
             :generating="generating"
             :options="options"
             :user-info="user.info"
-            @show-history-drawer="showHistroyDrawer"
             @send-message="sendMessage"
             v-model:text="textInput"
-            v-model:file-list="uploadFileList"
-            v-model:chose-model="choseModel"
-            v-model:is-dragging="isDragging"
-            v-model:output-type="outputType"
-        ></KGBottomBar>-->
-
-        <a-button @click="aChat2JSON(aChat.slice().reverse()[0].content)">clickme</a-button>
+        ></KGBottomBar>
     </div>
 </template>
 
 <script setup lang="ts">
+import kgContent from '@/common/kgContent'
+import { resumePromptDivided } from '@/common/prompt'
 import { http, sse } from '@/common/request'
-import KGTopBar from '@/KGcomponents/TopBar/KGTopBar.vue'
+import KGBottomBar from '@/components/KGcomponents/BottomBar/KGBottomBar.vue'
+import KnowledgeGraph from '@/components/KGcomponents/KnowledgeGraph.vue'
+import Resume from '@/components/KGcomponents/Resume.vue'
+import KGTopBar from '@/components/KGcomponents/TopBar/KGTopBar.vue'
+import Upload from '@/components/KGcomponents/Upload.vue'
+
 import { useComputerStore } from '@/stores/computer'
-import { useUserStore } from '@/stores/user'
-import { message } from 'ant-design-vue'
-import { onMounted, provide, ref, watch, type InjectionKey } from 'vue'
-import { fileSrcMap } from '@/common/iconSrcUrl'
-import KGBottomBar from '@/KGcomponents/BottomBar/KGBottomBar.vue'
 import { useLoginStore } from '@/stores/login'
+import { useUserStore } from '@/stores/user'
+
 import type {
-    AdditionalInfo,
-    BasicInfo,
     Chat,
     EducationExperience,
+    GraphLink,
+    GraphNode,
     ModelCascader,
     Option,
     ProjectExperience,
     ResumeInfo,
+    TreeNode,
     WorkExperience
 } from '@/types/interfaces'
-import kgContent from '@/common/kgContent'
-import Resume from '@/KGcomponents/MainArea/Resume.vue'
-import { EventSourceParserStream } from 'eventsource-parser/stream'
-import KGMain from '@/KGcomponents/MainArea/KGMain.vue'
-import HistoryResume from '@/KGcomponents/HistoryResume.vue'
+
+import { message } from 'ant-design-vue'
 import dayjs from 'dayjs'
-import { resumePrompt } from '@/common/prompt'
+import { EventSourceParserStream } from 'eventsource-parser/stream'
+import { nextTick, onMounted, provide, ref, watch } from 'vue'
 
 provide('beforeUpload', beforeUpload)
 provide('customUpload', customUpload)
 
 const isComputer = useComputerStore()
 const ifLogin = useLoginStore()
+
+// Knowledge Graph | Resume | Chat
+const nowModule = ref<'KG' | 'RS' | 'CT'>('KG')
+
 const resumeInfo = ref<ResumeInfo>({
     basic: {
         name: '',
@@ -125,41 +115,18 @@ const resumeInfo = ref<ResumeInfo>({
         site: '',
         github: ''
     },
-    education: [
-        {
-            major: '',
-            degree: '',
-            school: '',
-            range: [dayjs(), dayjs()],
-            gpa: '',
-            full: '4.0',
-            honor: ''
-        }
-    ],
-    work: [
-        {
-            company: '',
-            position: '',
-            range: [dayjs(), dayjs()],
-            mission: '',
-            output: ''
-        }
-    ],
-    project: [
-        {
-            name: '',
-            description: '',
-            tech: '',
-            work: '',
-            range: [dayjs(), dayjs()],
-            url: ''
-        }
-    ],
+    education: [],
+    work: [],
+    project: [],
     addition: {
         skill: '',
         other: ''
     }
 })
+
+function switchModule(module: 'KG' | 'RS' | 'CT') {
+    nowModule.value = module
+}
 
 function printLogo() {
     console.log(`
@@ -184,35 +151,16 @@ function refreshJudge(isTop: boolean) {
     }
 }
 
-// drag and drop
-const isDragging = ref<boolean>(false)
+// upload functions
+const uploadFileList = ref<any[]>([])
 
-function handleOver() {
-    isDragging.value = true
-}
-function handleLeave(event: DragEvent) {
-    // 检查 event.relatedTarget 是否为 null 或者不是当前元素的子元素
-    // 如果是，说明文件被拖出了当前元素，可能是浏览器窗口
-
-    if (event.relatedTarget === null) {
-        isDragging.value = false
-    }
-}
-function handleDrop(event: DragEvent) {
-    // 重置拖拽状态
-    // 获取文件
-    event.preventDefault()
-    isDragging.value = false
-}
 function customUpload(options: any) {
     // 阻止默认的上传行为
     options.onSuccess()
-    isDragging.value = false
 }
 function beforeUpload(file: any) {
     // 将文件添加到fileListBT数组
     uploadFileList.value.push(file)
-    isDragging.value = false
 
     return false // 返回false以阻止自动上传
 }
@@ -236,7 +184,6 @@ async function clearInfo() {
             subModel: choseModel.value[1]
         }
     ]
-    dialogueId.value = 0
 }
 async function getUserInfo() {
     try {
@@ -257,329 +204,323 @@ async function getUserInfo() {
     }
 }
 
-// history dialogue
-const isHistoryDrawerOpen = ref<boolean>(false)
-const historyDialogue = ref<any[]>([])
-const dialogueId = ref<number>(0)
-const dialogueIndex = ref<number>(0)
-const newDialogueClock = ref<boolean>(false)
+// Knowledge Graph
+const kgData = ref<TreeNode>({
+    name: resumeInfo.value.basic.name,
+    children: []
+})
 
-function showHistroyDrawer() {
-    isHistoryDrawerOpen.value = true
-}
-function closeHistoryDrawer() {
-    isHistoryDrawerOpen.value = false
-}
-async function getHistoryDialogueList(lastId: number = 0, pageSize: number = 10, id: number | null = null) {
-    let data = []
-    try {
-        if (upLoading.value) return
-        upLoading.value = true
-
-        const adata: any = await http('list-dialog', { lastId, pageSize, id }, 'POST')
-        const res = await adata.json()
-
-        if (res.status == -1) {
-            message.error('获取对话失败')
-            console.log(res.msg)
-
-            return clearInfo()
-        }
-
-        if (res.status === 1) {
-            data = res.data
-        } else {
-            throw new Error(res.msg)
-        }
-    } catch (e: any) {
-        message.error('获取对话失败')
-        console.log(e.msg)
-    } finally {
-        upLoading.value = false
+// 这里暂时写死，后端接口待开发
+const kgGraphData = ref<GraphNode[]>([
+    { id: '01', name: '张三', label: { show: true }, symbolSize: 50, x: 0, y: 0, category: 0 },
+    { id: '02', name: '江盐师范学院', label: { show: true }, symbolSize: 40, x: 150, y: 50, category: 1 },
+    { id: '03', name: '慈辉职业学院', label: { show: true }, symbolSize: 40, x: 100, y: 100, category: 1 },
+    { id: '04', name: '茶杯贩卖系统', label: { show: true }, symbolSize: 40, x: -150, y: -50, category: 2 },
+    { id: '05', name: '天穹外卖系统', label: { show: true }, symbolSize: 40, x: -100, y: -70, category: 2 },
+    {
+        id: '06',
+        name: '基于SFML库的排序演示系统',
+        label: { show: true },
+        symbolSize: 40,
+        x: -150,
+        y: -150,
+        category: 2
+    },
+    {
+        id: '07',
+        name: '基于yolo图像识别机器学习的智能洪水预警系统',
+        label: { show: true },
+        symbolSize: 40,
+        x: -200,
+        y: -100,
+        category: 2
+    },
+    { id: '08', name: '江盐市晋猫公司', label: { show: true }, symbolSize: 40, x: -150, y: 50, category: 3 },
+    { id: '09', name: '慈辉市月磨科技有限公司', label: { show: true }, symbolSize: 40, x: -200, y: 120, category: 3 },
+    { id: '10', name: '苍耳科技有限公司', label: { show: true }, symbolSize: 40, x: -250, y: 50, category: 3 },
+    {
+        id: '11',
+        name: '北境洲邑山市智能大数据研究所',
+        label: { show: true },
+        symbolSize: 40,
+        x: -200,
+        y: 150,
+        category: 3
+    },
+    { id: '12', name: '安楠数据中心', label: { show: true }, symbolSize: 40, x: -150, y: 100, category: 3 },
+    { id: '13', name: '竖笛', label: { show: true }, symbolSize: 40, x: 100, y: -100, category: 4 },
+    { id: '14', name: '羽毛球', label: { show: true }, symbolSize: 40, x: 150, y: -150, category: 4 },
+    { id: '15', name: '篮球', label: { show: true }, symbolSize: 40, x: 200, y: -100, category: 4 },
+    { id: '16', name: '二胡', label: { show: true }, symbolSize: 40, x: 150, y: -50, category: 4 },
+    { id: '17', name: '剑术', label: { show: true }, symbolSize: 40, x: 200, y: -50, category: 4 },
+    {
+        id: '18',
+        name: 'Eine neue, auf Mousse basierende Methode zur Sturmvorhersage',
+        label: { show: true },
+        symbolSize: 45,
+        symbol: 'roundRect',
+        x: -10,
+        y: 120,
+        category: 5
+    },
+    {
+        id: '19',
+        name: 'Die Entstehung von Spiralen im Wasser und die Suche nach der Entwicklung von Himmelsgalaxien - eine Erkenntnis aus der Ablenkung der Erde',
+        label: { show: true },
+        symbolSize: 45,
+        symbol: 'roundRect',
+        x: 10,
+        y: 150,
+        category: 5
     }
-    return data
+])
+const kgGraphLink = ref<GraphLink[]>([
+    { id: '01', source: '02', target: '01' },
+    { id: '02', source: '03', target: '01' },
+    { id: '03', source: '04', target: '01' },
+    { id: '04', source: '05', target: '01' },
+    { id: '05', source: '06', target: '01' },
+    { id: '06', source: '07', target: '01' },
+    { id: '07', source: '08', target: '01' },
+    { id: '08', source: '09', target: '01' },
+    { id: '09', source: '10', target: '01' },
+    { id: '10', source: '11', target: '01' },
+    { id: '11', source: '12', target: '01' },
+    { id: '12', source: '13', target: '01' },
+    { id: '13', source: '14', target: '01' },
+    { id: '14', source: '15', target: '01' },
+    { id: '15', source: '16', target: '01' },
+    { id: '16', source: '17', target: '01' },
+    { id: '17', source: '18', target: '01' },
+    { id: '17', source: '19', target: '01' }
+])
+const kgRefreshClock = ref<boolean>(false)
+
+function refreshKG() {
+    kgRefreshClock.value = true
 }
-async function onDialogueLoadMore() {
-    let lastdialgid = historyDialogue.value[historyDialogue.value.length - 1].id
-    let data: any = await getHistoryDialogueList(lastdialgid, 10)
-    if (data.length != 0) {
-        historyDialogue.value = [...historyDialogue.value, ...data]
-    } else {
-        message.info('没有更多了')
-    }
-}
-async function newDialogue() {
-    if (newDialogueClock.value == false) {
-        newDialogueClock.value = true
-        try {
-            const adata: any = await http('add-dialog', {}, 'GET')
-            const res = await adata.json()
-
-            if (res.status == -1) {
-                message.error('新建对话失败')
-                console.log(res.msg)
-                clearInfo()
-            } else if (res.status == 1) {
-                message.success('新建对话成功')
-                const dialogList = await getHistoryDialogueList()
-                historyDialogue.value = dialogList
-            }
-            await toLatestDialogue(res.data.id, 0)
-        } finally {
-            newDialogueClock.value = false
-        }
-    }
-}
-async function toLatestDialogue(id: number, index: number) {
-    dialogueId.value = id
-    dialogueIndex.value = index
-
-    try {
-        aChat.value = []
-
-        const data: any = await getChatList(0, 10, id)
-
-        if (data.length === 0) {
-            aChat.value = [
-                {
-                    chatId: 0,
-                    avatar: '',
-                    content: kgContent.content,
-                    dialogId: 0,
-                    isEffect: true,
-                    model: choseModel.value[0],
-                    resourceId: null,
-                    role: 'assistant',
-                    subModel: choseModel.value[1]
+function fillKG(part: number) {
+    if (kgData.value.children) {
+        switch (part) {
+            case 1:
+                kgData.value.children.push({ name: '基本信息', children: [] })
+                if (resumeInfo.value.basic.age !== 0) {
+                    kgData.value.children[0].children?.push({ name: '年龄:' + resumeInfo.value.basic.age })
                 }
-            ]
+                if (resumeInfo.value.basic.gender !== null) {
+                    kgData.value.children[0].children?.push({ name: '性别:' + resumeInfo.value.basic.gender })
+                }
+                if (resumeInfo.value.basic.phone !== '') {
+                    kgData.value.children[0].children?.push({ name: '电话:' + resumeInfo.value.basic.phone })
+                }
+                if (resumeInfo.value.basic.email !== '') {
+                    kgData.value.children[0].children?.push({ name: '电子邮件:' + resumeInfo.value.basic.email })
+                }
+                if (resumeInfo.value.basic.address !== '') {
+                    kgData.value.children[0].children?.push({ name: '地址:' + resumeInfo.value.basic.address })
+                }
+                if (resumeInfo.value.basic.wechat !== '') {
+                    kgData.value.children[0].children?.push({ name: '微信:' + resumeInfo.value.basic.wechat })
+                }
+                if (resumeInfo.value.basic.site !== '') {
+                    kgData.value.children[0].children?.push({ name: '个人网站:' + resumeInfo.value.basic.site })
+                }
+                if (resumeInfo.value.basic.github !== '') {
+                    kgData.value.children[0].children?.push({ name: 'GitHub页:' + resumeInfo.value.basic.github })
+                }
+                break
+            case 2:
+                kgData.value.children.push({ name: '教育经历', children: [] })
+
+                // 教育经历里面可能有很多个“学校”
+                for (let i = 0; i < resumeInfo.value.education.length; i++) {
+                    // 首先插入一行学校的
+                    kgData.value.children[1].children?.push({
+                        name: resumeInfo.value.education[i].school,
+                        children: []
+                    })
+
+                    // 随后插入这个学校各个的属性
+                    if (kgData.value.children[1].children) {
+                        if (resumeInfo.value.education[i].major !== '') {
+                            kgData.value.children[1].children[i].children?.push({
+                                name: '专业:' + resumeInfo.value.education[i].major
+                            })
+                        }
+                        if (resumeInfo.value.education[i].degree !== '') {
+                            kgData.value.children[1].children[i].children?.push({
+                                name: '学位:' + resumeInfo.value.education[i].degree
+                            })
+                        }
+                        if (
+                            !resumeInfo.value.education[i].range[0].isSame(dayjs()) ||
+                            !resumeInfo.value.education[i].range[1].isSame(dayjs())
+                        ) {
+                            kgData.value.children[1].children[i].children?.push({
+                                name:
+                                    '时间:' +
+                                    resumeInfo.value.education[i].range[0].format('YYYY/MM') +
+                                    '~' +
+                                    resumeInfo.value.education[i].range[1].format('YYYY/MM')
+                            })
+                        }
+                        if (resumeInfo.value.education[i].gpa !== '') {
+                            kgData.value.children[1].children[i].children?.push({
+                                name:
+                                    'gpa:' +
+                                    resumeInfo.value.education[i].gpa +
+                                    '/' +
+                                    resumeInfo.value.education[i].full
+                            })
+                        }
+                        if (resumeInfo.value.education[i].honor !== '') {
+                            kgData.value.children[1].children[i].children?.push({
+                                name: '荣誉:' + resumeInfo.value.education[i].honor
+                            })
+                        }
+                    }
+                }
+
+                break
+            case 3:
+                kgData.value.children.push({ name: '项目经历', children: [] })
+
+                // 项目经历里面可能有很多个“项目”
+                for (let i = 0; i < resumeInfo.value.project.length; i++) {
+                    // 首先插入一行项目
+                    kgData.value.children[2].children?.push({
+                        name: resumeInfo.value.project[i].name,
+                        children: []
+                    })
+
+                    // 随后插入这个项目的各个的属性
+                    if (kgData.value.children[2].children) {
+                        if (resumeInfo.value.project[i].description !== '') {
+                            kgData.value.children[2].children[i].children?.push({
+                                name: '描述:' + resumeInfo.value.project[i].description
+                            })
+                        }
+                        if (resumeInfo.value.project[i].tech !== '') {
+                            kgData.value.children[2].children[i].children?.push({
+                                name: '技术栈:' + resumeInfo.value.project[i].tech
+                            })
+                        }
+                        if (
+                            !resumeInfo.value.project[i].range[0].isSame(dayjs()) ||
+                            !resumeInfo.value.project[i].range[1].isSame(dayjs())
+                        ) {
+                            kgData.value.children[2].children[i].children?.push({
+                                name:
+                                    '时间:' +
+                                    resumeInfo.value.project[i].range[0].format('YYYY/MM') +
+                                    '~' +
+                                    resumeInfo.value.project[i].range[1].format('YYYY/MM')
+                            })
+                        }
+                        if (resumeInfo.value.project[i].work !== '') {
+                            kgData.value.children[2].children[i].children?.push({
+                                name: '主要工作:' + resumeInfo.value.project[i].work
+                            })
+                        }
+                        if (resumeInfo.value.project[i].url !== '') {
+                            kgData.value.children[2].children[i].children?.push({
+                                name: '项目链接:' + resumeInfo.value.project[i].url
+                            })
+                        }
+                    }
+                }
+                break
+            case 4:
+                kgData.value.children.push({ name: '工作经历' })
+                // 工作经历里面可能有很多个“工作”
+                for (let i = 0; i < resumeInfo.value.work.length; i++) {
+                    // 首先插入一行工作
+                    kgData.value.children[3].children?.push({
+                        name: resumeInfo.value.work[i].company,
+                        children: []
+                    })
+
+                    // 随后插入这个工作的各个的属性
+                    if (kgData.value.children[3].children) {
+                        if (resumeInfo.value.work[i].position !== '') {
+                            kgData.value.children[3].children[i].children?.push({
+                                name: '职位:' + resumeInfo.value.work[i].position
+                            })
+                        }
+                        if (
+                            !resumeInfo.value.work[i].range[0].isSame(dayjs()) ||
+                            !resumeInfo.value.work[i].range[1].isSame(dayjs())
+                        ) {
+                            kgData.value.children[3].children[i].children?.push({
+                                name:
+                                    '时间:' +
+                                    resumeInfo.value.work[i].range[0].format('YYYY/MM') +
+                                    '~' +
+                                    resumeInfo.value.work[i].range[1].format('YYYY/MM')
+                            })
+                        }
+                        if (resumeInfo.value.work[i].mission !== '') {
+                            kgData.value.children[3].children[i].children?.push({
+                                name: '主要任务:' + resumeInfo.value.work[i].mission
+                            })
+                        }
+                        if (resumeInfo.value.work[i].output !== '') {
+                            kgData.value.children[3].children[i].children?.push({
+                                name: '产出效果:' + resumeInfo.value.work[i].output
+                            })
+                        }
+                    }
+                }
+                break
+            case 5:
+                kgData.value.children.push({ name: '其他信息', children: [] })
+                if (resumeInfo.value.addition.skill !== '') {
+                    kgData.value.children[4].children?.push({ name: '个人技能:' + resumeInfo.value.addition.skill })
+                }
+                if (resumeInfo.value.addition.other !== '') {
+                    kgData.value.children[4].children?.push({ name: '附加信息:' + resumeInfo.value.addition.other })
+                }
+                break
         }
-        for (const item of data) {
-            dialogueId.value = item.dialogId
-            aChat.value.push(item)
-        }
-        isHistoryDrawerOpen.value = false
-    } catch (e: any) {
-        message.error('切换对话失败')
-        console.log(e.msg)
-    } finally {
-        allFinished.value = false
     }
 }
-async function delDialogue(id: number) {
-    try {
-        const adata: any = await http(`del-dialog?id=${id}`, {}, 'GET')
-        const res = await adata.json()
 
-        if (res.status == -1) {
-            message.error('删除对话失败')
-            console.log(res.msg)
-
-            clearInfo()
-            refreshData()
-        } else if (res.status == 1) {
-            message.success('删除对话成功')
-
-            historyDialogue.value = await getHistoryDialogueList()
-
-            if (id == dialogueId.value) {
-                dialogueId.value = historyDialogue.value[0].id
-
-                toLatestDialogue(dialogueId.value, 0)
-            }
-
-            refreshData()
-        } else {
-            throw new Error(res.msg)
+function clearResume() {
+    resumeInfo.value = {
+        basic: {
+            name: '',
+            gender: null,
+            age: 0,
+            phone: '',
+            email: '',
+            address: '',
+            wechat: '',
+            site: '',
+            github: ''
+        },
+        education: [],
+        work: [],
+        project: [],
+        addition: {
+            skill: '',
+            other: ''
         }
-    } catch (e: any) {
-        message.error('删除对话失败')
-        console.log(e.msg)
     }
+
+    localStorage.removeItem('resumeInfo')
 }
 
 // bottom
-const textInput = ref<string>(resumePrompt)
-const uploadFileList = ref<any[]>([])
+const textInput = ref<string>('')
 const choseModel = ref<ModelCascader>(['iflytek', 'ultra'])
 const outputType = ref<string>('1')
-const options = ref<Option[]>([
-    {
-        value: null,
-        label: '选择模型',
-        disabled: false,
-        children: [
-            {
-                value: null,
-                label: '智能选择模型',
-                disabled: false
-            }
-        ]
-    },
-    {
-        value: 'openai',
-        label: 'OpenAI',
-        disabled: false,
-        children: [
-            {
-                disabled: false,
-                value: 'gpt-3.5-turbo-1106',
-                label: 'gpt-3.5-turbo-1106'
-            },
-            {
-                disabled: false,
-                value: 'gpt-3.5-turbo',
-                label: 'gpt-3.5-turbo'
-            },
-            {
-                disabled: false,
-                value: 'gpt-3.5-turbo-16k',
-                label: 'gpt-3.5-turbo-16k'
-            },
-            {
-                disabled: false,
-                value: 'gpt-4',
-                label: 'gpt-4'
-            },
-            {
-                disabled: false,
-                value: 'gpt-4-32k',
-                label: 'gpt-4-32k'
-            },
-            {
-                disabled: false,
-                value: 'gpt-4-1106-preview',
-                label: 'gpt-4-1106-preview'
-            },
-            {
-                disabled: false,
-                value: 'gpt-4-vision-preview',
-                label: 'gpt-4-vision-preview'
-            }
-        ]
-    },
-    {
-        value: 'iflytek',
-        label: 'IFlyTek',
-        disabled: false,
-        children: [
-            {
-                disabled: false,
-                value: 'v1.1',
-                label: 'v1.1'
-            },
-            {
-                disabled: false,
-                value: 'v2.1',
-                label: 'v2.1'
-            },
-            {
-                disabled: false,
-                value: 'v3.1',
-                label: 'v3.1'
-            }
-        ]
-    },
-    {
-        value: 'baidu',
-        label: 'Baidu',
-        disabled: false,
-        children: [
-            {
-                disabled: false,
-                value: 'completions',
-                label: 'completions'
-            },
-            {
-                disabled: false,
-                value: 'completions_pro',
-                label: 'completions_pro'
-            },
-            {
-                disabled: false,
-                value: 'ernie_bot_8k',
-                label: 'ernie_bot_8k'
-            },
-            {
-                disabled: false,
-                value: 'eb-instant',
-                label: 'eb-instant'
-            }
-        ]
-    },
-    {
-        value: 'google',
-        label: 'Google',
-        disabled: false,
-        children: [
-            {
-                disabled: false,
-                value: 'gemini-pro',
-                label: 'gemini-pro'
-            },
-            {
-                disabled: false,
-                value: 'gemini-pro-vision',
-                label: 'gemini-pro-vision'
-            },
-            {
-                disabled: false,
-                value: 'gemini-ultra',
-                label: 'gemini-ultra'
-            }
-        ]
-    },
-    {
-        value: 'glm',
-        label: 'GLM',
-        disabled: false,
-        children: [
-            {
-                disabled: false,
-                value: 'chatglm3-6b-32k',
-                label: 'chatglm3-6b-32k'
-            },
-            {
-                disabled: false,
-                value: 'glm-3-turbo',
-                label: 'glm-3-turbo'
-            },
-            {
-                disabled: false,
-                value: 'glm-4',
-                label: 'glm-4'
-            },
-            {
-                disabled: false,
-                value: 'glm-4v',
-                label: 'glm-4v'
-            }
-        ]
-    },
-    {
-        value: 'moonshot',
-        label: 'MoonShot',
-        disabled: false,
-        children: [
-            {
-                disabled: false,
-                value: 'moonshot-v1-8k',
-                label: 'moonshot-v1-8k'
-            },
-            {
-                disabled: false,
-                value: 'moonshot-v1-32k',
-                label: 'moonshot-v1-32k'
-            },
-            {
-                disabled: false,
-                value: 'moonshot-v1-128k',
-                label: 'moonshot-v1-128k'
-            }
-        ]
-    }
-])
+const multiGenerating = ref<boolean>(false)
+const options = ref<Option[]>([])
 
+// 未来的数字人询问所在
+// 只是可能的接收函数，具体返回的aChat还要等后续后端给出详细的接口定义实现
+// 需要在interfaces里面写入aChat（可能需要改名成bChat、cChat这种）的类型具体定义
+// 在需要老接口填充的部分使用了114514来进行填充
 async function sendMessage() {
     try {
         // is sending?
@@ -599,12 +540,71 @@ async function sendMessage() {
             }
         }
 
-        const input = resumePrompt
-        // const input = textInput.value
-        // textInput.value = ''
+        const input = textInput.value
+        textInput.value = ''
         generating.value = true
 
-        if (uploadFileList.value.length) {
+        // user
+        aChat.value.push({
+            chatId: 0,
+            avatar: user.info.avatar,
+            content: input,
+            role: 'user',
+            dialogId: 114514,
+            resourceId: null,
+            isEffect: true,
+            model: null,
+            subModel: null
+        })
+        // model
+        aChat.value.push({
+            chatId: 0,
+            avatar: user.info.avatar,
+            content: '',
+            role: 'assistant',
+            dialogId: 114514,
+            model: choseModel.value[0],
+            resourceId: null,
+            subModel: choseModel.value[1],
+            isEffect: true
+        })
+
+        await getChatStream(input)
+        await getUserInfo()
+    } catch (e: any) {
+        message.error('发送消息失败')
+        console.log(e.message)
+    } finally {
+        generating.value = false
+    }
+}
+
+// 现在使用的简历解析模块所在
+// 这里留了一个报错是因为调试阶段这个id使用的是老接口的对话来实现的
+// 需要等待后续接口的开发才能继续使用
+// 在需要老接口填充的部分使用了114514来进行填充
+async function sendMultiple() {
+    multiGenerating.value = true
+    for (let i = 0; i < 5; i++) {
+        try {
+            // is sending?
+            if (generating.value) {
+                return
+            }
+
+            couldContinue.value = true
+
+            if (!user.info.chance.totalChatChance) {
+                return () => {
+                    message.error('您的次数已用尽')
+                    message.info('请点击右上角充值按钮进行充值')
+                }
+            }
+
+            const input = resumePromptDivided[i]
+
+            generating.value = true
+
             // send files
             const promiseList = []
 
@@ -612,7 +612,9 @@ async function sendMessage() {
                 const formData = new FormData()
                 const fileitem = uploadFileList.value[index] as any
 
-                formData.append('dialogId', dialogueId.value.toString())
+                // formData.append('dialogId', dialogueId.value.toString())
+
+                formData.append('dialogId', '114514')
                 formData.append('file', fileitem.originFileObj)
 
                 fileitem.type = 'sending'
@@ -634,7 +636,7 @@ async function sendMessage() {
                     avatar: user.info.avatar || '',
                     content: '',
                     role: 'user',
-                    dialogId: dialogueId.value,
+                    dialogId: 114514,
                     resourceId: null,
                     model: null,
                     subModel: null,
@@ -657,7 +659,6 @@ async function sendMessage() {
                         })
                 )
             }
-            uploadFileList.value = []
 
             // send user message
             if (input) {
@@ -666,7 +667,7 @@ async function sendMessage() {
                     avatar: user.info.avatar || '',
                     content: input,
                     role: 'user',
-                    dialogId: dialogueId.value,
+                    dialogId: 114514,
                     chatId: 0,
                     model: choseModel.value[0],
                     resourceId: null,
@@ -678,7 +679,7 @@ async function sendMessage() {
                     avatar: user.info.avatar || '',
                     content: '',
                     role: 'assistant',
-                    dialogId: dialogueId.value,
+                    dialogId: 114514,
                     chatId: 0,
                     model: choseModel.value[0],
                     resourceId: null,
@@ -691,60 +692,29 @@ async function sendMessage() {
                 await getChatStream(input)
                 await getUserInfo()
             }
-            const qes: any = await getHistoryDialogueList(0, 10, dialogueId.value)
-
-            // cover chat
-            if (qes.length > 0) historyDialogue.value[dialogueIndex.value] = qes[0]
-        } else {
-            // user
-            aChat.value.push({
-                chatId: 0,
-                avatar: user.info.avatar || '',
-                content: input,
-                role: 'user',
-                dialogId: dialogueId.value,
-                resourceId: null,
-                isEffect: true,
-                model: null,
-                subModel: null
-            })
-            // model
-            aChat.value.push({
-                chatId: 0,
-                avatar: user.info.avatar || '',
-                content: '',
-                role: 'assistant',
-                dialogId: dialogueId.value,
-                model: choseModel.value[0],
-                resourceId: null,
-                subModel: choseModel.value[1],
-                isEffect: true
-            })
-
-            await getChatStream(input)
-            await getUserInfo()
-
-            const qes: any = await getHistoryDialogueList(0, 10, dialogueId.value)
-
-            if (qes.length > 0) historyDialogue.value[dialogueIndex.value] = qes[0]
+        } catch (e: any) {
+            message.error('发送消息失败')
+            console.log(e.message)
+        } finally {
+            generating.value = false
         }
-    } catch (e: any) {
-        message.error('发送消息失败')
-        console.log(e.message)
-    } finally {
-        generating.value = false
+
+        console.log(aChat.value.slice().reverse()[0].content)
     }
+    uploadFileList.value = []
+    multiGenerating.value = false
 }
 
 // chat and main area
 const isLinking = ref<boolean>(true)
-const chatListDom = ref<HTMLElement | null>(null)
+// aChat后续定义需要更改以匹配新的数字人问答的接口
 const aChat = ref<Chat[]>([])
 const allFinished = ref<boolean>(false)
 const couldContinue = ref<boolean>(true)
 const generating = ref<boolean>(false)
 const upLoading = ref<boolean>(false)
 const refreshClock = ref<boolean>(false)
+const partIndex = ref<number>(-1)
 
 async function refreshData() {
     if (aChat.value.length == 0) return (upLoading.value = false)
@@ -753,14 +723,16 @@ async function refreshData() {
 
     if (refreshClock.value == false) {
         refreshClock.value = true
-        let data: any = await getChatList(nowList.chatId as number, 10, dialogueId.value)
+        let data: any = await getChatList(nowList.chatId as number, 10, 114514)
         if (data.length == 0) {
             allFinished.value = true
         }
 
-        for (const i in data) {
-            dialogueId.value = data[i].dialogId
-        }
+        // 这里暂无法用114514代替就直接注释掉了
+        // for (const i in data) {
+        //     dialogueId.value = data[i].dialogId
+        // }
+
         for (const item of data.reverse()) {
             aChat.value.unshift(item)
         }
@@ -773,13 +745,13 @@ async function refreshData() {
     }
 }
 
-async function getChatStream(input: string = '') {
+async function getChatStream(input: string) {
     //创建sse流式传输
 
     const response: any = await sse('chat-stream', {
-        input: resumePrompt,
+        input: input,
         sse: true,
-        dialogId: dialogueId.value,
+        dialogId: 114514,
         provider: choseModel.value[0],
         model: choseModel.value[1],
         // 这里不清楚是前端设定好返回后端还是后端调好参数之后返回前端
@@ -817,7 +789,7 @@ async function getChatStream(input: string = '') {
                 end = aChat.value.length - 1
             }
 
-            if (!data || data.dialogId !== dialogueId.value) {
+            if (!data || data.dialogId !== 114514) {
                 break
             }
 
@@ -847,13 +819,15 @@ async function getChatList(lastId: number = 0, pageSize: number = 10, dialogId: 
         const adata = await http('list-chat', { lastId, pageSize, dialogId }, 'POST')
         const res = await adata.json()
 
-        if (res.status == -1) {
-            message.error('获取聊天失败')
-            console.log(res.msg)
+        // 同样也是需要历史对话的id的就注释掉
+        // if (res.status == -1) {
+        //     message.error('获取聊天失败')
+        //     console.log(res.msg)
 
-            historyDialogue.value = []
-            return clearInfo()
-        }
+        //     historyDialogue.value = []
+        //     return clearInfo()
+        // }
+
         if (res.status === 1) data = res.data
         else {
             throw new Error(res.msg)
@@ -866,62 +840,124 @@ async function getChatList(lastId: number = 0, pageSize: number = 10, dialogId: 
     }
     return data
 }
-async function initChat() {
-    try {
-        aChat.value = []
+// 这里可以参考LeChat内的init函数来进行初始化
+// 但是需要考虑还用不用回答之前的问题的问题
+async function initChat() {}
 
-        const dialogList = await getHistoryDialogueList()
-        historyDialogue.value = dialogList
-
-        dialogueId.value = dialogList[0].id
-        dialogueIndex.value = 0
-
-        const data: any = await getChatList(0, 10, dialogueId.value)
-
-        if (data.length === 0) {
-            aChat.value = [
-                {
-                    avatar: '',
-                    chatId: 0,
-                    content: kgContent.content,
-                    dialogId: 0,
-                    isEffect: true,
-                    model: choseModel.value[0],
-                    resourceId: null,
-                    role: 'assistant',
-                    subModel: choseModel.value[1]
-                }
-            ]
+function aChat2JSON_divided(content: string, part: number) {
+    const regex = /```json([\s\S]*?)```/
+    // const regex = /```([\s\S]*?)```/
+    let tempMatch = content.match(regex)
+    if (tempMatch) {
+        switch (part) {
+            case 1:
+                resumeInfo.value.basic = JSON.parse(tempMatch[1])
+                break
+            case 2:
+                resumeInfo.value.education = JSON.parse(tempMatch[1])
+                resumeInfo.value.education.forEach((element: EducationExperience) => {
+                    if (!dayjs.isDayjs(element.range[0])) {
+                        element.range[0] = dayjs(element.range[0] || '2000-01-01')
+                    }
+                    if (!dayjs.isDayjs(element.range[1])) {
+                        element.range[1] = dayjs(element.range[1] || dayjs())
+                    }
+                })
+                break
+            case 3:
+                resumeInfo.value.project = JSON.parse(tempMatch[1])
+                resumeInfo.value.project.forEach((element: ProjectExperience) => {
+                    if (!dayjs.isDayjs(element.range[0])) {
+                        element.range[0] = dayjs(element.range[0] || '2000-01-01')
+                    }
+                    if (!dayjs.isDayjs(element.range[1])) {
+                        element.range[1] = dayjs(element.range[1] || dayjs())
+                    }
+                })
+                break
+            case 4:
+                resumeInfo.value.work = JSON.parse(tempMatch[1])
+                resumeInfo.value.work.forEach((element: WorkExperience) => {
+                    if (!dayjs.isDayjs(element.range[0])) {
+                        element.range[0] = dayjs(element.range[0] || '2000-01-01')
+                    }
+                    if (!dayjs.isDayjs(element.range[1])) {
+                        element.range[1] = dayjs(element.range[1] || dayjs())
+                    }
+                })
+                break
+            case 5:
+                resumeInfo.value.addition = JSON.parse(tempMatch[1])
+                break
         }
-
-        for (const item of data) {
-            dialogueId.value = item.dialogId
-            aChat.value.push(item)
-        }
-    } catch (e: any) {
-        message.error('获取失败')
-        console.log(e.msg)
     }
 }
-function aChat2JSON(content: string) {
-    let regex = /```json([\s\S]*?)```/
-    let match = content.match(regex)
+function aChat2JSON_whole(aChatArray: Chat[]) {
+    const regex = /```json([\s\S]*?)```/
 
-    if (match) {
-        let json = match[1]
-        let resume = JSON.parse(json)
-        resume.education.forEach((element: EducationExperience) => {
-            element.range = [dayjs(element.range[0] || dayjs()), dayjs(element.range[1] || dayjs())]
-        })
-        resume.work.forEach((element: WorkExperience) => {
-            element.range = [dayjs(element.range[0] || dayjs()), dayjs(element.range[1] || dayjs())]
-        })
-        resume.project.forEach((element: ProjectExperience) => {
-            element.range = [dayjs(element.range[0] || dayjs()), dayjs(element.range[1] || dayjs())]
-        })
-        message.info('简历解析完成')
-        resumeInfo.value = resume
+    let matchArray = []
+    for (let i = 0; i < 15; i += 3) {
+        let tempMatch = aChatArray[i].content.match(regex)
+
+        if (tempMatch) {
+            matchArray.push(tempMatch[1])
+        } else {
+            console.log('第' + i + '没有匹配到')
+        }
     }
+
+    resumeInfo.value.addition = JSON.parse(matchArray[0])
+
+    resumeInfo.value.work = JSON.parse(matchArray[1])
+
+    resumeInfo.value.project = JSON.parse(matchArray[2])
+
+    resumeInfo.value.education = JSON.parse(matchArray[3])
+
+    resumeInfo.value.basic = JSON.parse(matchArray[4])
+
+    console.log(resumeInfo.value)
+
+    resumeInfo.value.education.forEach((element: EducationExperience) => {
+        if (!dayjs.isDayjs(element.range[0])) {
+            element.range[0] = dayjs(element.range[0] || '2000-01-01')
+        }
+        if (!dayjs.isDayjs(element.range[1])) {
+            element.range[1] = dayjs(element.range[1] || dayjs())
+        }
+    })
+
+    resumeInfo.value.project.forEach((element: ProjectExperience) => {
+        if (!dayjs.isDayjs(element.range[0])) {
+            element.range[0] = dayjs(element.range[0] || '2000-01-01')
+        }
+        if (!dayjs.isDayjs(element.range[1])) {
+            element.range[1] = dayjs(element.range[1] || dayjs())
+        }
+    })
+
+    resumeInfo.value.work.forEach((element: WorkExperience) => {
+        if (!dayjs.isDayjs(element.range[0])) {
+            element.range[0] = dayjs(element.range[0] || '2000-01-01')
+        }
+        if (!dayjs.isDayjs(element.range[1])) {
+            element.range[1] = dayjs(element.range[1] || dayjs())
+        }
+    })
+
+    console.log(resumeInfo.value)
+
+    message.info('简历解析完成')
+    localStorage.setItem(
+        'resumeInfo',
+        JSON.stringify(resumeInfo.value, (key, value) => {
+            // 当值为空字符串时，将其替换为特殊标记
+            if (value === '') {
+                return '__EMPTY_STRING__'
+            }
+            return value
+        })
+    )
 }
 
 onMounted(async () => {
@@ -945,8 +981,6 @@ onMounted(async () => {
     } catch (e: any) {
         message.error('获取配置失败')
         console.log(e.message)
-
-        historyDialogue.value = []
     } finally {
         isLinking.value = false
     }
@@ -975,62 +1009,38 @@ onMounted(async () => {
     }
 })
 
+watch(multiGenerating, (newValue, oldValue) => {
+    if (newValue === true && oldValue === false) {
+        partIndex.value = 0
+
+        kgData.value.children = []
+    }
+    if (newValue === false && oldValue === true) {
+        message.info('简历解析完成')
+        localStorage.setItem(
+            'resumeInfo',
+            JSON.stringify(resumeInfo.value, (key, value) => {
+                // 当值为空字符串时，将其替换为特殊标记
+                if (value === '') {
+                    return '__EMPTY_STRING__'
+                }
+                return value
+            })
+        )
+    }
+})
+
 watch(generating, (newValue, oldValue) => {
     if (newValue === false && oldValue === true) {
-        aChat2JSON(aChat.value.slice().reverse()[0].content)
+        partIndex.value++
+        aChat2JSON_divided(aChat.value.slice().reverse()[0].content, partIndex.value)
+
+        kgData.value.name = resumeInfo.value.basic.name
+        fillKG(partIndex.value)
+
+        nextTick()
     }
 })
 </script>
 
-<style lang="scss" scoped>
-.upload-mask {
-    position: fixed;
-    z-index: 9999;
-    background-color: rgba(255, 255, 255, 0.4);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    backdrop-filter: blur(10px);
-    top: 0;
-    bottom: 0;
-    right: 0;
-    left: 0;
-    padding: 20px;
-
-    .upload-container {
-        width: 90vw;
-        margin-left: 5vw;
-        height: 90vh;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-
-        .img-container {
-            font-size: '160px';
-            color: '#080603';
-            display: 'flex';
-            flex-direction: 'column';
-            justify-content: 'center';
-            align-items: 'center';
-
-            .file-logo {
-                height: 200px;
-                border-radius: 30px;
-                margin-bottom: 30px;
-            }
-        }
-
-        .upload-title {
-            margin-top: 20px;
-            font-size: 30px;
-            font-weight: 600;
-        }
-
-        .upload-msg {
-            color: #505050;
-            font-size: 20px;
-            margin-top: 17px;
-        }
-    }
-}
-</style>
+<style lang="scss" scoped></style>

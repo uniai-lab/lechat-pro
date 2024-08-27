@@ -54,9 +54,9 @@ import { ref, onBeforeMount } from 'vue'
 import { http } from '@/common/request.js'
 import { message } from 'ant-design-vue'
 import { KeyOutlined, MobileOutlined, QrcodeOutlined, CloseCircleOutlined } from '@ant-design/icons-vue'
-import PhoneLogin from '@/components/LoginModal/PhoneLogin.vue'
-import PasswordLogin from '@/components/LoginModal/PasswordLogin.vue'
-import QRcodeLogin from '@/components/LoginModal/QRcodeLogin.vue'
+import PhoneLogin from '@/components/LeChatComponents/LoginModal/PhoneLogin.vue'
+import PasswordLogin from '@/components/LeChatComponents/LoginModal/PasswordLogin.vue'
+import QRcodeLogin from '@/components/LeChatComponents/LoginModal/QRcodeLogin.vue'
 import type { PasswordForm, PhoneForm } from '@/types/interfaces'
 
 // qrcode token is used to confirm with the backend

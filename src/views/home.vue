@@ -132,32 +132,32 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { EventSourceParserStream } from 'eventsource-parser/stream'
-import { message } from 'ant-design-vue'
-import 'md-editor-v3/lib/preview.css'
 import '@vue-office/docx/lib/index.css'
+import { message } from 'ant-design-vue'
+import { EventSourceParserStream } from 'eventsource-parser/stream'
+import 'md-editor-v3/lib/preview.css'
+import { onMounted, ref } from 'vue'
 
-import TopBar from '@/components/TopBar/TopBar.vue'
-import ChargeModal from '@/components/ChargeModal/ChargeModal.vue'
-import LoginModal from '@/components/LoginModal/LoginModal.vue'
-import PersonalDrawer from '@/components/Drawers/PersonalDrawer.vue'
-import HistoryDialogueDrawer from '@/components/Drawers/HistoryDialogueDrawer.vue'
-import MainArea from '@/components/MainArea/MainArea.vue'
-import RoleSetModal from '@/components/RoleSetModal.vue'
-import RoleSetFloatBtn from '@/components/RoleSetFloatBtn.vue'
-import BottomBar from '@/components/BottomBar/BottomBar.vue'
-import UnusePassWordEditModal from '@/components/UnusePassWordEditModal.vue'
+import BottomBar from '@/components/LeChatComponents/BottomBar/BottomBar.vue'
+import ChargeModal from '@/components/LeChatComponents/ChargeModal/ChargeModal.vue'
+import HistoryDialogueDrawer from '@/components/LeChatComponents/Drawers/HistoryDialogueDrawer.vue'
+import PersonalDrawer from '@/components/LeChatComponents/Drawers/PersonalDrawer.vue'
+import LoginModal from '@/components/LeChatComponents/LoginModal/LoginModal.vue'
+import MainArea from '@/components/LeChatComponents/MainArea/MainArea.vue'
+import RoleSetFloatBtn from '@/components/LeChatComponents/RoleSetFloatBtn.vue'
+import RoleSetModal from '@/components/LeChatComponents/RoleSetModal.vue'
+import TopBar from '@/components/LeChatComponents/TopBar/TopBar.vue'
+import UnusePassWordEditModal from '@/components/LeChatComponents/UnusePassWordEditModal.vue'
 
 import commonContent from '@/common/commoncontent'
-import { http, sse, httppay } from '@/common/request.js'
 import { fileSrcMap } from '@/common/iconSrcUrl'
+import { http, httppay, sse } from '@/common/request.js'
 
 import type { Chat, ModelCascader, Option, PersonalInfoForm, RoleSetForm, ShopList } from '@/types/interfaces'
 
-import { useUserStore } from '@/stores/user'
 import { useComputerStore } from '@/stores/computer'
 import { useLoginStore } from '@/stores/login'
+import { useUserStore } from '@/stores/user'
 
 //  settings
 
@@ -558,6 +558,7 @@ const textInput = ref<string>('')
 const uploadFileList = ref<any[]>([])
 const choseModel = ref<ModelCascader>([null, null])
 const outputType = ref<string>('1')
+// this is the default options, and will later be filled by the backend
 const options = ref<Option[]>([
     {
         value: null,
@@ -568,168 +569,6 @@ const options = ref<Option[]>([
                 value: null,
                 label: '智能选择模型',
                 disabled: false
-            }
-        ]
-    },
-    {
-        value: 'openai',
-        label: 'OpenAI',
-        disabled: false,
-        children: [
-            {
-                disabled: false,
-                value: 'gpt-3.5-turbo-1106',
-                label: 'gpt-3.5-turbo-1106'
-            },
-            {
-                disabled: false,
-                value: 'gpt-3.5-turbo',
-                label: 'gpt-3.5-turbo'
-            },
-            {
-                disabled: false,
-                value: 'gpt-3.5-turbo-16k',
-                label: 'gpt-3.5-turbo-16k'
-            },
-            {
-                disabled: false,
-                value: 'gpt-4',
-                label: 'gpt-4'
-            },
-            {
-                disabled: false,
-                value: 'gpt-4-32k',
-                label: 'gpt-4-32k'
-            },
-            {
-                disabled: false,
-                value: 'gpt-4-1106-preview',
-                label: 'gpt-4-1106-preview'
-            },
-            {
-                disabled: false,
-                value: 'gpt-4-vision-preview',
-                label: 'gpt-4-vision-preview'
-            }
-        ]
-    },
-    {
-        value: 'iflytek',
-        label: 'IFlyTek',
-        disabled: false,
-        children: [
-            {
-                disabled: false,
-                value: 'v1.1',
-                label: 'v1.1'
-            },
-            {
-                disabled: false,
-                value: 'v2.1',
-                label: 'v2.1'
-            },
-            {
-                disabled: false,
-                value: 'v3.1',
-                label: 'v3.1'
-            }
-        ]
-    },
-    {
-        value: 'baidu',
-        label: 'Baidu',
-        disabled: false,
-        children: [
-            {
-                disabled: false,
-                value: 'completions',
-                label: 'completions'
-            },
-            {
-                disabled: false,
-                value: 'completions_pro',
-                label: 'completions_pro'
-            },
-            {
-                disabled: false,
-                value: 'ernie_bot_8k',
-                label: 'ernie_bot_8k'
-            },
-            {
-                disabled: false,
-                value: 'eb-instant',
-                label: 'eb-instant'
-            }
-        ]
-    },
-    {
-        value: 'google',
-        label: 'Google',
-        disabled: false,
-        children: [
-            {
-                disabled: false,
-                value: 'gemini-pro',
-                label: 'gemini-pro'
-            },
-            {
-                disabled: false,
-                value: 'gemini-pro-vision',
-                label: 'gemini-pro-vision'
-            },
-            {
-                disabled: false,
-                value: 'gemini-ultra',
-                label: 'gemini-ultra'
-            }
-        ]
-    },
-    {
-        value: 'glm',
-        label: 'GLM',
-        disabled: false,
-        children: [
-            {
-                disabled: false,
-                value: 'chatglm3-6b-32k',
-                label: 'chatglm3-6b-32k'
-            },
-            {
-                disabled: false,
-                value: 'glm-3-turbo',
-                label: 'glm-3-turbo'
-            },
-            {
-                disabled: false,
-                value: 'glm-4',
-                label: 'glm-4'
-            },
-            {
-                disabled: false,
-                value: 'glm-4v',
-                label: 'glm-4v'
-            }
-        ]
-    },
-    {
-        value: 'moonshot',
-        label: 'MoonShot',
-        disabled: false,
-        children: [
-            {
-                disabled: false,
-                value: 'moonshot-v1-8k',
-                label: 'moonshot-v1-8k'
-            },
-            {
-                disabled: false,
-                value: 'moonshot-v1-32k',
-                label: 'moonshot-v1-32k'
-            },
-            {
-                disabled: false,
-                value: 'moonshot-v1-128k',
-                label: 'moonshot-v1-128k'
             }
         ]
     }

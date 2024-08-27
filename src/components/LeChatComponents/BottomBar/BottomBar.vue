@@ -20,7 +20,7 @@
         </div>
 
         <div class="tool-box">
-            <a-button @click="emitShowHistoryDrawer" class="base-style history-btn">
+            <a-button ref="step1" @click="emitShowHistoryDrawer" class="base-style history-btn">
                 <svg
                     t="1709609597661"
                     class="icon"
@@ -40,7 +40,7 @@
                     ></path>
                 </svg>
 
-                <div v-if="ifComputer" class="history-text">历史简历</div>
+                <div v-if="ifComputer" class="history-text">历史对话</div>
             </a-button>
 
             <!-- pc  -->
@@ -52,6 +52,7 @@
                         :allowClear="false"
                         :options="props.options"
                         @change="modelChange"
+                        ref="step2"
                     />
                 </a-config-provider>
             </div>
@@ -64,6 +65,25 @@
                     </a-cascader>
                 </a-config-provider>
             </div>
+
+            <a-button ref="step3" @click="emitShowRoleSet" class="base-style role-set-icon" v-if="ifComputer">
+                <svg
+                    t="1709611594182"
+                    class="icon"
+                    viewBox="0 0 1024 1024"
+                    version="1.1"
+                    xmlns="http://www.w3.org/2000/svg"
+                    p-id="19888"
+                    width="20"
+                    height="20"
+                >
+                    <path
+                        d="M582.464 228.202667L490.666667 192l91.797333-36.202667L618.666667 64l36.202666 91.797333L746.666667 192l-91.797334 36.202667L618.666667 320l-36.202667-91.797333z m213.333333-64L704 128l91.797333-36.202667L832 0l36.202667 91.797333L960 128l-91.797333 36.202667L832 256l-36.202667-91.797333z m64 213.333333L768 341.333333l91.797333-36.202666L896 213.333333l36.202667 91.797334L1024 341.333333l-91.797333 36.202667L896 469.333333l-36.202667-91.797333zM512 42.666667v85.333333C299.925333 128 128 299.925333 128 512s171.925333 384 384 384 384-171.925333 384-384h85.333333c0 259.2-210.133333 469.333333-469.333333 469.333333S42.666667 771.2 42.666667 512 252.8 42.666667 512 42.666667z m-181.013333 670.165333l60.330666-60.330667a170.666667 170.666667 0 0 0 241.365334 0l60.330666 60.330667c-99.968 99.989333-262.058667 99.989333-362.026666 0zM362.666667 533.333333a64 64 0 1 1 0-128 64 64 0 0 1 0 128z m298.666666 0a64 64 0 1 1 0-128 64 64 0 0 1 0 128z"
+                        fill="#000000"
+                        p-id="19889"
+                    ></path>
+                </svg>
+            </a-button>
 
             <div class="text-box">
                 <a-upload
@@ -109,7 +129,7 @@
             </div>
 
             <a-config-provider :theme="{ token: { colorPrimary: ' rgb(17,20,24)' } }">
-                <a-button
+                <a-dropdown-button
                     ref="step5"
                     @click="emitSendMessage"
                     type="primary"
@@ -123,17 +143,65 @@
                     }"
                 >
                     发送
-                </a-button>
+                    <template #overlay>
+                        <a-menu @click="handleOutputTypeClick">
+                            <a-menu-item key="0">
+                                <cloud-sync-outlined />
+                                智能生成
+                            </a-menu-item>
+                            <a-menu-item key="1">
+                                <file-text-outlined />
+                                生成文本
+                            </a-menu-item>
+                            <a-menu-item key="3">
+                                <file-image-outlined />
+                                生成图片
+                            </a-menu-item>
+                        </a-menu>
+                    </template>
+                    <template #icon>
+                        <div class="dropdown" v-if="outputType == '0'">
+                            <cloud-sync-outlined />
+                        </div>
+
+                        <div class="dropdown" v-if="outputType == '1'">
+                            <file-text-outlined />
+                        </div>
+
+                        <div class="dropdown" v-if="outputType == '3'">
+                            <file-image-outlined />
+                        </div>
+                    </template>
+                </a-dropdown-button>
             </a-config-provider>
         </div>
     </div>
+
+    <a-config-provider :locale="zhCN">
+        <a-tour
+            v-if="props.ifComputer"
+            v-model:current="curStep"
+            :open="leadOpen"
+            :steps="steps"
+            @close="emitCloseLead"
+            :arrow="false"
+        />
+    </a-config-provider>
 </template>
 <script setup lang="ts">
-import { LinkOutlined, CodeSandboxOutlined } from '@ant-design/icons-vue'
+import {
+    CloudSyncOutlined,
+    LinkOutlined,
+    FileImageOutlined,
+    FileTextOutlined,
+    CodeSandboxOutlined
+} from '@ant-design/icons-vue'
 import { fileSrcMap, fileError } from '@/common/iconSrcUrl'
 import type { ModelCascader, Option, UserInfo } from '@/types/interfaces'
-import type { MenuProps } from 'ant-design-vue'
+import type { MenuProps, TourProps } from 'ant-design-vue'
 import type { MenuInfo } from 'ant-design-vue/es/menu/src/interface'
+import { ref, type ComponentPublicInstance } from 'vue'
+import zhCN from 'ant-design-vue/es/locale/zh_CN'
 
 const props = defineProps<{
     ifLogin: boolean
@@ -143,26 +211,81 @@ const props = defineProps<{
     options: Option[]
 
     userInfo: UserInfo
+
+    leadOpen: boolean
 }>()
 
-const emit = defineEmits<{ showHistoryDrawer: []; sendMessage: [] }>()
+const emit = defineEmits<{ showHistoryDrawer: []; showRoleSet: []; sendMessage: []; closeLead: [] }>()
 
 const text = defineModel<string>('text', { required: true })
 const fileList = defineModel<any[]>('fileList', { required: true })
 const choseModel = defineModel<ModelCascader>('choseModel', { required: true, default: [null, null] })
 const isDragging = defineModel<boolean>('isDragging', { required: true })
-
-// 0 for auto, 1 for text, 3 for image
 const outputType = defineModel<string>('outputType', { required: true })
+
+const curStep = ref<number>(0)
+const step1 = ref<ComponentPublicInstance | null>(null)
+const step2 = ref<ComponentPublicInstance | null>(null)
+const step3 = ref<ComponentPublicInstance | null>(null)
+const step4 = ref<ComponentPublicInstance | null>(null)
+const step5 = ref<ComponentPublicInstance | null>(null)
+
+const steps: TourProps['steps'] = [
+    {
+        title: '历史对话',
+        placement: 'top',
+        description: '点击此处查看历史对话',
+        target: () => step1.value && step1.value.$el
+    },
+    {
+        title: '模型选择',
+        placement: 'top',
+        description: '点击此处选择您需要的模型',
+        target: () => step2.value && step2.value.$el
+    },
+    {
+        title: '预设开场白',
+        placement: 'top',
+        description: '点击此处可以预设场景与开场白',
+        target: () => step3.value && step3.value.$el
+    },
+    {
+        title: '文件上传',
+        placement: 'top',
+        description: '点击此处上传您要分析的文件',
+        target: () => step4.value && step4.value.$el
+    },
+    {
+        title: '选择对话模式',
+        description: '按钮右侧图标可选择对话模式，默认为智能融合',
+        placement: 'top',
+        target: () => step5.value && step5.value.$el
+    },
+    {
+        title: '文件上传',
+        placement: 'right',
+        description: '您可以直接将文件拖入到页面中',
+        target: () => null
+    }
+]
 
 function emitShowHistoryDrawer() {
     emit('showHistoryDrawer')
+}
+
+function emitShowRoleSet() {
+    emit('showRoleSet')
 }
 
 function emitSendMessage() {
     emit('sendMessage')
 }
 
+function emitCloseLead() {
+    emit('closeLead')
+}
+
+// here uses event.keyCode because Mac PC's enter is not event.key === "Enter" but event.keyCode === 13
 function keydownHandle(event: KeyboardEvent) {
     if (event.keyCode === 13) {
         if (!event.ctrlKey && !event.metaKey) {
@@ -205,6 +328,14 @@ function modelChange(currentModel: ModelCascader) {
 }
 const handleOutputTypeClick: MenuProps['onClick'] = (e: MenuInfo) => {
     outputType.value = e.key.toString()
+}
+
+// here may be the @ function that choose agent(unfinish)
+const handleCompositionUpdate = (event: any) => {
+    const text = event.target.value.slice(0, event.target.selectionStart)
+    const previousChar = text[text.length - 1]
+
+    //if(previousChar === '@')
 }
 </script>
 

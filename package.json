@@ -6,9 +6,10 @@
     "license": "MIT",
     "scripts": {
         "dev": "vite",
-        "dev-net": "vite --host",
+        "dev-3000": "vite --port 3000 --host",
         "build": "run-p  build-only",
         "preview": "vite preview --port 4173",
+        "preview-net": "vite preview --host --port 4173",
         "build-only": "vite build",
         "type-check": "vue-tsc --noEmit",
         "e:dev": "yarn build && cp -r electron/. dist && cd dist && yarn && yarn dev",
