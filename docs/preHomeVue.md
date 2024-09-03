@@ -283,3 +283,6 @@ this offers hostory chats
 
 -   **line 987 to line 1002** `ant upload list`
 -   **line 1005 to line 1029** History Chat Btn
+-   **line 1030 to line 1059** Modal Choose Btn
+-   **line 1060 to line 1095** Role Choose Btn
+-   **line 1096 to line 1239** fileUpload Btn, chatWordTextarea, send Btn
