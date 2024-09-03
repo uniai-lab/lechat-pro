@@ -164,7 +164,7 @@ async function afterPaySucces() {
         function start(canvasScan: confetti.CreateTypes) {
             let end = Date.now() + 0.5 * 1000
 
-            let shapes: ['circle', 'circle', 'square']
+            let shapes: ['circle', 'circle', 'square'] = ['circle', 'circle', 'square']
 
             function frame() {
                 canvasScan({
