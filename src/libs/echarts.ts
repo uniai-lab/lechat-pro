@@ -3,24 +3,101 @@
 // /src/libs/echarts.js
 
 import ECharts from 'vue-echarts'
-
-// 手动引入 ECharts 各模块来减小打包体积
 import { use } from 'echarts/core'
-import { SVGRenderer } from 'echarts/renderers'
-import { PieChart, BarChart, LineChart, TreeChart } from 'echarts/charts'
-import { TitleComponent, TooltipComponent, LegendComponent, GridComponent } from 'echarts/components'
-
-// 注册必须的组件
-use([
-    SVGRenderer,
-    PieChart,
+import {
+    CanvasRenderer,
+    SVGRenderer
+} from 'echarts/renderers'
+import {
     BarChart,
     LineChart,
+    PieChart,
+    ScatterChart,
+    RadarChart,
+    MapChart,
     TreeChart,
-    TitleComponent,
+    TreemapChart,
+    SunburstChart,
+    BoxplotChart,
+    CandlestickChart,
+    EffectScatterChart,
+    LinesChart,
+    HeatmapChart,
+    GraphChart,
+    ParallelChart,
+    FunnelChart,
+    GaugeChart,
+    PictorialBarChart,
+    ThemeRiverChart,
+    SankeyChart
+} from 'echarts/charts'
+import {
+    GridComponent,
+    PolarComponent,
+    GeoComponent,
+    SingleAxisComponent,
+    ParallelComponent,
+    CalendarComponent,
+    GraphicComponent,
+    ToolboxComponent,
     TooltipComponent,
+    TitleComponent,
     LegendComponent,
-    GridComponent
+    DataZoomComponent,
+    VisualMapComponent,
+    TimelineComponent,
+    MarkPointComponent,
+    MarkLineComponent,
+    MarkAreaComponent,
+    DatasetComponent,
+    TransformComponent
+} from 'echarts/components'
+
+use([
+    CanvasRenderer,
+    SVGRenderer,
+    // 图表类型
+    BarChart,
+    LineChart,
+    PieChart,
+    ScatterChart,
+    RadarChart,
+    MapChart,
+    TreeChart,
+    TreemapChart,
+    SunburstChart,
+    BoxplotChart,
+    CandlestickChart,
+    EffectScatterChart,
+    LinesChart,
+    HeatmapChart,
+    GraphChart,
+    ParallelChart,
+    FunnelChart,
+    GaugeChart,
+    PictorialBarChart,
+    ThemeRiverChart,
+    SankeyChart,
+    // 组件
+    GridComponent,
+    PolarComponent,
+    GeoComponent,
+    SingleAxisComponent,
+    ParallelComponent,
+    CalendarComponent,
+    GraphicComponent,
+    ToolboxComponent,
+    TooltipComponent,
+    TitleComponent,
+    LegendComponent,
+    DataZoomComponent,
+    VisualMapComponent,
+    TimelineComponent,
+    MarkPointComponent,
+    MarkLineComponent,
+    MarkAreaComponent,
+    DatasetComponent,
+    TransformComponent
 ])
 
 export default {

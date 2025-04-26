@@ -146,7 +146,7 @@ onUnmounted(() => {
         max-width: 1000px;
         display: flex;
         margin-top: 0.5rem /* 8px */;
-        padding: 0.75rem 1rem;
+        padding: 0.75rem 0rem;
         color: rgb(17 24 39);
         border-radius: 0.5rem;
         flex-direction: column;
