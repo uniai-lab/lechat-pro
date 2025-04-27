@@ -40,12 +40,11 @@ async function getQrcode() {
     if (forbidSend.value == false) {
         forbidSend.value = true
         try {
-            const res: any = await http('get-qr-code', 'GET')
-            const qes = await res.json()
+            const res = await http('web/get-qr-code', {}, 'GET')
 
-            if (qes.status == 1) {
-                qrcodeToken.value = qes.data.token
-                qrcodeSource.value = qes.data.code
+            if (res.status == 1) {
+                qrcodeToken.value = res.data.token
+                qrcodeSource.value = res.data.code
                 qrcodeStatus.value = 'active'
                 startGlobalPollingTimer.value()
             } else {

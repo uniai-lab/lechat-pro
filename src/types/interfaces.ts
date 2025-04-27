@@ -40,11 +40,7 @@ export interface FileInfo {
 
 // UserInfo and PersonalInfoForm used to edit and show
 export interface UserInfo {
-    chance: {
-        totalChatChance: number
-        level: number
-        levelExpiredAt: string
-    }
+    chance: { totalChatChance: number; level: number; levelExpiredAt: string }
     name: string
     phone: string
     avatar: string

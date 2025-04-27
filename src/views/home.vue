@@ -151,7 +151,7 @@ import UnusePassWordEditModal from '@/components/LeChatComponents/UnusePassWordE
 
 import commonContent from '@/common/commoncontent'
 import { fileSrcMap } from '@/common/iconSrcUrl'
-import { http, httppay, sse } from '@/common/request.js'
+import { http, sse } from '@/common/request.ts'
 
 import type { Chat, ModelCascader, Option, PersonalInfoForm, RoleSetForm, ShopList } from '@/types/interfaces'
 
@@ -168,24 +168,6 @@ const ifFirstLoad = ref<boolean>(false)
 const isComputer = useComputerStore()
 
 const defaultConfig = ref()
-
-function printLogo() {
-    console.log(`
- ██╗      ████████╗  ███████╗██╗  ██╗ █████╗████████╗
- ██║      ██╔═════╝  ██╔════╝██║  ██║██╔══██╗  ██╔══╝
- ██║      ████████╗  ██║     ███████║███████║  ██║
- ██║      ██╔═════╝  ██║     ██╔══██║██╔══██║  ██║
- ████████╗████████╗  ███████╗██║  ██║██║  ██║  ██║
- ╚═══════╝╚═══════╝  ╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝  ╚═╝
-`)
-    console.log(
-        '%cUni-AI  \n%cWelcome to join us\nwww.uniai.us\n%c© 2024 中科苏州智能计算技术研究院. All Rights Reserved.  \n\n%c ',
-        'font-family: "微软雅黑", sans-serif;font-size:50px;color: #2f3542;-webkit-text-fill-color: #2f3542;-webkit-text-stroke: #2f3542;text-shadow: 0px 0px 7px rgba(0, 0, 0, 0.3)',
-        "font-family: '微软雅黑';color: #9C27B0;font-size:  20px;",
-        "font-family: '微软雅黑';color: #9C27B0;font-size: 12px;",
-        'color: red;font-size: 14px;'
-    )
-}
 
 function refreshJudge(isTop: boolean) {
     if (isTop && ifLogin.val && !refreshClock.value && !allFinished.value) {
@@ -249,8 +231,7 @@ async function clearInfo() {
 }
 async function getUserInfo() {
     try {
-        const data: any = await http('userinfo', {}, 'GET')
-        const res = await data.json()
+        const res = await http('web/userinfo', {}, 'GET')
         if (res.status === -1) {
             clearInfo()
             return
@@ -297,14 +278,7 @@ async function logout() {
 
 // role set
 const isRoleSetOpen = ref<boolean>(false)
-const roleSetForm = ref<RoleSetForm>({
-    name: '',
-    delivery: false,
-    type: [],
-    resource: '',
-    desc: '',
-    startmsg: ''
-})
+const roleSetForm = ref<RoleSetForm>({ name: '', delivery: false, type: [], resource: '', desc: '', startmsg: '' })
 
 function showRoleSet() {
     isRoleSetOpen.value = true
@@ -324,13 +298,7 @@ function onRoleSetSubmit() {
 // charge and pay
 const isChargeOpen = ref<boolean>(false)
 const shopList = ref<ShopList[]>([
-    {
-        id: 1,
-        price: 1,
-        title: '首充一元',
-        rolelist: ['支持科大讯飞模型', '国内模型次数可用'],
-        description: ''
-    }
+    { id: 1, price: 1, title: '首充一元', rolelist: ['支持科大讯飞模型', '国内模型次数可用'], description: '' }
 ])
 
 function closeChargeModal() {
@@ -338,8 +306,7 @@ function closeChargeModal() {
 }
 async function showChargeModal() {
     try {
-        const shoplistRes: any = await httppay('list', {}, 'get')
-        const res = await shoplistRes.json()
+        const res = await http('pay/list', {}, 'get')
 
         if (res.status === 1) {
             shopList.value = res.data
@@ -360,10 +327,7 @@ async function showChargeModal() {
 const personalDrawerVisible = ref<boolean>(false)
 const savePersonalInfoClock = ref<boolean>(false)
 const avatarUrl = ref<string>('')
-const personalInfoForm = ref<PersonalInfoForm>({
-    name: '',
-    phone: ''
-})
+const personalInfoForm = ref<PersonalInfoForm>({ name: '', phone: '' })
 
 function showPersonalDrawer() {
     personalDrawerVisible.value = true
@@ -384,15 +348,7 @@ async function savePersonalInfo() {
 
         try {
             savePersonalInfoClock.value = true
-            const senduserinfo: any = await http(
-                'update-user',
-                {
-                    avatar: changeImageUrl,
-                    name: personalInfoForm.value.name
-                },
-                'POST'
-            )
-            const res = await senduserinfo.json()
+            const res = await http('web/update-user', { avatar: changeImageUrl, name: personalInfoForm.value.name })
 
             if (res.status == -1) {
                 message.error('保存失败')
@@ -429,8 +385,7 @@ async function getHistoryDialogueList(lastId: number = 0, pageSize: number = 10,
         if (upLoading.value) return
         upLoading.value = true
 
-        const adata: any = await http('list-dialog', { lastId, pageSize, id }, 'POST')
-        const res = await adata.json()
+        const res = await http('web/list-dialog', { lastId, pageSize, id })
 
         if (res.status == -1) {
             message.error('获取对话失败')
@@ -465,8 +420,7 @@ async function newDialogue() {
     if (newDialogueClock.value == false) {
         newDialogueClock.value = true
         try {
-            const adata: any = await http('add-dialog', {}, 'GET')
-            const res = await adata.json()
+            const res = await http('web/add-dialog', {}, 'GET')
 
             if (res.status == -1) {
                 message.error('新建对话失败')
@@ -523,8 +477,7 @@ async function toLatestDialogue(id: number, index: number) {
 }
 async function delDialogue(id: number) {
     try {
-        const adata: any = await http(`del-dialog?id=${id}`, {}, 'GET')
-        const res = await adata.json()
+        const res = await http(`web/del-dialog`, { id }, 'GET')
 
         if (res.status == -1) {
             message.error('删除对话失败')
@@ -564,13 +517,7 @@ const options = ref<Option[]>([
         value: null,
         label: '选择模型',
         disabled: false,
-        children: [
-            {
-                value: null,
-                label: '智能选择模型',
-                disabled: false
-            }
-        ]
+        children: [{ value: null, label: '智能选择模型', disabled: false }]
     }
 ])
 async function sendMessage() {
@@ -640,10 +587,7 @@ async function sendMessage() {
                 })
 
                 promiseList.push(
-                    http('upload', formData, 'POST')
-                        .then((res: any) => {
-                            return res.json()
-                        })
+                    http('web/upload', formData)
                         .then((res: any) => {
                             res.data.file.type = 'done'
                             aChat.value[aindex - 1].file = res.data.file
@@ -771,7 +715,7 @@ async function refreshData() {
 }
 async function getChatStream(input: string = '') {
     //创建sse流式传输
-    const response: any = await sse('chat-stream', {
+    const response = await sse('web/chat-stream', {
         input,
         sse: true,
         dialogId: dialogueId.value,
@@ -782,8 +726,8 @@ async function getChatStream(input: string = '') {
         mode: Number(outputType.value) * 1
     })
 
-    const reader = response.body
-        .pipeThrough(new TextDecoderStream())
+    const reader = response
+        .body!.pipeThrough(new TextDecoderStream())
         .pipeThrough(new EventSourceParserStream())
         .getReader()
 
@@ -791,9 +735,7 @@ async function getChatStream(input: string = '') {
         generating.value = true
         const onceData = await reader.read()
 
-        if (onceData.done && !onceData.value) {
-            break
-        }
+        if ((onceData.done && !onceData.value) || !onceData.value) break
 
         const res = JSON.parse(onceData.value.data)
         const data = res.data
@@ -839,8 +781,7 @@ async function getChatList(lastId: number = 0, pageSize: number = 10, dialogId: 
         if (upLoading.value) return
         upLoading.value = true
 
-        const adata = await http('list-chat', { lastId, pageSize, dialogId }, 'POST')
-        const res = await adata.json()
+        const res = await http('web/list-chat', { lastId, pageSize, dialogId })
 
         if (res.status == -1) {
             message.error('获取聊天失败')
@@ -850,9 +791,7 @@ async function getChatList(lastId: number = 0, pageSize: number = 10, dialogId: 
             return clearInfo()
         }
         if (res.status === 1) data = res.data
-        else {
-            throw new Error(res.msg)
-        }
+        else throw new Error(res.msg)
     } catch (e: any) {
         message.error('获取聊天失败')
         console.log(e.msg)
@@ -915,7 +854,6 @@ function closePasswordEditModal() {
 }
 
 onMounted(async () => {
-    printLogo()
     //获取屏幕宽高
     const screenWidth = document.body.clientWidth
     const screenHeight = document.body.clientHeight
@@ -938,8 +876,7 @@ onMounted(async () => {
 
     try {
         isLinking.value = true
-        const data: any = await http('config', {}, 'GET')
-        const res = await data.json()
+        const res = await http('web/config', {}, 'GET')
 
         if (res.status === 1) localStorage.setItem('config', JSON.stringify(res.data))
     } catch (e: any) {
@@ -1005,7 +942,8 @@ body::-webkit-scrollbar {
 </style>
 <style scoped lang="scss">
 pre {
-    font-family: -apple-system, 'Noto Sans', 'Helvetica Neue', Helvetica, 'Nimbus Sans L', Arial, 'Liberation Sans',
+    font-family:
+        -apple-system, 'Noto Sans', 'Helvetica Neue', Helvetica, 'Nimbus Sans L', Arial, 'Liberation Sans',
         'PingFang SC', 'Hiragino Sans GB', 'Noto Sans CJK SC', 'Source Han Sans SC', 'Source Han Sans CN',
         'Microsoft YaHei', 'Wenquanyi Micro Hei', 'WenQuanYi Zen Hei', 'ST Heiti', SimHei, 'WenQuanYi Zen Hei Sharp',
         sans-serif;

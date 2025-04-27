@@ -65,7 +65,7 @@
 <script setup lang="ts">
 import kgContent from '@/common/kgContent'
 import { resumePromptDivided } from '@/common/prompt'
-import { http, sse } from '@/common/request'
+import { http, sse } from '@/common/request.ts'
 import KGBottomBar from '@/components/KGcomponents/BottomBar/KGBottomBar.vue'
 import KnowledgeGraph from '@/components/KGcomponents/KnowledgeGraph.vue'
 import Resume from '@/components/KGcomponents/Resume.vue'
@@ -104,24 +104,11 @@ const ifLogin = useLoginStore()
 const nowModule = ref<'KG' | 'RS' | 'CT'>('KG')
 
 const resumeInfo = ref<ResumeInfo>({
-    basic: {
-        name: '',
-        gender: null,
-        age: 0,
-        phone: '',
-        email: '',
-        address: '',
-        wechat: '',
-        site: '',
-        github: ''
-    },
+    basic: { name: '', gender: null, age: 0, phone: '', email: '', address: '', wechat: '', site: '', github: '' },
     education: [],
     work: [],
     project: [],
-    addition: {
-        skill: '',
-        other: ''
-    }
+    addition: { skill: '', other: '' }
 })
 
 function switchModule(module: 'KG' | 'RS' | 'CT') {
@@ -187,8 +174,7 @@ async function clearInfo() {
 }
 async function getUserInfo() {
     try {
-        const data: any = await http('userinfo', {}, 'GET')
-        const res = await data.json()
+        const res = await http('web/userinfo', {}, 'GET')
         if (res.status === -1) {
             clearInfo()
             return
@@ -205,10 +191,7 @@ async function getUserInfo() {
 }
 
 // Knowledge Graph
-const kgData = ref<TreeNode>({
-    name: resumeInfo.value.basic.name,
-    children: []
-})
+const kgData = ref<TreeNode>({ name: resumeInfo.value.basic.name, children: [] })
 
 // 这里暂时写死，后端接口待开发
 const kgGraphData = ref<GraphNode[]>([
@@ -388,10 +371,7 @@ function fillKG(part: number) {
                 // 项目经历里面可能有很多个“项目”
                 for (let i = 0; i < resumeInfo.value.project.length; i++) {
                     // 首先插入一行项目
-                    kgData.value.children[2].children?.push({
-                        name: resumeInfo.value.project[i].name,
-                        children: []
-                    })
+                    kgData.value.children[2].children?.push({ name: resumeInfo.value.project[i].name, children: [] })
 
                     // 随后插入这个项目的各个的属性
                     if (kgData.value.children[2].children) {
@@ -435,10 +415,7 @@ function fillKG(part: number) {
                 // 工作经历里面可能有很多个“工作”
                 for (let i = 0; i < resumeInfo.value.work.length; i++) {
                     // 首先插入一行工作
-                    kgData.value.children[3].children?.push({
-                        name: resumeInfo.value.work[i].company,
-                        children: []
-                    })
+                    kgData.value.children[3].children?.push({ name: resumeInfo.value.work[i].company, children: [] })
 
                     // 随后插入这个工作的各个的属性
                     if (kgData.value.children[3].children) {
@@ -487,24 +464,11 @@ function fillKG(part: number) {
 
 function clearResume() {
     resumeInfo.value = {
-        basic: {
-            name: '',
-            gender: null,
-            age: 0,
-            phone: '',
-            email: '',
-            address: '',
-            wechat: '',
-            site: '',
-            github: ''
-        },
+        basic: { name: '', gender: null, age: 0, phone: '', email: '', address: '', wechat: '', site: '', github: '' },
         education: [],
         work: [],
         project: [],
-        addition: {
-            skill: '',
-            other: ''
-        }
+        addition: { skill: '', other: '' }
     }
 
     localStorage.removeItem('resumeInfo')
@@ -645,10 +609,7 @@ async function sendMultiple() {
                 })
 
                 promiseList.push(
-                    http('upload', formData, 'POST')
-                        .then((res: any) => {
-                            return res.json()
-                        })
+                    http('web/upload', formData)
                         .then((res: any) => {
                             res.data.file.type = 'done'
                             aChat.value[aindex - 1].file = res.data.file
@@ -748,7 +709,7 @@ async function refreshData() {
 async function getChatStream(input: string) {
     //创建sse流式传输
 
-    const response: any = await sse('chat-stream', {
+    const response = await sse('web/chat-stream', {
         input: input,
         sse: true,
         dialogId: 114514,
@@ -760,8 +721,8 @@ async function getChatStream(input: string) {
         mode: Number(outputType.value) * 1
     })
 
-    const reader = response.body
-        .pipeThrough(new TextDecoderStream())
+    const reader = response
+        .body!.pipeThrough(new TextDecoderStream())
         .pipeThrough(new EventSourceParserStream())
         .getReader()
 
@@ -769,7 +730,7 @@ async function getChatStream(input: string) {
         generating.value = true
         const onceData = await reader.read()
 
-        if (onceData.done && !onceData.value) {
+        if ((onceData.done && !onceData.value) || !onceData.value) {
             break
         }
 
@@ -816,8 +777,7 @@ async function getChatList(lastId: number = 0, pageSize: number = 10, dialogId: 
         if (upLoading.value) return
         upLoading.value = true
 
-        const adata = await http('list-chat', { lastId, pageSize, dialogId }, 'POST')
-        const res = await adata.json()
+        const res = await http('web/list-chat', { lastId, pageSize, dialogId })
 
         // 同样也是需要历史对话的id的就注释掉
         // if (res.status == -1) {
@@ -972,8 +932,7 @@ onMounted(async () => {
 
     try {
         isLinking.value = true
-        const data: any = await http('config', {}, 'GET')
-        const res = await data.json()
+        const res = await http('web/config', {}, 'GET')
 
         if (res.status === 1) {
             localStorage.setItem('config', JSON.stringify(res.data))

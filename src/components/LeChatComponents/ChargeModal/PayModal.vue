@@ -58,8 +58,11 @@
             v-show="payResultVisible"
             status="success"
             title="支付成功"
-            :sub-title="`订单编号:${lastTransactionId} , 可能存在1-3分钟的延迟，如长时间没有到账，请联系客服`"
+            sub-title="可能存在1-3分钟的延迟，如长时间没有到账，请联系客服"
+            align="center"
         >
+            订单编号:{{ lastTransactionId }}
+            <br />
             <slot></slot>
         </a-result>
     </a-modal>

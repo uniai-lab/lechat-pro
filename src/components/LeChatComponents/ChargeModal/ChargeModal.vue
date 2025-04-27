@@ -51,6 +51,7 @@
     </a-modal>
 
     <CostTable v-if="isCostTableOpen" @close="handleCloseCost" />
+
     <PayModal
         :selected-good="selectedGood"
         :is-pay-result-open="isPayResultOpen"
@@ -67,14 +68,21 @@
 import { onBeforeUnmount, ref, defineProps, defineEmits, defineModel } from 'vue'
 import { message } from 'ant-design-vue'
 import confetti from 'canvas-confetti'
-import { httppay } from '@/common/request'
+import { http } from '@/common/request.ts'
 import CostTable from './CostTable.vue'
 import PayModal from './PayModal.vue'
 import type { ShopList } from '@/types/interfaces'
 
-interface PaymentResponse {
+interface PayCreateResponse {
+    base64: string
+    transactionId: string
+    id: string
+    msg: string
+}
+interface PayCheckResponse {
     status: number
-    data: { base64: string; transactionId: string; id: string; status?: number }
+    data: { status: number }
+    msg: string
 }
 
 const props = defineProps<{ isComputer: boolean; shopList: ShopList[] }>()
@@ -83,7 +91,7 @@ const emit = defineEmits<{ closeCharge: []; getUserInfo: [] }>()
 
 const isChargeOpen = defineModel<boolean>({ required: true })
 const selectedGood = ref<ShopList>({ id: 0, price: 0, title: '', rolelist: [], description: '' })
-const canvasConfetti = ref<HTMLCanvasElement | null>(null)
+const canvasConfetti = ref<HTMLCanvasElement>()
 const lastTransactionId = ref<string>('')
 const isPayModalOpen = ref<boolean>(false)
 const isPayResultOpen = ref<boolean>(false)
@@ -106,14 +114,13 @@ async function selectItem(item: ShopList) {
     selectedGood.value = item
 
     try {
-        const res = await httppay('create', { type: 'wechat', id: item.id }, 'POST')
-        const data = (await res.json()) as PaymentResponse
+        const res = await http<PayCreateResponse>('pay/create', { type: 'wechat', id: item.id })
 
-        if (data.status === 1) {
-            shopQRcode.value = data.data.base64
-            lastTransactionId.value = data.data.transactionId
-            stopMonitoringFunction.value = monitorPayment(data.data.id)
-        }
+        if (res.status === 1 && res.data) {
+            shopQRcode.value = res.data.base64
+            lastTransactionId.value = res.data.transactionId
+            stopMonitoringFunction.value = monitorPayment(res.data.id)
+        } else throw new Error(res.msg)
     } catch (error) {
         message.error('获取二维码失败')
         console.error(error)
@@ -123,18 +130,17 @@ async function selectItem(item: ShopList) {
 function monitorPayment(paymentId: string) {
     const intervalId = setInterval(async () => {
         try {
-            const response = await httppay(`check?id=${paymentId}`, 'get')
-            const payRes = (await response.json()) as PaymentResponse
+            const res = await http<PayCheckResponse>(`pay/check`, { id: paymentId }, 'get')
 
-            if (payRes?.data?.status === 1) {
+            if (res.data?.status === 1) {
                 clearInterval(intervalId)
-                await triggerPaymentSuccess()
-                isPayModalOpen.value = false
-                isPayResultOpen.value = false
+                isPayModalOpen.value = true
+                isPayResultOpen.value = true
                 isChargeOpen.value = false
                 isCostTableOpen.value = false
+                afterPaySuccess()
                 getUserInfo()
-            }
+            } else throw new Error(res.msg)
         } catch (error) {
             console.error('Error monitoring payment:', error)
         }
@@ -143,24 +149,28 @@ function monitorPayment(paymentId: string) {
     return () => clearInterval(intervalId)
 }
 
-async function triggerPaymentSuccess() {
+function afterPaySuccess() {
     requestAnimationFrame(() => {
-        if (!canvasConfetti.value) return
-
         const canvasScan = confetti.create(canvasConfetti.value)
-        const shapes: ('circle' | 'square')[] = ['circle', 'circle', 'square']
-        const end = Date.now() + 500 // 0.5 seconds
 
-        function frame() {
-            canvasScan({ particleCount: 2, angle: 60, spread: 55, origin: { x: 0 }, shapes })
-            canvasScan({ particleCount: 2, angle: 120, spread: 55, origin: { x: 1 }, shapes })
+        function start(canvasScan: confetti.CreateTypes) {
+            let end = Date.now() + 0.5 * 1000
 
-            if (Date.now() < end) {
-                requestAnimationFrame(frame)
+            let shapes: ['circle', 'circle', 'square'] = ['circle', 'circle', 'square']
+
+            function frame() {
+                canvasScan({ particleCount: 2, angle: 60, spread: 55, origin: { x: 0 }, shapes: shapes })
+                canvasScan({ particleCount: 2, angle: 120, spread: 55, origin: { x: 1 }, shapes: shapes })
+
+                if (Date.now() < end) {
+                    requestAnimationFrame(frame)
+                }
             }
+
+            frame()
         }
 
-        frame()
+        start(canvasScan)
     })
 }
 

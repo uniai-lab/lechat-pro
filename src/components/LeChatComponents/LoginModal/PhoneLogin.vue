@@ -66,14 +66,9 @@ async function afterVertifySuccess(result: any) {
     }
 
     try {
-        await http(
-            'get-sms-code',
-            {
-                phone: phoneForm.value.phone
-            },
-            'POST',
-            header
-        )
+        const res = await http('web/get-sms-code', { phone: phoneForm.value.phone }, 'POST', header)
+        if (!res.status) throw new Error(res.msg)
+
         message.success('验证码已发送')
         forbidSend.value = true
         leftSeconds.value = 46
@@ -115,10 +110,7 @@ onMounted(async () => {
     document.body.appendChild(script)
     script.onload = () => {
         ;(window as any).initGeetest4(
-            {
-                captchaId: 'b0a78ab0191bd4361905eba5b2209be5',
-                product: 'bind'
-            },
+            { captchaId: 'b0a78ab0191bd4361905eba5b2209be5', product: 'bind' },
             (captcha: any) => {
                 captcha.appendTo('#captcha') // use  .appendTo to load the captcha to the <div id="captcha"/>
                 captchaObj.value = captcha

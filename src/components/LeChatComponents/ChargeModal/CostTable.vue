@@ -59,17 +59,16 @@ const providerItems = ref<ProviderItem[]>([])
 
 async function load() {
     try {
-        const res: any = await http('model-cost', {}, 'GET')
-        const data = await res.json()
-        if (data.status === 1) {
-            providerItems.value = data.data as ProviderItem[]
+        const res = await http('web/model-cost', {}, 'GET')
+        if (res.status === 1) {
+            providerItems.value = res.data as ProviderItem[]
             // 如果还需要 provider 和 models，可以这样赋值：
             provider.value = providerItems.value.map(item => item.provider)
             models.value = Object.fromEntries(
                 providerItems.value.map(item => [item.provider, item.model.filter(m => m.chance > 1)])
             )
         } else {
-            throw new Error(data.message)
+            throw new Error(res.msg)
         }
     } catch (e: any) {
         message.error('请求查询价格失败')

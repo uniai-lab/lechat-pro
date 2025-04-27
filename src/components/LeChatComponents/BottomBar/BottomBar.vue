@@ -261,12 +261,7 @@ const steps: TourProps['steps'] = [
         placement: 'top',
         target: () => step5.value && step5.value.$el
     },
-    {
-        title: '文件上传',
-        placement: 'right',
-        description: '您可以直接将文件拖入到页面中',
-        target: () => null
-    }
+    { title: '文件上传', placement: 'right', description: '您可以直接将文件拖入到页面中', target: () => null }
 ]
 
 function emitShowHistoryDrawer() {
@@ -367,10 +362,9 @@ const handleCompositionUpdate = (event: any) => {
     margin: 0 auto;
     left: 0;
     right: 0;
-    bottom: 8px;
+    bottom: 0;
     padding: 1rem;
-    background: rgba(0, 0, 0, 0.15);
-    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.25);
 
     .upload-list .ant-upload-list-item-container .ant-upload-list-item {
         background: rgba(255, 255, 255, 0.3);

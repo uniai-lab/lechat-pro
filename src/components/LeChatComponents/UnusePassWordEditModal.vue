@@ -94,8 +94,7 @@ async function savePassword() {
         try {
             const checkPassword = await formRef.value.validate()
 
-            const result: any = await http('update-user', { password: checkPassword.checkPass }, 'POST')
-            const res = await result.json()
+            const res = await http('web/update-user', { password: checkPassword.checkPass })
             if (res.status === -1) {
                 emitClearInfo()
                 return

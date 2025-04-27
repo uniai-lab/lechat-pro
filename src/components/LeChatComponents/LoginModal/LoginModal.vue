@@ -51,7 +51,7 @@
 
 <script setup lang="ts">
 import { ref, onBeforeMount } from 'vue'
-import { http } from '@/common/request.js'
+import { http } from '@/common/request.ts'
 import { message } from 'ant-design-vue'
 import { KeyOutlined, MobileOutlined, QrcodeOutlined, CloseCircleOutlined } from '@ant-design/icons-vue'
 import PhoneLogin from '@/components/LeChatComponents/LoginModal/PhoneLogin.vue'
@@ -68,15 +68,9 @@ const startGlobalPollingTimer = ref<Function>(() => {})
 const isShowLoadingMask = ref<boolean>(false)
 const curLoginMethod = ref<'phone' | 'qrcode' | 'password'>('qrcode')
 
-const phoneForm = ref<PhoneForm>({
-    phone: '',
-    vertifycode: ''
-})
+const phoneForm = ref<PhoneForm>({ phone: '', vertifycode: '' })
 
-const passwordForm = ref<PasswordForm>({
-    phone: '',
-    password: ''
-})
+const passwordForm = ref<PasswordForm>({ phone: '', password: '' })
 
 const emit = defineEmits(['hideModal', 'customEvent'])
 
@@ -92,15 +86,7 @@ async function phoneSubmit() {
     isShowLoadingMask.value = true
     try {
         // here is a complex interface from uniai-mass from uniai
-        const data: any = await http(
-            'login',
-            {
-                phone: phoneForm.value.phone,
-                code: phoneForm.value.vertifycode
-            },
-            'POST'
-        )
-        const res = await data.json()
+        const res = await http('web/login', { phone: phoneForm.value.phone, code: phoneForm.value.vertifycode })
 
         if (res.status == 1) {
             localStorage.setItem('token', res.data.token)
@@ -121,15 +107,7 @@ async function passwordSubmit() {
     isShowLoadingMask.value = true
 
     try {
-        const data: any = await http(
-            'login',
-            {
-                phone: passwordForm.value.phone,
-                password: passwordForm.value.password
-            },
-            'POST'
-        )
-        const res = await data.json()
+        const res = await http('web/login', { phone: passwordForm.value.phone, password: passwordForm.value.password })
         isShowLoadingMask.value = false
 
         if (res.status == 1) {
@@ -163,17 +141,12 @@ function pollingRequestQRcode() {
             timer = setInterval(async () => {
                 // send request to backend's verify-qr-code
                 try {
-                    const res: any = await http(
-                        `verify-qr-code?token=${qrcodeToken.value}`,
-                        { token: qrcodeToken.value },
-                        'GET'
-                    )
+                    const res = await http(`web/verify-qr-code`, { token: qrcodeToken.value }, 'GET')
 
-                    const qes = await res.json()
-                    if (qes.status == 1) {
-                        if (qes.data != null) {
-                            localStorage.setItem('id', qes.data.id)
-                            localStorage.setItem('token', qes.data.token)
+                    if (res.status == 1) {
+                        if (res.data != null) {
+                            localStorage.setItem('id', res.data.id)
+                            localStorage.setItem('token', res.data.token)
 
                             emit('customEvent', undefined, '参数2')
 
