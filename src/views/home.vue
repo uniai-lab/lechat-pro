@@ -107,7 +107,6 @@
             v-model:up-loading="upLoading"
             v-model:a-chat="aChat"
             v-model:generating="generating"
-            v-model:could-continue="couldContinue"
         ></MainArea>
 
         <!-- 底栏 -->
@@ -151,7 +150,7 @@ import UnusePassWordEditModal from '@/components/LeChatComponents/UnusePassWordE
 
 import commonContent from '@/common/commoncontent'
 import { fileSrcMap } from '@/common/iconSrcUrl'
-import { http, sse } from '@/common/request.ts'
+import { http, sse, type HttpResponse } from '@/common/request.ts'
 
 import type { Chat, ModelCascader, Option, PersonalInfoForm, RoleSetForm, ShopList } from '@/types/interfaces'
 
@@ -297,9 +296,7 @@ function onRoleSetSubmit() {
 
 // charge and pay
 const isChargeOpen = ref<boolean>(false)
-const shopList = ref<ShopList[]>([
-    { id: 1, price: 1, title: '首充一元', rolelist: ['支持科大讯飞模型', '国内模型次数可用'], description: '' }
-])
+const shopList = ref<ShopList[]>([])
 
 function closeChargeModal() {
     isChargeOpen.value = false
@@ -382,34 +379,29 @@ function closeHistoryDrawer() {
 async function getHistoryDialogueList(lastId: number = 0, pageSize: number = 10, id: number | null = null) {
     let data = []
     try {
-        if (upLoading.value) return
+        if (upLoading.value) return []
         upLoading.value = true
 
-        const res = await http('web/list-dialog', { lastId, pageSize, id })
+        const res = await http<any[]>('web/list-dialog', { lastId, pageSize, id })
 
         if (res.status == -1) {
-            message.error('获取对话失败')
-            console.log(res.msg)
-
-            return clearInfo()
+            message.error('登录已实效，请重新登录')
+            clearInfo()
+            return []
         }
+        if (res.status == 0 || !res.data) throw new Error(res.msg)
 
-        if (res.status === 1) {
-            data = res.data
-        } else {
-            throw new Error(res.msg)
-        }
+        if (res.status === 1) data = res.data
     } catch (e: any) {
-        message.error('获取对话失败')
-        console.log(e.msg)
+        message.error(e.message)
     } finally {
         upLoading.value = false
     }
     return data
 }
 async function onDialogueLoadMore() {
-    let lastdialgid = historyDialogue.value[historyDialogue.value.length - 1].id
-    let data: any = await getHistoryDialogueList(lastdialgid, 10)
+    const lastdialgid = historyDialogue.value[historyDialogue.value.length - 1].id
+    const data = await getHistoryDialogueList(lastdialgid, 10)
     if (data.length != 0) {
         historyDialogue.value = [...historyDialogue.value, ...data]
     } else {
@@ -444,7 +436,7 @@ async function toLatestDialogue(id: number, index: number) {
     try {
         aChat.value = []
 
-        const data: any = await getChatList(0, 10, id)
+        const data = await getChatList(0, 10, id)
 
         if (data.length === 0) {
             aChat.value = [
@@ -523,30 +515,21 @@ const options = ref<Option[]>([
 async function sendMessage() {
     try {
         // check login
-        if (!ifLogin.val) {
-            return switchLoginVisible()
-        }
+        if (!ifLogin.val) return switchLoginVisible()
+        // is generating
+        if (generating.value) return
 
-        // is sending?
-        if (generating.value) {
-            return
-        }
+        // check input (text or file should have one)
+        if (!textInput.value.trim() && uploadFileList.value.length == 0) return
 
-        couldContinue.value = true
-
-        if (!textInput.value.trim() && uploadFileList.value.length == 0) {
-            return
-        }
         if (!user.info.chance.totalChatChance) {
-            return () => {
-                message.error('您的次数已用尽')
-                message.info('请点击右上角充值按钮进行充值')
-            }
+            message.error('您的次数已用尽')
+            message.info('点击右上角充值按钮')
+            return
         }
 
         const input = textInput.value
         textInput.value = ''
-        generating.value = true
 
         if (uploadFileList.value.length) {
             // send files
@@ -590,10 +573,10 @@ async function sendMessage() {
                     http('web/upload', formData)
                         .then((res: any) => {
                             res.data.file.type = 'done'
-                            aChat.value[aindex - 1].file = res.data.file
+                            aChat.value[aindex - 1]!.file = res.data.file
                         })
                         .catch((e: any) => {
-                            aChat.value[aindex - 1].file!.type = 'error'
+                            aChat.value[aindex - 1]!.file!.type = 'error'
                             console.error(e)
                         })
                 )
@@ -632,7 +615,7 @@ async function sendMessage() {
                 await getChatStream(input)
                 await getUserInfo()
             }
-            const qes: any = await getHistoryDialogueList(0, 10, dialogueId.value)
+            const qes = await getHistoryDialogueList(0, 10, dialogueId.value)
 
             // cover chat
             if (qes.length > 0) historyDialogue.value[dialogueIndex.value] = qes[0]
@@ -659,13 +642,13 @@ async function sendMessage() {
                 model: choseModel.value[0],
                 resourceId: null,
                 subModel: choseModel.value[1],
-                isEffect: true
+                isEffect: false
             })
 
             await getChatStream(input)
             await getUserInfo()
 
-            const qes: any = await getHistoryDialogueList(0, 10, dialogueId.value)
+            const qes = await getHistoryDialogueList(0, 10, dialogueId.value)
 
             if (qes.length > 0) historyDialogue.value[dialogueIndex.value] = qes[0]
         }
@@ -680,121 +663,100 @@ async function sendMessage() {
 // chat and main area
 const isLinking = ref<boolean>(true)
 const chatListDom = ref<HTMLElement | null>(null)
-const aChat = ref<Chat[]>([])
+const aChat = ref<Array<Chat>>([])
 const allFinished = ref<boolean>(false)
-const couldContinue = ref<boolean>(true)
 const generating = ref<boolean>(false)
 const upLoading = ref<boolean>(false)
 const refreshClock = ref<boolean>(false)
 
 async function refreshData() {
-    if (aChat.value.length == 0) return (upLoading.value = false)
+    if (!aChat.value.length) {
+        upLoading.value = false
+        return
+    }
 
     const nowList = aChat.value[0]
 
     if (refreshClock.value == false) {
         refreshClock.value = true
-        let data: any = await getChatList(nowList.chatId as number, 10, dialogueId.value)
-        if (data.length == 0) {
-            allFinished.value = true
-        }
+        const data = await getChatList(nowList.chatId as number, 10, dialogueId.value)
+        if (data.length == 0) allFinished.value = true
 
-        for (const i in data) {
-            dialogueId.value = data[i].dialogId
-        }
-        for (const item of data.reverse()) {
-            aChat.value.unshift(item)
-        }
+        for (const i in data) dialogueId.value = data[i].dialogId
 
-        setTimeout(() => {
-            upLoading.value = false
-        }, 1000)
+        for (const item of data.reverse()) aChat.value.unshift(item)
+
+        setTimeout(() => (upLoading.value = false), 1000)
 
         refreshClock.value = false
     }
 }
 async function getChatStream(input: string = '') {
     //创建sse流式传输
-    const response = await sse('web/chat-stream', {
-        input,
-        sse: true,
-        dialogId: dialogueId.value,
-        provider: choseModel.value[0],
-        model: choseModel.value[1],
-        assistant: roleSetForm.value.startmsg,
-        system: roleSetForm.value.desc,
-        mode: Number(outputType.value) * 1
-    })
-
-    const reader = response
-        .body!.pipeThrough(new TextDecoderStream())
-        .pipeThrough(new EventSourceParserStream())
-        .getReader()
-
-    while (true && couldContinue.value) {
+    try {
         generating.value = true
-        const onceData = await reader.read()
+        const response = await sse('web/chat-stream', {
+            input,
+            sse: true,
+            dialogId: dialogueId.value,
+            provider: choseModel.value[0],
+            model: choseModel.value[1],
+            assistant: roleSetForm.value.startmsg,
+            system: roleSetForm.value.desc,
+            mode: Number(outputType.value) * 1
+        })
+        if (!response.body) throw new Error('流式传输失败')
 
-        if ((onceData.done && !onceData.value) || !onceData.value) break
+        const reader = response.body
+            .pipeThrough(new TextDecoderStream())
+            .pipeThrough(new EventSourceParserStream())
+            .getReader()
 
-        const res = JSON.parse(onceData.value.data)
-        const data = res.data
+        while (generating.value) {
+            const chunk = await reader.read()
 
-        let end
-        if (!couldContinue.value) {
-            message.info('回答终止')
+            if (chunk.done || !chunk.value) break
 
-            break
+            const res = JSON.parse(chunk.value.data) as HttpResponse<any>
+            const data = res.data
+            if (!res.status) throw new Error(res.msg)
+
+            if (!data || data.dialogId !== dialogueId.value) break
+
+            const end = aChat.value.length - 1
+            // first chunk
+            if (!aChat.value[end].isEffect) aChat.value[end] = data
+            // middle chunk
+            else aChat.value[end].content += data.content
+            // use chatId to judge if it is the last chunk
+            if (data.chatId) aChat.value[end].chatId = data.chatId
         }
-        if (res.status === 1) {
-            if (aChat.value.length == 0) {
-                end = aChat.value.length
-            } else {
-                end = aChat.value.length - 1
-            }
-
-            if (!data || data.dialogId !== dialogueId.value) {
-                break
-            }
-
-            if (aChat.value[end].chatId === 0) {
-                aChat.value[end] = data
-            }
-            if (aChat.value[end].chatId !== data.chatId) {
-                aChat.value.push(data)
-            }
-
-            if (onceData.done || data.chatId) {
-                break
-            }
-        } else {
-            aChat.value.pop()
-            throw new Error(res.msg)
-        }
+    } catch (e: any) {
+        console.error(e)
+        message.error(e.message)
+    } finally {
+        generating.value = false
     }
-    generating.value = false
 }
 
 async function getChatList(lastId: number = 0, pageSize: number = 10, dialogId: number | null = null) {
     let data = []
     try {
-        if (upLoading.value) return
+        if (upLoading.value) return []
         upLoading.value = true
 
         const res = await http('web/list-chat', { lastId, pageSize, dialogId })
 
         if (res.status == -1) {
             message.error('获取聊天失败')
-            console.log(res.msg)
-
             historyDialogue.value = []
-            return clearInfo()
+            clearInfo()
+            return []
         }
         if (res.status === 1) data = res.data
         else throw new Error(res.msg)
     } catch (e: any) {
-        message.error('获取聊天失败')
-        console.log(e.msg)
+        message.error(e.message)
     } finally {
         upLoading.value = false
     }
@@ -812,7 +774,7 @@ async function initChat() {
         dialogueId.value = dialogList[0].id
         dialogueIndex.value = 0
 
-        const data: any = await getChatList(0, 10, dialogueId.value)
+        const data = await getChatList(0, 10, dialogueId.value)
 
         if (data.length === 0) {
             aChat.value = [

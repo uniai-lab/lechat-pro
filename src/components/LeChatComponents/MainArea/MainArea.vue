@@ -67,7 +67,6 @@ const emit = defineEmits<{ timeToRefresh: [boolean] }>()
 const upLoading = defineModel<boolean>('upLoading', { required: true })
 const aChat = defineModel<Chat[]>('aChat', { required: true })
 const generating = defineModel<boolean>('generating', { required: true })
-const couldContinue = defineModel<boolean>('couldContinue', { required: true })
 
 const isFilePreviewOpen = ref<boolean>(false)
 const officeName = ref<string>('')
@@ -94,7 +93,7 @@ function handlefileClose() {
 }
 
 function stopChating() {
-    couldContinue.value = false
+    generating.value = false
 }
 
 function handelScroll() {
