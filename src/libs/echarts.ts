@@ -4,10 +4,7 @@
 
 import ECharts from 'vue-echarts'
 import { use } from 'echarts/core'
-import {
-    CanvasRenderer,
-    SVGRenderer
-} from 'echarts/renderers'
+import { CanvasRenderer, SVGRenderer } from 'echarts/renderers'
 import {
     BarChart,
     LineChart,
@@ -50,7 +47,8 @@ import {
     MarkLineComponent,
     MarkAreaComponent,
     DatasetComponent,
-    TransformComponent
+    TransformComponent,
+    AxisPointerComponent
 } from 'echarts/components'
 
 use([
@@ -97,7 +95,8 @@ use([
     MarkLineComponent,
     MarkAreaComponent,
     DatasetComponent,
-    TransformComponent
+    TransformComponent,
+    AxisPointerComponent
 ])
 
 export default {

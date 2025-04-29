@@ -23,7 +23,11 @@
             <div>
                 <LoadingAnimation class="load-animation" v-if="!item.content && !item.file" />
 
-                <ChatServerSend v-else-if="item.content && item.role !== 'user'" v-model="item.content" />
+                <ChatServerSend
+                    :index="index"
+                    v-else-if="item.content && item.role !== 'user'"
+                    v-model="item.content"
+                />
 
                 <ChatUserSend v-else-if="item.content && item.role === 'user'" :content="item.content" />
 

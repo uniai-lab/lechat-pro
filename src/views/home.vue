@@ -133,7 +133,6 @@
 <script setup lang="ts">
 import '@vue-office/docx/lib/index.css'
 import { message } from 'ant-design-vue'
-import { EventSourceParserStream } from 'eventsource-parser/stream'
 import 'md-editor-v3/lib/preview.css'
 import { onMounted, ref } from 'vue'
 
@@ -691,11 +690,12 @@ async function refreshData() {
         refreshClock.value = false
     }
 }
+
 async function getChatStream(input: string = '') {
     //创建sse流式传输
     try {
         generating.value = true
-        const response = await sse('web/chat-stream', {
+        const reader = await sse('web/chat-stream', {
             input,
             sse: true,
             dialogId: dialogueId.value,
@@ -705,12 +705,6 @@ async function getChatStream(input: string = '') {
             system: roleSetForm.value.desc,
             mode: Number(outputType.value) * 1
         })
-        if (!response.body) throw new Error('流式传输失败')
-
-        const reader = response.body
-            .pipeThrough(new TextDecoderStream())
-            .pipeThrough(new EventSourceParserStream())
-            .getReader()
 
         while (generating.value) {
             const chunk = await reader.read()

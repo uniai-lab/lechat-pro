@@ -1,6 +1,7 @@
 /** @format */
 
 import config from '@/common/config'
+import { EventSourceParserStream } from 'eventsource-parser/stream'
 const URL = config.url
 
 enum Status {
@@ -32,30 +33,26 @@ export const http = async <T = any>(
 
     let url = `${URL}/${path}`
     if (method.toLowerCase() === 'post') {
-        if (data instanceof FormData) options.body = data
-        else {
+        if (data instanceof FormData) {
+            headers['Content-Type'] = 'multipart/form-data'
+            options.body = data
+        } else {
             headers['Content-Type'] = 'application/json'
             options.body = JSON.stringify(data)
         }
     } else if (method.toLowerCase() === 'get') {
         const params = new URLSearchParams()
-        for (const key in data) {
-            if (data[key] !== undefined) {
-                params.append(key, data[key])
-            }
-        }
+        for (const key in data) if (data[key] !== undefined) params.append(key, data[key])
         const queryString = params.toString()
-        if (queryString) {
-            url += `?${queryString}`
-        }
-    }
+        if (queryString) url += `?${queryString}`
+    } else throw new Error('HTTP method not support now')
 
     const res = await fetch(url, options)
     return res.json() as Promise<HttpResponse<T>>
 }
 
 // SSE（Server-Sent Events）请求
-export const sse = async (url: string, data: any = {}, header: Record<string, string> = {}): Promise<Response> => {
+export const sse = async (url: string, data: any = {}, header: Record<string, string> = {}) => {
     const headers: HeadersInit = {
         token: localStorage.getItem('token') || '',
         id: localStorage.getItem('id') || '0',
@@ -64,5 +61,8 @@ export const sse = async (url: string, data: any = {}, header: Record<string, st
         ...header
     }
     const options: RequestInit = { method: 'POST', headers, body: JSON.stringify(data) }
-    return await fetch(`${URL}/${url}`, options)
+    const res = await fetch(`${URL}/${url}`, options)
+    if (!res.body) throw new Error('Response body is null')
+    // get stream
+    return res.body.pipeThrough(new TextDecoderStream()).pipeThrough(new EventSourceParserStream()).getReader()
 }

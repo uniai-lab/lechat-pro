@@ -709,7 +709,7 @@ async function refreshData() {
 async function getChatStream(input: string) {
     //创建sse流式传输
 
-    const response = await sse('web/chat-stream', {
+    const reader = await sse('web/chat-stream', {
         input: input,
         sse: true,
         dialogId: 114514,
@@ -720,11 +720,6 @@ async function getChatStream(input: string) {
         system: '',
         mode: Number(outputType.value) * 1
     })
-
-    const reader = response
-        .body!.pipeThrough(new TextDecoderStream())
-        .pipeThrough(new EventSourceParserStream())
-        .getReader()
 
     while (true && couldContinue.value) {
         generating.value = true
