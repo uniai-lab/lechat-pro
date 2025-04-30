@@ -34,7 +34,6 @@ export const http = async <T = any>(
     let url = `${URL}/${path}`
     if (method.toLowerCase() === 'post') {
         if (data instanceof FormData) {
-            headers['Content-Type'] = 'multipart/form-data'
             options.body = data
         } else {
             headers['Content-Type'] = 'application/json'
