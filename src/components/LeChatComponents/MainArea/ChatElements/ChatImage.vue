@@ -19,6 +19,7 @@ const props = defineProps<{ item: Chat }>()
 <style lang="scss" scoped>
 .image-container {
     padding: 15px;
+    width: 100%;
     max-width: 450px;
 }
 </style>

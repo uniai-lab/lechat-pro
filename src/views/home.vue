@@ -718,8 +718,8 @@ async function getChatStream(input: string = '') {
             if (!data || data.dialogId !== dialogueId.value) break
 
             const end = aChat.value.length - 1
-            // first chunk
-            if (!aChat.value[end].isEffect) aChat.value[end] = data
+            // first chunk or file chunk
+            if (!aChat.value[end].isEffect || data.file) aChat.value[end] = data
             // middle chunk
             else aChat.value[end].content += data.content
             // use chatId to judge if it is the last chunk
@@ -764,6 +764,7 @@ async function initChat() {
 
         const dialogList = await getHistoryDialogueList()
         historyDialogue.value = dialogList
+        if (!dialogList.length) return
 
         dialogueId.value = dialogList[0].id
         dialogueIndex.value = 0
