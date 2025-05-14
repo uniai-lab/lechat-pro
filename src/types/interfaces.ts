@@ -207,3 +207,8 @@ export interface GraphLink {
     source: string
     target: string
 }
+
+export interface EmailForm {
+    email: string
+    vertifycode: string
+}

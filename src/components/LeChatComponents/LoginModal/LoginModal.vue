@@ -14,6 +14,9 @@
                         <a-radio-button value="phone">
                             <mobile-outlined />
                         </a-radio-button>
+                        <a-radio-button value="mail">
+                            <mail-outlined />
+                        </a-radio-button>
                         <a-radio-button value="qrcode">
                             <qrcode-outlined />
                         </a-radio-button>
@@ -32,6 +35,12 @@
                     v-model="phoneForm"
                     @after-click-phone-login="phoneSubmit"
                 ></PhoneLogin>
+
+                <MailLogin
+                    v-if="curLoginMethod == 'mail'"
+                    v-model="mailForm"
+                    @after-click-mail-login="mailSubmit"
+                ></MailLogin>
 
                 <PasswordLogin
                     v-if="curLoginMethod == 'password'"
@@ -53,11 +62,12 @@
 import { ref, onBeforeMount } from 'vue'
 import { http } from '@/common/request.ts'
 import { message } from 'ant-design-vue'
-import { KeyOutlined, MobileOutlined, QrcodeOutlined, CloseCircleOutlined } from '@ant-design/icons-vue'
+import { KeyOutlined, MobileOutlined, QrcodeOutlined, CloseCircleOutlined, MailOutlined } from '@ant-design/icons-vue'
 import PhoneLogin from '@/components/LeChatComponents/LoginModal/PhoneLogin.vue'
 import PasswordLogin from '@/components/LeChatComponents/LoginModal/PasswordLogin.vue'
 import QRcodeLogin from '@/components/LeChatComponents/LoginModal/QRcodeLogin.vue'
-import type { PasswordForm, PhoneForm } from '@/types/interfaces'
+import MailLogin from '@/components/LeChatComponents/LoginModal/MailLogin.vue'
+import type { PasswordForm, PhoneForm, EmailForm } from '@/types/interfaces'
 
 // qrcode token is used to confirm with the backend
 const qrcodeToken = ref<string>('')
@@ -66,10 +76,10 @@ const qrcodeToken = ref<string>('')
 // to vertify qrcode login authorization
 const startGlobalPollingTimer = ref<Function>(() => {})
 const isShowLoadingMask = ref<boolean>(false)
-const curLoginMethod = ref<'phone' | 'qrcode' | 'password'>('qrcode')
+const curLoginMethod = ref<'phone' | 'mail' | 'qrcode' | 'password'>('mail')
 
 const phoneForm = ref<PhoneForm>({ phone: '', vertifycode: '' })
-
+const mailForm = ref<EmailForm>({ email: '', vertifycode: '' })
 const passwordForm = ref<PasswordForm>({ phone: '', password: '' })
 
 const emit = defineEmits(['hideModal', 'customEvent'])
@@ -78,16 +88,33 @@ function emitHideModal() {
     startGlobalPollingTimer.value(true)
     emit('hideModal')
 }
-function changeLoginMehod(changedMethod: 'phone' | 'qrcode' | 'password') {
+function changeLoginMehod(changedMethod: 'phone' | 'mail' | 'qrcode' | 'password') {
     curLoginMethod.value = changedMethod
 }
 
 async function phoneSubmit() {
     isShowLoadingMask.value = true
     try {
-        // here is a complex interface from uniai-mass from uniai
         const res = await http('web/login', { phone: phoneForm.value.phone, code: phoneForm.value.vertifycode })
+        if (res.status == 1) {
+            localStorage.setItem('token', res.data.token)
+            localStorage.setItem('id', res.data.id)
+            emit('customEvent', '参数1', '参数2')
+            emitHideModal()
+        } else {
+            message.error(res.msg)
+        }
+    } catch (error) {
+        message.error('登录失败')
+    } finally {
+        isShowLoadingMask.value = false
+    }
+}
 
+async function mailSubmit() {
+    isShowLoadingMask.value = true
+    try {
+        const res = await http('web/login', { email: mailForm.value.email, code: mailForm.value.vertifycode })
         if (res.status == 1) {
             localStorage.setItem('token', res.data.token)
             localStorage.setItem('id', res.data.id)
@@ -105,11 +132,9 @@ async function phoneSubmit() {
 
 async function passwordSubmit() {
     isShowLoadingMask.value = true
-
     try {
         const res = await http('web/login', { phone: passwordForm.value.phone, password: passwordForm.value.password })
         isShowLoadingMask.value = false
-
         if (res.status == 1) {
             localStorage.setItem('token', res.data.token)
             localStorage.setItem('id', res.data.id)
@@ -118,7 +143,6 @@ async function passwordSubmit() {
         } else if (res.status == 0) {
             message.error('密码错误')
         } else {
-            // specially, this branch I actually don't know for what
             message.error('登录失败')
         }
     } catch {
@@ -130,7 +154,6 @@ async function passwordSubmit() {
 
 function pollingRequestQRcode() {
     let timer: number = 0
-
     return function (close = false) {
         if (close) {
             clearInterval(timer)
@@ -139,19 +162,14 @@ function pollingRequestQRcode() {
         }
         if (!timer) {
             timer = setInterval(async () => {
-                // send request to backend's verify-qr-code
                 try {
                     const res = await http(`web/verify-qr-code`, { token: qrcodeToken.value }, 'GET')
-
                     if (res.status == 1) {
                         if (res.data != null) {
                             localStorage.setItem('id', res.data.id)
                             localStorage.setItem('token', res.data.token)
-
                             emit('customEvent', undefined, '参数2')
-
                             emitHideModal()
-
                             clearInterval(timer)
                             timer = 0
                         }

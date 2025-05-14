@@ -3,16 +3,16 @@
 <template>
     <div id="captcha"></div>
     <div class="main">
-        <a-form :model="phoneForm" :wrapper-col="{ span: 24 }" autocomplete="on">
-            <a-form-item class="item-area" name="phone" :rules="[{ required: true, message: '请输入手机号' }]">
-                <label>输入手机号</label>
-                <a-input v-model:value="phoneForm.phone" />
+        <a-form :model="emailForm" :wrapper-col="{ span: 24 }" autocomplete="on">
+            <a-form-item class="item-area" name="email" :rules="[{ required: true, message: '请输入邮箱' }]">
+                <label>输入邮箱</label>
+                <a-input v-model:value="emailForm.email" />
             </a-form-item>
 
             <a-form-item class="item-area" name="vertifycode" :rules="[{ required: true, message: '请输入验证码' }]">
                 <label>验证码</label>
                 <a-input-group compact>
-                    <a-input v-model:value="phoneForm.vertifycode" class="verify-code-input" />
+                    <a-input v-model:value="emailForm.vertifycode" class="verify-code-input" />
                     <a-button :disabled="forbidSend" @click="getVerifyCode" class="verify-code-btn">
                         {{ vertifyBtnText }}
                     </a-button>
@@ -21,7 +21,7 @@
 
             <a-form-item>
                 <div class="centralized-area">
-                    <a-button type="primary" class="login-btn" @click="lastCheckPhone">登录</a-button>
+                    <a-button type="primary" class="login-btn" @click="lastCheckEmail">登录</a-button>
                 </div>
             </a-form-item>
         </a-form>
@@ -32,58 +32,31 @@
 import { onMounted, ref } from 'vue'
 import { message } from 'ant-design-vue'
 import { http } from '@/common/request'
-import type { PhoneForm } from '@/types/interfaces'
+import type { EmailForm } from '@/types/interfaces'
 
-const emit = defineEmits(['after-click-phone-login'])
+const emit = defineEmits(['after-click-email-login'])
 
-const phoneForm = defineModel<PhoneForm>({ required: true })
+const emailForm = defineModel<EmailForm>({ required: true })
 
-// this ref will also be used in how many seconds left in sending vertifyCode
 const vertifyBtnText = ref<string>('获取验证码')
 const forbidSend = ref<boolean>(false)
 const leftSeconds = ref<number>(0)
-// the captchaObj is like a symbol of the captcha
-const captchaObj = ref<any>({})
 
-function isPhoneRight(phoneNumer: string) {
-    // this regex can vertify the phoneNumber
-    const regex = /^1[3456789]\d{9}$/
-    return regex.test(phoneNumer)
+function isEmailRight(email: string) {
+    // 简单邮箱正则
+    const regex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/
+    return regex.test(email)
 }
-
 function getVerifyCode() {
-    if (isPhoneRight(phoneForm.value.phone)) {
+    if (isEmailRight(emailForm.value.email)) {
         captchaObj.value.showCaptcha()
     } else {
-        message.error('手机号格式错误')
-    }
-}
-
-async function afterVertifySuccess(result: any) {
-    const header: { [key: string]: any } = {}
-    for (let i of Object.keys(result)) {
-        header[i.replace('_', '-')] = result[i]
-    }
-
-    try {
-        const res = await http('web/get-sms-code', { phone: phoneForm.value.phone }, 'POST', header)
-        if (!res.status) throw new Error(res.msg)
-
-        message.success('验证码已发送')
-        forbidSend.value = true
-        leftSeconds.value = 46
-        countLeftSeconds()
-    } catch (error) {
-        message.error('验证码发送失败')
+        message.error('邮箱格式不正确')
     }
 }
 
 function countLeftSeconds() {
     let timer: number = 0
-
-    // the original version of this function used closure
-    // but later I found that with closure the text in btn will not change anymore
-    // so I just use normal way
     timer = setInterval(() => {
         leftSeconds.value -= 1
         vertifyBtnText.value = leftSeconds.value + '秒后重试'
@@ -95,14 +68,34 @@ function countLeftSeconds() {
     }, 1000)
 }
 
-function lastCheckPhone() {
-    if (isPhoneRight(phoneForm.value.phone)) {
-        emit('after-click-phone-login')
+function lastCheckEmail() {
+    if (isEmailRight(emailForm.value.email)) {
+        emit('after-click-email-login')
     } else {
-        message.error('手机号格式错误')
+        message.error('邮箱格式错误')
     }
 }
 
+async function afterVertifySuccess(result: any) {
+    const header: { [key: string]: any } = {}
+    for (let i of Object.keys(result)) {
+        header[i.replace('_', '-')] = result[i]
+    }
+
+    try {
+        const res = await http('web/get-email-code', { email: emailForm.value.email }, 'POST')
+        if (!res.status) throw new Error(res.msg)
+
+        message.success('验证码已发送')
+        forbidSend.value = true
+        leftSeconds.value = 46
+        countLeftSeconds()
+    } catch (error) {
+        message.error('验证码发送失败')
+    }
+}
+
+const captchaObj = ref<any>({})
 // here used some confusing methods
 onMounted(async () => {
     let script = document.createElement('script')
